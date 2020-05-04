@@ -1,7 +1,7 @@
 ---
 layout: home
 title: Home
-landing-title: 'Hi, it's pronounced RobCob, not RoboCop'
+landing-title: 'Welcome to the lair.'
 description: null
 image: null
 author: null
