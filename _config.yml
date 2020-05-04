@@ -2,7 +2,7 @@
 title: RobCob
 subtitle: Industries
 email: ryan@robcob.com
-description: Currently Playing Around with Jekyll on Github<br /> and other geeky things.
+description: We're currently playing around with Jekyll on Github<br /> and other geeky things.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: # the base hostname & protocol for your site
 author:
@@ -15,7 +15,7 @@ phone: (303) 875-0754
 
 # homepage tiles
 tiles-source: pages # accepts "posts" or "pages"
-tiles-count: 6
+tiles-count: 1
 
 # social settings
 500px_url:
