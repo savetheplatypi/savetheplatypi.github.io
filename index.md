@@ -8,4 +8,4 @@ author: null
 show_tile: false
 ---
 
-Ryan Weaver is formerly a Scener, Filmmaker, & Climate Activist.  Transitioning into a Mad (neuro) Scientist / data cruncher / programmer who wants to zap brains and bring the activity of enlightenment (Stream-Entry / Kenshō / sotāpanna) to the masses. 
+Is formerly a Scener, Filmmaker, & Climate Activist.  Transitioning into a Mad (neuro) Scientist / data cruncher / programmer who wants to zap brains and bring the activity of enlightenment (Stream-Entry / Kenshō / sotāpanna) to the masses. 
