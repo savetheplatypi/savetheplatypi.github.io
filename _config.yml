@@ -15,15 +15,15 @@ phone: (303) 875-0754
 
 # homepage tiles
 tiles-source: pages # accepts "posts" or "pages"
-tiles-count: 0
+tiles-count: 1
 
 # social settings
 500px_url:
 facebook_url:
 github_url:
-gitlab_url: 
+gitlab_url:
 googleplus_url:
-instagram_url: 
+instagram_url:
 linkedin_url: https://www.linkedin.com/in/savetheplatypi/
 pinterest_url:
 slack_url:
