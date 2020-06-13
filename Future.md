@@ -1,5 +1,5 @@
 ---
-title: Future
+title: 3.  Future
 layout: landing
 description: 'The purpose and directive for all actions'
 image: assets/images/pic07.jpg
