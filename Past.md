@@ -1,7 +1,7 @@
 ---
-title: Present
+title: Past
 layout: landing
-description: 'Current projects include controlling Parrot Drone with Muse Headset, VR Meditation App in Unreal Engine, and a novel'
+description: 'Marketing, Filmmaking, & Technology.  These are the things that shaped my world view and skillset.  Here's a few examples.'
 image: assets/images/pic07.jpg
 nav-menu: true
 ---
@@ -28,9 +28,9 @@ nav-menu: true
 		<div class="content">
 			<div class="inner">
 				<header class="major">
-					<h3>Mind Controlled Drones</h3>
+					<h3>Marketing</h3>
 				</header>
-				<p>The Muse is not the perfect headset to be utilizing for the task.  The feat is old-had as others have completed it before.  Still, we are going to program a parrot mini-drone to take off with brainwaves.  Curiosity and a desire to learn python are driving this.</p>
+				<p>I've worked for giant established brands like Pepsi, and Wendy's.  I've also helped launch companies, creating new branding and identity.  The work is multidisciplinary, but my strengths are in creative direction.  Primary campaign deliverables have included video production and editing. CMS front-end coding.  App development.  </p>
 				<ul class="actions">
 					<li><a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="button">Learn more on LinkedIn</a></li>
 				</ul>
@@ -44,9 +44,9 @@ nav-menu: true
 		<div class="content">
 			<div class="inner">
 				<header class="major">
-					<h3>Virtual Reality Meditation</h3>
+					<h3>Filmmaking</h3>
 				</header>
-				<p>Using Neurofeedback and Neurostimulation in a controlled environment to spark classical enlightenment.  This is the big kahuna world-changing idea we're most interested in.  Currently interfacing OpenVIBE and Unreal Engine on the HTC-Vive. </p>
+				<p>Documentary Short films.  Narratives.  3D Animation.</p>
 				<ul class="actions">
 					<li><a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="button">Learn more on LinkedIn</a></li>
 				</ul>
@@ -60,9 +60,9 @@ nav-menu: true
 		<div class="content">
 			<div class="inner">
 				<header class="major">
-					<h3>From Vegas to Vipassana</h3>
+					<h3>Technology</h3>
 				</header>
-				<p>A book shaped by experiences in meditation, movie piracy, marketing, and more.</p>
+				<p>From BBS bulletin boards in the 90's to brief forays into IT.  .</p>
 				<ul class="actions">
 					<li><a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="button">Learn more on LinkedIn</a></li>
 				</ul>
@@ -77,9 +77,9 @@ nav-menu: true
 		<header class="major">
 			<h2>Massa libero</h2>
 		</header>
-		<p>It is a transitory period.  COVID-19 hit my career like many others.  I'm utilizing this time to redefine my skill sets and intentions.  Utilizing  Neurotechnology to help the human species has long been my dream.  It is a perfect time to make it a reality.</p>
+		<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus pharetra. Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus.</p>
 		<ul class="actions">
-					<li><a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="button">Learn more on LinkedIn</a></li>
+			<li><a href="generic.html" class="button next">Get Started</a></li>
 		</ul>
 	</div>
 </section>
