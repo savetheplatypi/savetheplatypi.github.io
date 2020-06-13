@@ -1,7 +1,7 @@
 ---
-title: Past
+title: Future
 layout: landing
-description: 'Marketing, Filmmaking, & Technology.  These are the things that shaped my world view and skillset.  Here's a few examples.'
+description: The purpose and directive for all actions
 image: assets/images/pic07.jpg
 nav-menu: true
 ---

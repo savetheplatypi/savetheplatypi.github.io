@@ -1,7 +1,7 @@
 ---
 title: Past
 layout: landing
-description: 'Marketing, Filmmaking, & Technology.  These are the things that shaped my world view and skillset.  Here's a few examples.'
+description: 'Marketing, Filmmaking, & Technology.  These are the things that shaped my world view and skillset.'
 image: assets/images/pic07.jpg
 nav-menu: true
 ---
