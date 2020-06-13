@@ -1,7 +1,7 @@
 ---
 title: Future
 layout: landing
-description: The purpose and directive for all actions
+description: 'The purpose and directive for all actions'
 image: assets/images/pic07.jpg
 nav-menu: true
 ---
