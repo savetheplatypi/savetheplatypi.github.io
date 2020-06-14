@@ -1,7 +1,7 @@
 ---
 title: Present
 layout: landing
-description: 'Current projects include controlling Parrot Drone with Muse Headset, VR Meditation App in Unreal Engine, and a novel'
+description: 'Current projects include controlling Parrot Drone with Muse Headset.  Developing a VR Meditation App in Unreal Engine with the Muse BCI.  A novel exploring the confluences of neuroscience and meditation.'
 image: assets/images/pic07.jpg
 nav-menu: true
 ---
