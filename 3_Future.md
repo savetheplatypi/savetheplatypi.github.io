@@ -1,5 +1,5 @@
 ---
-title: 3.  Future
+title: Futurr
 layout: landing
 description: 'The purpose and directive for all actions'
 image: assets/images/pic07.jpg
@@ -13,7 +13,7 @@ nav-menu: true
 <section id="one">
 	<div class="inner">
 		<header class="major">
-			<h2>The details</h2>
+			<h2>Where is it all heading?</h2>
 		</header>
 		<p></p>
 	</div>
