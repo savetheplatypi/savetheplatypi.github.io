@@ -13,7 +13,7 @@ nav-menu: true
 <section id="one">
 	<div class="inner">
 		<header class="major">
-			<h2>The details</h2>
+			<h2>The Past</h2>
 		</header>
 		<p></p>
 	</div>
@@ -22,7 +22,7 @@ nav-menu: true
 <!-- Two -->
 <section id="two" class="spotlights">
 	<section>
-		<a href="generic.html" class="image">
+		<a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="image">
 			<img src="{% link assets/images/pic04.jpg %}" alt="" data-position="center center" />
 		</a>
 		<div class="content">
