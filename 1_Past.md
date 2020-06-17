@@ -1,6 +1,6 @@
 ---
 title: Past
-layout: landing
+layout: post
 description: 'Marketing, Filmmaking, & Technology.  These are the things that shaped my world view and skillset.'
 image: assets/images/pic07.jpg
 nav-menu: true
@@ -23,7 +23,7 @@ nav-menu: true
 <section id="two" class="spotlights">
 	<section>
 		<a href="generic.html" class="image">
-			<img src="{% link assets/images/pic08.jpg %}" alt="" data-position="center center" />
+			<img src="{% link assets/images/pic04.jpg %}" alt="" data-position="center center" />
 		</a>
 		<div class="content">
 			<div class="inner">
@@ -38,8 +38,8 @@ nav-menu: true
 		</div>
 	</section>
 	<section>
-		<a href="generic.html" class="image">
-			<img src="{% link assets/images/pic09.jpg %}" alt="" data-position="top center" />
+		<a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="image">
+			<img src="{% link assets/images/pic05.jpg %}" alt="" data-position="top center" />
 		</a>
 		<div class="content">
 			<div class="inner">
@@ -54,7 +54,7 @@ nav-menu: true
 		</div>
 	</section>
 	<section>
-		<a href="generic.html" class="image">
+		<a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="image">
 			<img src="{% link assets/images/pic10.jpg %}" alt="" data-position="25% 25%" />
 		</a>
 		<div class="content">
@@ -62,7 +62,7 @@ nav-menu: true
 				<header class="major">
 					<h3>Technology</h3>
 				</header>
-				<p>From BBS bulletin boards in the 90's to brief forays into IT.  .</p>
+				<p>From BBS bulletin boards in the 90's to brief forays into IT.</p>
 				<ul class="actions">
 					<li><a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="button">Learn more on LinkedIn</a></li>
 				</ul>
@@ -75,11 +75,11 @@ nav-menu: true
 <section id="three">
 	<div class="inner">
 		<header class="major">
-			<h2>Massa libero</h2>
+			<h2>Tools in the toolbox</h2>
 		</header>
-		<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus pharetra. Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus.</p>
+		<p>Creative Direction, Marketing, Branding, Design, Video Production and Editing, Photography, App and Web Development.</p>
 		<ul class="actions">
-			<li><a href="generic.html" class="button next">Get Started</a></li>
+			<li><a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="button next">Learn more on LinkedIn</a></li>
 		</ul>
 	</div>
 </section>

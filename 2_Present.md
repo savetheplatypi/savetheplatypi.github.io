@@ -1,6 +1,6 @@
 ---
 title: Present
-layout: landing
+layout: post
 description: 'Current projects include controlling Parrot Drone with Muse Headset.  Developing a VR Meditation App in Unreal Engine with the Muse BCI.  A novel exploring the confluences of neuroscience and meditation.'
 image: assets/images/pic07.jpg
 nav-menu: true
@@ -22,7 +22,7 @@ nav-menu: true
 <!-- Two -->
 <section id="two" class="spotlights">
 	<section>
-		<a href="generic.html" class="image">
+		<a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="image">
 			<img src="{% link assets/images/pic08.jpg %}" alt="" data-position="center center" />
 		</a>
 		<div class="content">
@@ -38,7 +38,7 @@ nav-menu: true
 		</div>
 	</section>
 	<section>
-		<a href="generic.html" class="image">
+		<a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="image">
 			<img src="{% link assets/images/pic09.jpg %}" alt="" data-position="top center" />
 		</a>
 		<div class="content">
@@ -54,7 +54,7 @@ nav-menu: true
 		</div>
 	</section>
 	<section>
-		<a href="generic.html" class="image">
+		<a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="image">
 			<img src="{% link assets/images/v2v.jpg %}" alt="" data-position="25% 25%" />
 		</a>
 		<div class="content">
@@ -75,9 +75,9 @@ nav-menu: true
 <section id="three">
 	<div class="inner">
 		<header class="major">
-			<h2>Massa libero</h2>
+			<h2>Right now</h2>
 		</header>
-		<p>It is a transitory period.  COVID-19 hit my career like many others.  I'm utilizing this time to redefine my skill sets and intentions.  Utilizing  Neurotechnology to help the human species has long been my dream.  It is a perfect time to make it a reality.</p>
+		<p>It is a transitory period.  COVID-19 hit my career like many others.  I'm utilizing this time to redefine my skillset and intentions.  Utilizing  Neurotechnology to help the human species has long been my dream.  It is a perfect time to make it a reality.</p>
 		<ul class="actions">
 					<li><a href="https://www.linkedin.com/in/savetheplatypi/detail/recent-activity/shares/" class="button">Learn more on LinkedIn</a></li>
 		</ul>
