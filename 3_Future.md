@@ -1,6 +1,6 @@
 ---
 title: Future
-layout: post
+layout: page
 description: 'The purpose and directive for all actions'
 image: assets/images/pic11.jpg
 nav-menu: true
