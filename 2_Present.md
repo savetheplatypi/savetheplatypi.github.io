@@ -37,7 +37,7 @@ nav-menu: true
 			</div>
 		</div>
 	</section>
-
+</section>
 <!-- Three -->
 <section id="three">
 	<div class="inner">
