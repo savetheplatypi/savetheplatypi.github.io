@@ -30,7 +30,7 @@ nav-menu: true
 				<header class="major">
 					<h3>Virtual Reality Meditation</h3>
 				</header>
-				<p>Using Neurofeedback and Neurostimulation in a controlled feedback loop environment to train the <a href="https://unifiedmindfulness.com/" class="button">Unified Mindfulness</a> system.  Currently interfacing the Neurosity Crown and Unreal Engine with the HTC-Vive. </p>
+				<p>Using Neurofeedback and Neurostimulation in a controlled feedback loop environment to train the Unified Mindfulness system.  Currently interfacing the Neurosity Crown and Unreal Engine with the HTC-Vive. </p>
 				<ul class="actions">
 					<li><a href="https://kensho.foundation/" class="button">Learn more about the Kensho Foundation</a></li>
 				</ul>
