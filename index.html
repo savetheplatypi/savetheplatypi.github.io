@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1024, height=768">
+<title>UCLA Mindful — Guided Meditations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #0e1520;
+    --deep:   #111c2e;
+    --mid:    #1a2a40;
+    --rim:    #243550;
+    --sage:   #7db89a;
+    --sage2:  #a8d4bf;
+    --gold:   #c9a96e;
+    --mist:   #ccd9e8;
+    --dim:    #6b82a0;
+    --err:    #e07070;
+    --err-bg: rgba(224,112,112,0.10);
+    --active-bg: rgba(125,184,154,0.14);
+    --active-border: #7db89a;
+  }
+
+  html, body {
+    width: 1024px; height: 768px;
+    overflow: hidden;
+    background: var(--ink);
+    color: var(--mist);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 10%, rgba(125,184,154,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 15% 80%, rgba(125,184,154,0.05) 0%, transparent 65%),
+      radial-gradient(circle at 50% 50%, #1a2a40 0%, #0e1520 100%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .app {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-rows: 72px 1fr 96px 48px;
+    height: 768px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    border-bottom: 1px solid rgba(125,184,154,0.15);
+    background: rgba(14,21,32,0.6);
+    backdrop-filter: blur(8px);
+  }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; letter-spacing: 0.08em; color: var(--mist); }
+  .logo span { color: var(--sage); }
+  .tagline { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); }
+
+  /* ── GRID ── */
+  .grid {
+    padding: 18px 28px 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 12px;
+    align-content: stretch;
+  }
+
+  .card {
+    position: relative;
+    background: var(--mid); border: 1px solid var(--rim); border-radius: 12px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 8px; padding: 12px 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    user-select: none; -webkit-tap-highlight-color: transparent; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 0; border-radius: 11px;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(125,184,154,0.08) 0%, transparent 100%);
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .card:hover { border-color: rgba(125,184,154,0.45); background: rgba(26,42,64,0.9); transform: translateY(-1px); }
+  .card:hover::before { opacity: 1; }
+  .card:active { transform: scale(0.98); }
+  .card.playing { border-color: var(--active-border); background: var(--active-bg); box-shadow: 0 0 20px rgba(125,184,154,0.15), inset 0 0 20px rgba(125,184,154,0.05); }
+  .card.playing::before { opacity: 1; }
+  .card.loading { border-color: var(--gold); background: rgba(201,169,110,0.07); }
+  .card.errored { border-color: var(--err); background: var(--err-bg); }
+  .card.errored .card-title { color: var(--err); }
+  .card.errored .card-dur   { color: var(--err); opacity: 0.7; }
+
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(125,184,154,0.4), 0 0 20px rgba(125,184,154,0.15), inset 0 0 20px rgba(125,184,154,0.05); }
+    70%  { box-shadow: 0 0 0 8px rgba(125,184,154,0), 0 0 20px rgba(125,184,154,0.15), inset 0 0 20px rgba(125,184,154,0.05); }
+    100% { box-shadow: 0 0 0 0 rgba(125,184,154,0), 0 0 20px rgba(125,184,154,0.15), inset 0 0 20px rgba(125,184,154,0.05); }
+  }
+  .card.playing:not(.paused) { animation: pulse-ring 2.5s ease-out infinite; }
+
+  .card-icon { font-size: 28px; line-height: 1; filter: saturate(0.8); transition: filter 0.2s; }
+  .card.playing .card-icon { filter: saturate(1.2); }
+  .card.loading .card-icon { display: none; }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 400;
+    letter-spacing: 0.02em; text-align: center; color: var(--mist); line-height: 1.25; transition: color 0.2s;
+  }
+  .card.playing .card-title { color: var(--sage2); }
+
+  .card-dur { font-size: 11px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; transition: color 0.2s; }
+  .card.playing .card-dur { color: var(--sage); }
+
+  .card-state {
+    position: absolute; top: 8px; right: 10px;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0; transition: opacity 0.2s;
+  }
+  .card.playing .card-state { opacity: 1; color: var(--sage); }
+  .card.loading .card-state { opacity: 1; color: var(--gold); }
+  .card.errored .card-state { opacity: 1; color: var(--err); }
+
+  @keyframes wave { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.6); } }
+  .wave-bars { display: none; gap: 2px; align-items: center; height: 14px; }
+  .card.playing:not(.paused) .wave-bars { display: flex; }
+  .wave-bars span { display: block; width: 3px; height: 14px; background: var(--sage); border-radius: 2px; animation: wave 0.9s ease-in-out infinite; }
+  .wave-bars span:nth-child(2) { animation-delay: 0.15s; height: 10px; }
+  .wave-bars span:nth-child(3) { animation-delay: 0.30s; height: 14px; }
+  .wave-bars span:nth-child(4) { animation-delay: 0.10s; height: 8px; }
+  .wave-bars span:nth-child(5) { animation-delay: 0.25s; height: 12px; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { display: none; width: 18px; height: 18px; border: 2px solid rgba(201,169,110,0.3); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .card.loading .spinner { display: block; }
+
+  /* ── PLAYER BAR ── */
+  .player {
+    border-top: 1px solid rgba(125,184,154,0.12);
+    background: rgba(14,21,32,0.8); backdrop-filter: blur(10px);
+    display: grid; grid-template-rows: auto auto;
+    padding: 8px 28px 6px; gap: 7px;
+  }
+  .now-playing { display: flex; align-items: center; gap: 14px; }
+  .np-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sage); white-space: nowrap; }
+  .np-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; font-style: italic; color: var(--mist); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.2s; }
+  .np-title.idle   { color: var(--dim); font-style: normal; }
+  .np-title.errmsg { color: var(--err); font-style: normal; font-size: 13px; }
+  .np-time { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--dim); white-space: nowrap; }
+
+  .controls { display: flex; align-items: center; gap: 12px; }
+  .btn-ctrl { background: none; border: 1px solid var(--rim); border-radius: 8px; color: var(--mist); font-size: 18px; width: 40px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; flex-shrink: 0; }
+  .btn-ctrl:hover { border-color: var(--sage); background: var(--active-bg); }
+  .btn-ctrl.primary { border-color: var(--sage); background: rgba(125,184,154,0.12); width: 44px; height: 38px; font-size: 20px; }
+  .btn-ctrl.primary:hover { background: rgba(125,184,154,0.22); }
+  .btn-ctrl:disabled { opacity: 0.35; cursor: default; }
+
+  .progress-wrap { flex: 1; }
+  .progress-track { width: 100%; height: 6px; background: var(--rim); border-radius: 3px; position: relative; cursor: pointer; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--sage) 0%, var(--sage2) 100%); border-radius: 3px; width: 0%; transition: width 0.5s linear; pointer-events: none; }
+
+  .vol-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .vol-icon { font-size: 15px; color: var(--dim); }
+  input[type=range].vol-slider { -webkit-appearance: none; width: 70px; height: 4px; background: var(--rim); border-radius: 2px; outline: none; cursor: pointer; }
+  input[type=range].vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--sage); cursor: pointer; }
+
+  /* ── FOOTER ── */
+  footer { display: flex; align-items: center; justify-content: center; padding: 0 28px; border-top: 1px solid rgba(125,184,154,0.08); background: rgba(14,21,32,0.5); }
+  .attribution { font-size: 10px; color: var(--dim); text-align: center; letter-spacing: 0.04em; line-height: 1.5; }
+  .attribution a { color: var(--sage); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="logo">UCLA <span>Mindful</span></div>
+    <div class="tagline">Guided Meditations · English</div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="player">
+    <div class="now-playing">
+      <span class="np-label">Now Playing</span>
+      <span class="np-title idle" id="npTitle">Select a meditation to begin</span>
+      <span class="np-time" id="npTime"></span>
+    </div>
+    <div class="controls">
+      <button class="btn-ctrl" id="btnPrev" title="Previous" disabled>⏮</button>
+      <button class="btn-ctrl primary" id="btnPlay" title="Play / Pause" disabled>▶</button>
+      <button class="btn-ctrl" id="btnNext" title="Next" disabled>⏭</button>
+      <div class="progress-wrap">
+        <div class="progress-track" id="progressTrack">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div class="vol-wrap">
+        <span class="vol-icon">🔊</span>
+        <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.02" value="0.85">
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="attribution">
+      "Mindful Meditations" by Diana Winston · UCLA Mindful · ©2011–2024 The Regents of the University of California ·
+      Licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a> ·
+      Non-commercial · No derivatives · Attribution required ·
+      <a href="https://www.uclahealth.org/uclamindful/guided-meditations" target="_blank">uclahealth.org/uclamindful</a>
+    </div>
+  </footer>
+
+</div>
+
+<!--
+  referrerpolicy="no-referrer": prevents the browser from sending a Referer header
+  to CloudFront, which is the most common cause of 403 hotlink-protection blocks
+  when this page is served from a non-UCLA origin (local file, VR browser, etc.).
+  preload="none": avoids fetching any audio until the user explicitly clicks.
+-->
+<audio id="audio" preload="none" referrerpolicy="no-referrer"></audio>
+
+<script>
+const meditations = [
+  { title: "Body Scan",         dur: "3 min",  icon: "🫁", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/Body-Scan-Meditation.mp3" },
+  { title: "Breath·Sound·Body", dur: "12 min", icon: "🌬", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/02_Breath_Sound_Body_Meditation.mp3" },
+  { title: "Breathing",         dur: "5 min",  icon: "🌊", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/01_Breathing_Meditation.mp3" },
+  { title: "Complete Guide",    dur: "19 min", icon: "🧘", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/03_Complete_Meditation_Instructions.mp3" },
+  { title: "Loving Kindness",   dur: "9 min",  icon: "🤍", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/05_Loving_Kindness_Meditation.mp3" },
+  { title: "Difficulties",      dur: "7 min",  icon: "🌿", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/04_Meditation_for_Working_with_Difficulties.mp3" },
+  { title: "Body & Sound",      dur: "3 min",  icon: "🔔", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/Body-Sound-Meditation.mp3" },
+  { title: "Sleep Scan",        dur: "13 min", icon: "🌙", src: "https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/Body-Scan-for-Sleep.mp3" },
+];
+
+const audio         = document.getElementById('audio');
+const grid          = document.getElementById('grid');
+const npTitle       = document.getElementById('npTitle');
+const npTime        = document.getElementById('npTime');
+const progressFill  = document.getElementById('progressFill');
+const progressTrack = document.getElementById('progressTrack');
+const btnPlay       = document.getElementById('btnPlay');
+const btnPrev       = document.getElementById('btnPrev');
+const btnNext       = document.getElementById('btnNext');
+const volSlider     = document.getElementById('volSlider');
+
+let currentIdx = -1;
+let cards = [];
+
+// ── Build cards ───────────────────────────────────────────────────────────────
+meditations.forEach((m, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <span class="card-state"></span>
+    <div class="spinner"></div>
+    <span class="card-icon">${m.icon}</span>
+    <div class="wave-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="card-title">${m.title}</div>
+    <div class="card-dur">${m.dur}</div>
+  `;
+  card.addEventListener('click', () => handleCardClick(i));
+  grid.appendChild(card);
+  cards.push(card);
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function setCardState(i, state) {
+  // state: '' | 'loading' | 'playing' | 'paused' | 'errored'
+  const c = cards[i];
+  c.classList.remove('loading', 'playing', 'paused', 'errored');
+  if (state) c.classList.add(state);
+  if (state === 'paused') c.classList.add('playing'); // keep green border, drop pulse
+
+  const label = c.querySelector('.card-state');
+  label.textContent = { loading:'Loading…', playing:'Playing', paused:'Paused', errored:'Error' }[state] || '';
+}
+
+function clearAllCards() { cards.forEach((_, i) => setCardState(i, '')); }
+
+function fmt(s) {
+  if (!isFinite(s) || isNaN(s)) return '';
+  return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+}
+
+function setNowPlaying(text, cls) {
+  npTitle.className = 'np-title' + (cls ? ' '+cls : '');
+  npTitle.textContent = text;
+}
+
+function enableControls(on) {
+  btnPlay.disabled = !on;
+  btnPrev.disabled = !on;
+  btnNext.disabled = !on;
+}
+
+function handleAudioError(msg) {
+  if (currentIdx < 0) return;
+  setCardState(currentIdx, 'errored');
+  setNowPlaying((msg || 'Playback error') + ' — tap card to retry', 'errmsg');
+  btnPlay.textContent = '▶';
+  npTime.textContent = '';
+}
+
+// ── Load & play ───────────────────────────────────────────────────────────────
+function loadAndPlay(i) {
+  const m = meditations[i];
+  currentIdx = i;
+
+  clearAllCards();
+  setCardState(i, 'loading');
+  setNowPlaying(m.title);
+  npTime.textContent = '';
+  progressFill.style.width = '0%';
+  btnPlay.textContent = '⏸';
+  enableControls(true);
+
+  // Fully reset the element before loading a new source.
+  // This clears any prior error state that would block play().
+  audio.pause();
+  audio.removeAttribute('src');
+  audio.load();          // reset
+
+  audio.src = m.src;
+  audio.volume = parseFloat(volSlider.value);
+  audio.load();          // begin fetch
+
+  // play() is Promise-based in modern browsers — always catch rejections.
+  const p = audio.play();
+  if (p !== undefined) {
+    p.catch(err => {
+      console.error('[UCLA Mindful] play() rejected —', err.name + ':', err.message);
+      handleAudioError(err.name === 'NotAllowedError' ? 'Autoplay blocked' : err.name);
+    });
+  }
+}
+
+function handleCardClick(i) {
+  // Re-clicking the active card toggles pause; clicking a new card loads it.
+  if (i === currentIdx && !audio.error) {
+    togglePlay();
+  } else {
+    loadAndPlay(i);
+  }
+}
+
+function togglePlay() {
+  if (currentIdx < 0) return;
+  if (audio.paused) {
+    const p = audio.play();
+    if (p !== undefined) p.catch(err => {
+      console.error('[UCLA Mindful] resume rejected —', err.name + ':', err.message);
+      handleAudioError(err.name);
+    });
+  } else {
+    audio.pause();
+  }
+}
+
+// ── Audio events ──────────────────────────────────────────────────────────────
+audio.addEventListener('play',    () => { if (currentIdx >= 0) { setCardState(currentIdx, 'playing'); setNowPlaying(meditations[currentIdx].title); btnPlay.textContent = '⏸'; } });
+audio.addEventListener('pause',   () => { if (currentIdx >= 0) { setCardState(currentIdx, 'paused');  btnPlay.textContent = '▶'; } });
+audio.addEventListener('waiting', () => { if (currentIdx >= 0) setCardState(currentIdx, 'loading'); });
+audio.addEventListener('canplay', () => { if (currentIdx >= 0 && cards[currentIdx].classList.contains('loading')) setCardState(currentIdx, audio.paused ? 'paused' : 'playing'); });
+
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration) return;
+  progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+  npTime.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
+});
+
+audio.addEventListener('ended', () => loadAndPlay((currentIdx + 1) % meditations.length));
+
+audio.addEventListener('error', () => {
+  const codes = { 1:'Aborted', 2:'Network error', 3:'Decode error', 4:'Not supported' };
+  const msg = audio.error ? (codes[audio.error.code] || `Error ${audio.error.code}`) : 'Load failed';
+  console.error('[UCLA Mindful] audio error —', msg, '|', audio.src);
+  handleAudioError(msg);
+});
+
+// ── Controls ──────────────────────────────────────────────────────────────────
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => { if (currentIdx > 0) loadAndPlay(currentIdx - 1); });
+btnNext.addEventListener('click', () => loadAndPlay((currentIdx + 1) % meditations.length));
+
+progressTrack.addEventListener('click', e => {
+  if (!audio.duration) return;
+  const r = progressTrack.getBoundingClientRect();
+  audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
+});
+
+volSlider.addEventListener('input', () => { audio.volume = parseFloat(volSlider.value); });
+</script>
+</body>
+</html>
