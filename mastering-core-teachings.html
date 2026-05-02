@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mastering the Core Teachings of the Buddha — An Introduction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+<style>
+  /* ── THEME VARIABLES ── */
+  :root[data-theme="dark"] {
+    --bg:              #0f0e0a;
+    --bg-card:         #181510;
+    --bg-card-alt:     #1e1b13;
+    --border:          #2e2a1e;
+    --accent:          #c9a84c;
+    --accent-soft:     #5a4a1c;
+    --accent-glow:     rgba(201,168,76,0.10);
+    --text-primary:    #edeae0;
+    --text-body:       #b8b09a;
+    --text-muted:      #6e6650;
+    --tag-bg:          #241f10;
+    --tag-text:        #c9a84c;
+    --nav-bg:          #100f0b;
+    --nav-border:      #242010;
+    --section-head:    #d9bc72;
+    --quote-bg:        #16130a;
+    --eq-bg:           #130f05;
+    --eq-border:       #4a3e10;
+    --toggle-bg:       #201c0e;
+    --dark-bg:         #110808;
+    --dark-border:     #5a1a1a;
+    --dark-text:       #c48a8a;
+    --milestone-bg:    #1a1508;
+    --milestone-border:#7a6020;
+    --nana-bg:         #181510;
+    --nana-border:     #302a18;
+    --nana-open:       rgba(201,168,76,0.08);
+  }
+  :root[data-theme="light"] {
+    --bg:              #faf9f4;
+    --bg-card:         #ffffff;
+    --bg-card-alt:     #f5f2e8;
+    --border:          #ddd8c4;
+    --accent:          #9a6e18;
+    --accent-soft:     #e0cfa0;
+    --accent-glow:     rgba(154,110,24,0.07);
+    --text-primary:    #1e1a0e;
+    --text-body:       #3a3420;
+    --text-muted:      #8a7e60;
+    --tag-bg:          #f0e8cc;
+    --tag-text:        #9a6e18;
+    --nav-bg:          #f0eede;
+    --nav-border:      #ddd8c0;
+    --section-head:    #7a5010;
+    --quote-bg:        #f5f0e0;
+    --eq-bg:           #ede8d4;
+    --eq-border:       #c8b870;
+    --toggle-bg:       #ede8d4;
+    --dark-bg:         #f5e8e8;
+    --dark-border:     #d09090;
+    --dark-text:       #7a2a2a;
+    --milestone-bg:    #f0e8cc;
+    --milestone-border:#b09040;
+    --nana-bg:         #ffffff;
+    --nana-border:     #ddd8c0;
+    --nana-open:       rgba(154,110,24,0.05);
+  }
+
+  /* ── RESET ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-body);
+    line-height: 1.78;
+    transition: background .3s, color .3s;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { display: grid; grid-template-columns: 252px 1fr; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  nav.sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    background: var(--nav-bg); border-right: 1px solid var(--nav-border);
+    padding: 2rem 0 4rem;
+    display: flex; flex-direction: column; gap: .18rem;
+    transition: background .3s, border-color .3s;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: .95rem; font-weight: 600; color: var(--accent);
+    letter-spacing: .05em; text-transform: uppercase;
+    padding: 0 1.4rem 1.4rem;
+    border-bottom: 1px solid var(--nav-border); margin-bottom: .7rem;
+    line-height: 1.38;
+  }
+  nav.sidebar a {
+    display: block; padding: .38rem 1.4rem;
+    font-size: .77rem; font-weight: 600; letter-spacing: .055em;
+    text-transform: uppercase; color: var(--text-muted);
+    text-decoration: none; border-left: 2px solid transparent;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  nav.sidebar a:hover, nav.sidebar a.active {
+    color: var(--accent); border-left-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .nav-group-label {
+    padding: .8rem 1.4rem .18rem;
+    font-family: 'DM Mono', monospace; font-size: .62rem;
+    letter-spacing: .14em; color: var(--text-muted);
+    text-transform: uppercase; opacity: .6;
+  }
+
+  /* ── MAIN ── */
+  main { padding: 3rem 3.5rem 6rem; max-width: 880px; }
+
+  /* ── THEME TOGGLE ── */
+  #theme-toggle {
+    position: fixed; top: 1.2rem; right: 1.4rem;
+    background: var(--toggle-bg); border: 1px solid var(--border);
+    border-radius: 50%; width: 2.4rem; height: 2.4rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1.1rem; z-index: 999;
+    transition: background .3s, transform .2s;
+    box-shadow: 0 2px 10px rgba(0,0,0,.4);
+  }
+  #theme-toggle:hover { transform: scale(1.12); }
+
+  /* ── FONT CONTROLS ── */
+  .font-controls {
+    position: fixed; bottom: 1.5rem; right: 1.4rem;
+    display: flex; flex-direction: column; gap: .4rem; z-index: 999;
+  }
+  .font-btn {
+    background: var(--toggle-bg); border: 1px solid var(--border);
+    border-radius: 50%; width: 2rem; height: 2rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: .78rem; color: var(--text-body);
+    font-family: 'DM Mono', monospace;
+    transition: transform .15s, color .2s;
+  }
+  .font-btn:hover { transform: scale(1.1); color: var(--accent); border-color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 3.5rem; padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp .6s ease both;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: .7rem;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .9rem; opacity: .85;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.0rem; font-weight: 300; color: var(--text-primary);
+    line-height: 1.08; letter-spacing: -.01em; margin-bottom: 1.2rem;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 1.1rem; font-weight: 300; color: var(--text-muted);
+    margin-bottom: 1.5rem; line-height: 1.55;
+  }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .tag {
+    font-family: 'DM Mono', monospace; font-size: .65rem;
+    letter-spacing: .08em; color: var(--tag-text);
+    background: var(--tag-bg); border: 1px solid var(--accent-soft);
+    border-radius: 3px; padding: .2rem .6rem; text-transform: uppercase;
+  }
+
+  /* ── SECTION ── */
+  section {
+    margin-bottom: 3rem; scroll-margin-top: 1.5rem;
+    animation: fadeUp .5s ease both;
+  }
+  section:nth-child(2) { animation-delay: .04s; }
+  section:nth-child(3) { animation-delay: .08s; }
+  section:nth-child(4) { animation-delay: .12s; }
+  section:nth-child(5) { animation-delay: .16s; }
+  section:nth-child(6) { animation-delay: .20s; }
+  section:nth-child(7) { animation-delay: .24s; }
+  section:nth-child(8) { animation-delay: .28s; }
+  .section-label {
+    font-family: 'DM Mono', monospace; font-size: .67rem;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: .5rem; opacity: .8;
+  }
+  section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.85rem; font-weight: 400; color: var(--section-head);
+    margin-bottom: 1.2rem; line-height: 1.2;
+  }
+  section p {
+    font-size: .94rem; color: var(--text-body);
+    line-height: 1.82; margin-bottom: 1rem;
+  }
+  section p:last-child { margin-bottom: 0; }
+  strong { color: var(--text-primary); }
+  em { color: var(--accent); font-style: italic; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 3px solid var(--accent);
+    background: var(--quote-bg);
+    padding: 1rem 1.4rem; margin: 1.5rem 0;
+    border-radius: 0 6px 6px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.1rem;
+    color: var(--text-primary); line-height: 1.55;
+  }
+  .pull-quote cite {
+    display: block; margin-top: .5rem;
+    font-family: 'DM Mono', monospace; font-style: normal;
+    font-size: .65rem; letter-spacing: .1em; color: var(--text-muted);
+  }
+
+  /* ── DARK NIGHT CALLOUT ── */
+  .dark-callout {
+    background: var(--dark-bg); border: 1px solid var(--dark-border);
+    border-radius: 8px; padding: 1.1rem 1.4rem; margin: 1.5rem 0;
+  }
+  .dark-callout-label {
+    font-family: 'DM Mono', monospace; font-size: .62rem;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--dark-text); margin-bottom: .4rem; opacity: .9;
+  }
+  .dark-callout p {
+    font-size: .88rem; color: var(--dark-text);
+    margin-bottom: 0; line-height: 1.72;
+  }
+
+  /* ── THREE TRAININGS GRID ── */
+  .training-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1rem; margin: 1.5rem 0;
+  }
+  .training-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.25rem 1rem; text-align: center;
+    transition: border-color .2s, background .2s;
+  }
+  .training-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .training-icon { font-size: 1.55rem; margin-bottom: .5rem; display: block; }
+  .training-pali {
+    font-family: 'DM Mono', monospace; font-size: .62rem;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: .2rem;
+  }
+  .training-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.08rem;
+    font-weight: 600; color: var(--text-primary); margin-bottom: .35rem;
+  }
+  .training-desc { font-size: .78rem; color: var(--text-muted); line-height: 1.52; }
+
+  /* ── MILESTONE BANNER ── */
+  .milestone-banner {
+    background: var(--milestone-bg); border: 1px solid var(--milestone-border);
+    border-radius: 6px; padding: .6rem 1.1rem;
+    display: flex; align-items: center; gap: .85rem;
+    margin: .4rem 0;
+  }
+  .milestone-label {
+    font-family: 'DM Mono', monospace; font-size: .6rem;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); white-space: nowrap;
+  }
+  .milestone-text {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: .95rem; color: var(--text-primary);
+  }
+
+  /* ── ÑĀNA TRACK ── */
+  .nana-track { display: flex; flex-direction: column; gap: .45rem; margin-top: 1.1rem; }
+
+  .nana-item {
+    background: var(--nana-bg); border: 1px solid var(--nana-border);
+    border-radius: 7px; overflow: hidden; transition: border-color .2s;
+  }
+  .nana-item:hover { border-color: var(--accent-soft); }
+  .nana-item.open { border-color: var(--accent); background: var(--nana-open); }
+  .nana-item.dark-phase { border-color: var(--dark-border); }
+  .nana-item.dark-phase:hover { border-color: var(--dark-text); }
+  .nana-item.dark-phase.open { border-color: var(--dark-text); }
+
+  .nana-header {
+    width: 100%; background: none; border: none;
+    padding: .72rem .95rem;
+    display: flex; align-items: center; gap: .75rem;
+    cursor: pointer; text-align: left;
+  }
+  .nana-num {
+    font-family: 'DM Mono', monospace; font-size: .65rem;
+    color: var(--accent); background: var(--tag-bg);
+    border: 1px solid var(--accent-soft); border-radius: 3px;
+    padding: .15rem .48rem; white-space: nowrap;
+    letter-spacing: .06em; flex-shrink: 0;
+  }
+  .nana-item.dark-phase .nana-num {
+    color: var(--dark-text); background: var(--dark-bg);
+    border-color: var(--dark-border);
+  }
+  .nana-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.0rem;
+    font-weight: 600; color: var(--text-primary); flex: 1; line-height: 1.25;
+  }
+  .nana-chevron {
+    color: var(--text-muted); font-size: .8rem;
+    transition: transform .25s; flex-shrink: 0;
+  }
+  .nana-item.open .nana-chevron { transform: rotate(180deg); color: var(--accent); }
+  .nana-item.dark-phase.open .nana-chevron { color: var(--dark-text); }
+
+  .nana-body { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1); }
+  .nana-body-inner {
+    padding: 0 .95rem .9rem; font-size: .87rem;
+    color: var(--text-body); line-height: 1.76;
+    border-top: 1px solid var(--nana-border); padding-top: .8rem;
+  }
+  .nana-body-inner p { margin-bottom: .6rem; }
+  .nana-body-inner p:last-child { margin-bottom: 0; }
+
+  /* ── ACCORDION ── */
+  .accordion { display: flex; flex-direction: column; gap: .6rem; }
+  .acc-item {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden; transition: border-color .2s;
+  }
+  .acc-item:hover { border-color: var(--accent-soft); }
+  .acc-item.open { border-color: var(--accent); }
+  .acc-header {
+    width: 100%; background: none; border: none; padding: .95rem 1.2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; gap: 1rem; text-align: left;
+  }
+  .acc-title-wrap { display: flex; align-items: center; gap: .85rem; flex: 1; min-width: 0; }
+  .acc-tag {
+    font-family: 'DM Mono', monospace; font-size: .62rem;
+    letter-spacing: .08em; color: var(--tag-text); background: var(--tag-bg);
+    border: 1px solid var(--accent-soft); border-radius: 3px;
+    padding: .15rem .5rem; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
+  }
+  .acc-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.08rem;
+    font-weight: 600; color: var(--text-primary); line-height: 1.25;
+  }
+  .acc-chevron {
+    color: var(--text-muted); font-size: .85rem;
+    transition: transform .25s; flex-shrink: 0;
+  }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); color: var(--accent); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1); }
+  .acc-body-inner {
+    padding: 0 1.2rem 1.1rem; font-size: .9rem; color: var(--text-body);
+    line-height: 1.78; border-top: 1px solid var(--border); padding-top: .9rem;
+  }
+  .acc-body-inner p { margin-bottom: .7rem; }
+  .acc-body-inner p:last-child { margin-bottom: 0; }
+  .acc-body-inner ul { margin: .5rem 0 .5rem 1.1rem; }
+  .acc-body-inner li { margin-bottom: .3rem; font-size: .88rem; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* ── TRADITIONS GRID ── */
+  .tradition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin: 1.4rem 0; }
+  .tradition-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.1rem 1.1rem;
+    transition: border-color .2s, background .2s;
+  }
+  .tradition-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .tradition-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.0rem;
+    font-weight: 600; color: var(--text-primary); margin-bottom: .35rem;
+  }
+  .tradition-desc { font-size: .8rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* ── REFERENCES ── */
+  .ref-grid { display: flex; flex-direction: column; gap: .9rem; margin-top: 1.2rem; }
+  .ref-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem 1.3rem;
+    display: flex; align-items: flex-start; gap: 1rem;
+    text-decoration: none; transition: border-color .2s, background .2s;
+  }
+  .ref-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .ref-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; margin-top: .1rem; }
+  .ref-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.04rem;
+    font-weight: 600; color: var(--text-primary); line-height: 1.3; margin-bottom: .2rem;
+  }
+  .ref-meta {
+    font-size: .73rem; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; letter-spacing: .04em; margin-bottom: .35rem;
+  }
+  .ref-desc { font-size: .82rem; color: var(--text-body); line-height: 1.55; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--nav-border); padding: 1.2rem 0; flex-direction: row; flex-wrap: wrap; overflow-x: auto; }
+    .nav-logo { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .nav-group-label { display: none; }
+    main { padding: 2rem 1.4rem 5rem; }
+    .training-grid { grid-template-columns: 1fr; }
+    .tradition-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" aria-label="Toggle theme">💡</button>
+<div class="font-controls">
+  <button class="font-btn" id="font-up">A+</button>
+  <button class="font-btn" id="font-down">A−</button>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-logo">Mastering the<br>Core Teachings</div>
+
+    <div class="nav-group-label">Overview</div>
+    <a href="#ingram">About Daniel Ingram</a>
+    <a href="#book">About the Book</a>
+    <a href="#traditions">Source Traditions</a>
+
+    <div class="nav-group-label">The Framework</div>
+    <a href="#trainings">The Three Trainings</a>
+    <a href="#three-chars">Three Characteristics</a>
+    <a href="#concentration">Concentration &amp; Jhāna</a>
+
+    <div class="nav-group-label">The Map</div>
+    <a href="#progress">Progress of Insight</a>
+    <a href="#ap-event">The A&amp;P Event</a>
+    <a href="#dark-night">The Dark Night</a>
+    <a href="#equanimity">Equanimity &amp; Path</a>
+
+    <div class="nav-group-label">Depth</div>
+    <a href="#four-paths">The Four Paths</a>
+    <a href="#practice-notes">Practice Notes</a>
+    <a href="#references">References</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">An Introduction</div>
+      <h1>Mastering the<br><em>Core Teachings</em></h1>
+      <p class="hero-sub">Daniel Ingram's unflinching, unfiltered field guide to the Buddhist path — a practitioner's manual for understanding the stages of insight and the possibility of genuine awakening.</p>
+      <div class="hero-tags">
+        <span class="tag">Theravāda</span>
+        <span class="tag">Pragmatic Dharma</span>
+        <span class="tag">Vipassanā</span>
+        <span class="tag">Progress of Insight</span>
+        <span class="tag">Mahasi Tradition</span>
+        <span class="tag">Jhāna</span>
+        <span class="tag">Stream Entry</span>
+        <span class="tag">Dark Night</span>
+      </div>
+    </div>
+
+    <!-- INGRAM -->
+    <section id="ingram">
+      <div class="section-label">// The Author</div>
+      <h2>About Daniel Ingram</h2>
+      <p>Daniel Ingram is an emergency medicine physician, longtime meditator, and one of the most polarizing voices in contemporary Western Buddhism. He began serious practice in his twenties, trained primarily in the Theravāda insight tradition — particularly the noting-based approach of the Mahasi Sayadaw lineage — and after years of intensive retreat practice, claims to have attained the fourth and final stage of classical Buddhist awakening: <strong>arahantship</strong>.</p>
+      <p>This claim is central to understanding both the book and the reaction to it. In most Buddhist communities — East and West — discussing one's own attainments is considered a serious breach of propriety, known as "noble silence." Ingram broke this silence deliberately and unapologetically, arguing that the code of silence around attainments does more harm than good: it leaves practitioners without honest information about the path, creates inflated or confused expectations, and prevents genuine teacher accountability.</p>
+      <div class="pull-quote">
+        "I am an arahant. I say this not to impress you but because it is simply true and also because I think it is useful for people to know that awakening is possible."
+        <cite>— Daniel Ingram, MCTB</cite>
+      </div>
+      <p>His claims remain contested in some quarters and accepted in others. Regardless of one's view on that question, his book's practical content — particularly the detailed map of the <em>Progress of Insight</em> — has proven extraordinarily useful to practitioners across a wide range of traditions. He co-founded the <strong>Dharma Overground</strong> online community, which became a hub for frank, technically-minded discussion of meditation practice and attainments at a time when no such space publicly existed.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- THE BOOK -->
+    <section id="book">
+      <div class="section-label">// The Book</div>
+      <h2>About <em>Mastering the Core Teachings of the Buddha</em></h2>
+      <p>First published in 2008 and substantially revised in a second edition (MCTB2) in 2018, <em>Mastering the Core Teachings of the Buddha</em> is not a gentle introduction to meditation. It is a <strong>practitioner's field guide</strong> — dense, technical, and written by someone who expected his readers to actually practice seriously and wanted to arm them with every piece of practical knowledge he wished he'd had when he started.</p>
+      <p>It is important to note what MCTB is and isn't. It is <strong>not a standalone system</strong> in the way that Unified Mindfulness or The Mind Illuminated are. It does not introduce a new framework or replace existing traditions. Instead, it synthesizes, translates, and radically demystifies what the classical Theravāda Buddhist tradition — particularly the Visuddhimagga and the Mahasi Sayadaw noting lineage — actually teaches about the structure of the contemplative path.</p>
+      <p>Ingram's core argument is simple: <em>the maps are real, the stages are real, awakening is achievable, and most Western practitioners are being kept in the dark about all of this.</em> MCTB is his attempt to fix that. The book is available <strong>freely online</strong> in its complete form, which reflects Ingram's conviction that access to this information should not be gated by cost.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- SOURCE TRADITIONS -->
+    <section id="traditions">
+      <div class="section-label">// Lineage &amp; Sources</div>
+      <h2>The Source Traditions</h2>
+      <p>Although MCTB is not a sectarian text, it draws heavily from specific classical sources. Understanding these lineages helps locate the book in the larger landscape of Buddhist practice.</p>
+      <div class="tradition-grid">
+
+        <div class="tradition-card">
+          <div class="tradition-name">🇱🇰 Theravāda Buddhism</div>
+          <div class="tradition-desc">The oldest surviving Buddhist school, preserving the Pāli Canon. MCTB's core maps — the stages of insight, the jhānas, the four paths of awakening — are drawn directly from Theravāda teaching, particularly the <em>Visuddhimagga</em> (Path of Purification) by Buddhaghosa (5th century CE).</div>
+        </div>
+
+        <div class="tradition-card">
+          <div class="tradition-name">🇲🇲 Mahasi Sayadaw Noting</div>
+          <div class="tradition-desc">The Burmese teacher Mahasi Sayadaw (1904–1982) developed a highly accessible and systematic vipassanā method using rapid mental noting. Ingram trained in this lineage via Bill Hamilton, and noting remains the primary technique recommended throughout MCTB for developing insight.</div>
+        </div>
+
+        <div class="tradition-card">
+          <div class="tradition-name">📜 The Visuddhimagga</div>
+          <div class="tradition-desc">Buddhaghosa's encyclopedic commentary systematized the full map of the insight knowledges (ñānas) that MCTB presents. The sixteen stages of the Progress of Insight — from Mind &amp; Body to Fruition — are drawn directly from this text, translated into modern experiential language.</div>
+        </div>
+
+        <div class="tradition-card">
+          <div class="tradition-name">🔷 Tibetan &amp; Zen Influences</div>
+          <div class="tradition-desc">While primarily Theravāda in its maps, MCTB also engages with Tibetan concepts (particularly around non-dual awareness in later sections of MCTB2) and expresses a pragmatic cross-tradition sensibility: the stages are universal, even when traditions name them differently.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- THREE TRAININGS -->
+    <section id="trainings">
+      <div class="section-label">// The Framework</div>
+      <h2>The Three Trainings</h2>
+      <p>MCTB organizes its entire teaching around the classical Buddhist three-training framework. Ingram treats these not as moral platitudes but as a practical, interdependent architecture — each training is necessary, none is optional, and neglecting one creates predictable problems in the others.</p>
+      <div class="training-grid">
+        <div class="training-card">
+          <span class="training-icon">🪷</span>
+          <div class="training-pali">Sīla</div>
+          <div class="training-name">Morality</div>
+          <div class="training-desc">Ethical conduct — not as rigid rule-following but as the cultivation of a life that does not generate compulsive mental entanglement. Reduces unnecessary suffering and creates the psychological conditions for concentration.</div>
+        </div>
+        <div class="training-card">
+          <span class="training-icon">🌀</span>
+          <div class="training-pali">Samādhi</div>
+          <div class="training-name">Concentration</div>
+          <div class="training-desc">The development of stable, unified attention through jhāna and samatha practice. Provides the power and clarity that makes precise insight investigation possible.</div>
+        </div>
+        <div class="training-card">
+          <span class="training-icon">👁️</span>
+          <div class="training-pali">Paññā</div>
+          <div class="training-name">Wisdom</div>
+          <div class="training-desc">Insight into the three characteristics of experience: impermanence, unsatisfactoriness, and no-self. This is the training that — when carried to completion — produces awakening.</div>
+        </div>
+      </div>
+      <p>Ingram spends considerable energy arguing that most Western practitioners over-invest in morality (or its discussion) and under-invest in the actual meditation practices that produce concentration and wisdom. He is not dismissing ethics — he is insisting that talking about ethics is not a substitute for sitting.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- THREE CHARACTERISTICS -->
+    <section id="three-chars">
+      <div class="section-label">// The Framework</div>
+      <h2>The Three Characteristics</h2>
+      <p>The target of all insight practice in MCTB — and in the Theravāda tradition from which it draws — is the direct, moment-to-moment perception of the three fundamental characteristics of all conditioned experience. These are not beliefs to be adopted but <em>perceptual facts</em> to be seen clearly.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Anicca</span>
+              <span class="acc-title">Impermanence</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>Every moment of experience arises and passes. This is not a philosophical observation — at sufficient resolution of attention, the practitioner begins to perceive this directly: sensations flicker, thoughts dissolve mid-stream, what felt solid reveals itself as a rapid succession of distinct, brief events.</p>
+              <p>As the Progress of Insight deepens, the perception of impermanence becomes increasingly fine-grained — from noticing the general flow of experience, to perceiving the arising and passing of each sense impression, to eventually perceiving the discrete, flickering quality of individual mind-moments. This is one of the primary mechanisms by which insight loosens identification and craving.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Dukkha</span>
+              <span class="acc-title">Unsatisfactoriness</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>Because all conditioned experience is impermanent, none of it can provide the lasting satisfaction the mind seeks. Dukkha is sometimes translated as "suffering," but Ingram stresses its subtler meaning: <em>unsatisfactoriness</em> — the inherent inadequacy of clinging to anything that changes.</p>
+              <p>This characteristic is particularly salient in the Dark Night stages of the Progress of Insight, where the direct perception of the unsatisfactory nature of all arising and passing phenomena becomes unavoidable and sometimes profoundly disturbing. Seeing dukkha clearly — rather than avoiding or suppressing it — is ultimately liberating.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Anattā</span>
+              <span class="acc-title">No-Self</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The most radical and transformative characteristic: there is no fixed, stable, independent self that is having these experiences. What we call "self" is a process — a collection of rapidly arising and passing sensations, thoughts, perceptions, and impulses, to which the mind has applied the retrospective label "I."</p>
+              <p>The direct perception of no-self is not a thought or belief — it is a shift in the very structure of perception. Ingram argues that this is not only experientially available but that the earlier ñānas in the Progress of Insight systematically prepare the practitioner for this perception, dissolving the apparent solidity of self-experience layer by layer until the insight becomes inescapable.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CONCENTRATION -->
+    <section id="concentration">
+      <div class="section-label">// The Framework</div>
+      <h2>Concentration States &amp; Jhāna</h2>
+      <p>MCTB devotes significant attention to the concentration states — the jhānas — which it treats as both valuable in their own right and as fuel for insight practice. Ingram famously argues that access to jhāna is <em>easier than most teachers let on</em>, and that demystifying these states is important for practitioners who have been told they are beyond their reach.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Form</span>
+              <span class="acc-title">The Form Jhānas (1–4)</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The four form jhānas are concentrated absorption states with increasingly refined qualities. Ingram describes them in frank, experiential terms:</p>
+              <ul>
+                <li><strong>First Jhāna:</strong> The mind settles on a single object with applied and sustained attention. Bodily pleasure, ease, and joy arise. Can feel like falling into a warm, pleasant pool.</li>
+                <li><strong>Second Jhāna:</strong> Applied attention drops — the sustained quality of the mind rests in the object without deliberate placing. Internal confidence. Joy and pleasure remain.</li>
+                <li><strong>Third Jhāna:</strong> Rapturous joy fades into equanimity and a more refined pleasure. The mind is stable, clear, and luminous.</li>
+                <li><strong>Fourth Jhāna:</strong> Pleasure and pain are both left behind. Pure equanimity and one-pointedness remain, with the breath very subtle or seemingly absent.</li>
+              </ul>
+              <p>Ingram notes that access concentration — the threshold state preceding first jhāna — is itself useful and that practitioners should not be discouraged if the deeper jhānas take time to develop.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Formless</span>
+              <span class="acc-title">The Formless Jhānas (5–8)</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>Beyond the fourth jhāna, the practice enters the formless realms — absorption states where the anchor of a physical object dissolves and awareness rests in increasingly subtle "spaces":</p>
+              <ul>
+                <li><strong>Fifth:</strong> Infinite space — the body and form fade; vast, boundless spaciousness remains.</li>
+                <li><strong>Sixth:</strong> Infinite consciousness — the space itself is recognized as consciousness, equally boundless.</li>
+                <li><strong>Seventh:</strong> Nothingness — consciousness resting in the absence of distinguishable objects.</li>
+                <li><strong>Eighth:</strong> Neither perception nor non-perception — an extremely subtle state at the edge of perceptual capacity.</li>
+              </ul>
+              <p>Ingram emphasizes that while the formless jhānas are profound and worth exploring, they are concentration states — they do not in themselves produce insight. A practitioner can master all eight jhānas without making progress in the insight knowledges, and awakening requires insight, not merely concentration.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Noting</span>
+              <span class="acc-title">Noting Practice — The Primary Insight Technique</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The primary technique Ingram recommends for developing insight — drawn directly from the Mahasi Sayadaw lineage — is <strong>rapid mental noting</strong>. The practitioner labels the primary quality of each arising sensation, thought, or perception with a single brief mental note: "rising," "falling," "thinking," "hearing," "seeing," "pressure," "warmth," "planning," "remembering," and so on.</p>
+              <p>Noting is done rapidly — aiming for the arising of each discrete sensory event — and without elaborating on the content of what is noted. The label is a pointer, not an analysis. Over time, as the pace and precision of noting increases, the practitioner begins to perceive the three characteristics directly in the raw stream of sensory data.</p>
+              <p>Ingram is pragmatic about technique: noting is not the only approach, and any technique that develops the ability to perceive the arising and passing of phenomena with increasing clarity is functionally equivalent. But noting is particularly efficient, and he recommends it strongly for practitioners serious about moving through the insight stages.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- PROGRESS OF INSIGHT -->
+    <section id="progress">
+      <div class="section-label">// The Map</div>
+      <h2>The Progress of Insight</h2>
+      <p>The heart of MCTB — and its most valuable practical contribution — is its detailed presentation of the <strong>Progress of Insight</strong>: sixteen stages of insight knowledge (<em>ñānas</em>, pronounced "nyah-nas") through which every serious practitioner passes on the way to awakening. This map comes directly from the Visuddhimagga and the Mahasi lineage; Ingram's contribution is to translate it into frank, experiential language and to insist that it is a real, reproducible map of real, predictable territory.</p>
+      <p>The key claim is this: if you practice seriously enough with an insight technique, you will pass through these stages — in order, more or less — regardless of tradition, teacher, or technique. The stages are not a grading system or a hierarchy of merit. They are descriptions of what insight-trained awareness encounters as it investigates the nature of experience with increasing penetration.</p>
+
+      <div class="nana-track">
+
+        <div class="nana-item">
+          <button class="nana-header">
+            <span class="nana-num">ñ 1</span>
+            <span class="nana-title">Mind &amp; Body — Nāma-Rūpa</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>The first moment of genuine insight: the practitioner begins to clearly distinguish <em>the knowing</em> from <em>what is known</em> — mind and matter, the noticing and the noticed. This sounds simple, but experienced as a genuine perceptual shift it is a real and distinct event. There is a new clarity and precision in the field of experience.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item">
+          <button class="nana-header">
+            <span class="nana-num">ñ 2</span>
+            <span class="nana-title">Cause &amp; Effect</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>The practitioner begins to perceive the causal interconnection of mental and physical events — how intentions condition sensations, how sensations condition reactions, how the cycle of arising and passing is not random but lawful. There may be spontaneous movements of the body, or a clear perception of how one thing leads to another in rapid sequence.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item">
+          <button class="nana-header">
+            <span class="nana-num">ñ 3</span>
+            <span class="nana-title">Three Characteristics</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>The investigation deepens and the three characteristics — impermanence, unsatisfactoriness, no-self — begin to be perceived directly in raw sensory experience, not as concepts but as texture. This stage can involve discomfort, increased awareness of aches and pains, and a growing sense of dissatisfaction with conditioned experience. It is also marked by increasing sharpness and clarity.</p>
+          </div></div>
+        </div>
+
+        <div class="milestone-banner">
+          <span class="milestone-label">Major Milestone</span>
+          <span class="milestone-text">The Arising &amp; Passing Away — a significant perceptual event marking the transition to the middle insight knowledges.</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- A&P EVENT -->
+    <section id="ap-event">
+      <div class="section-label">// The Map</div>
+      <h2>The A&amp;P Event — Arising &amp; Passing Away</h2>
+      <p>The fourth ñāna — the direct perception of the arising and passing away of phenomena — is treated by Ingram as a <strong>pivotal, unmistakable event</strong> on the contemplative path. He calls it simply "the A&amp;P." It is not a gradual development but a recognizable experiential shift, often arising during a meditation sit and sometimes during ordinary activity.</p>
+
+      <div class="acc-item" style="margin-bottom:1rem;">
+        <button class="acc-header" aria-expanded="false">
+          <div class="acc-title-wrap">
+            <span class="acc-tag">ñ 4</span>
+            <span class="acc-title">Arising &amp; Passing Away — What It's Like</span>
+          </div>
+          <span class="acc-chevron">▾</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <p>The A&amp;P is often characterized by:</p>
+            <ul>
+              <li>A sudden increase in the vividness and resolution of experience</li>
+              <li>Perceptions of light, vibration, or energy — sometimes dramatic</li>
+              <li>A profound sense of wonder, joy, or even rapture</li>
+              <li>The clear, direct perception of phenomena arising and vanishing at a rate much faster than usual experience</li>
+              <li>Sometimes a physical jolt or startling quality</li>
+              <li>In some cases, a sense of breakthrough or opening</li>
+            </ul>
+            <p>The A&amp;P is one of the most memorable experiences in a meditator's career. Ingram notes that many practitioners have had this experience — sometimes spontaneously through breathwork, psychedelics, illness, sleep deprivation, or intense exercise — without recognizing it as a meditation landmark. Once it has occurred, it cannot be "un-crossed." The practitioner is now in the middle insight knowledges, and what comes next is predictable.</p>
+          </div>
+        </div>
+      </div>
+
+      <p>The reason the A&amp;P matters so much is what it precedes: the <strong>Dark Night of the Soul</strong>. Every practitioner who has crossed the A&amp;P will, as practice continues, enter the difficult territory of the next several ñānas. Knowing this is crucial.</p>
+    </section>
+
+    <!-- DARK NIGHT -->
+    <section id="dark-night">
+      <div class="section-label">// The Map</div>
+      <h2>The Dark Night of the Soul</h2>
+      <p>Stages five through ten of the Progress of Insight are collectively known as the <strong>Dark Night</strong> — a term Ingram borrows from the Christian mystical tradition of St. John of the Cross, which describes a nearly identical phenomenological territory. This is the section of MCTB that has arguably helped the most people, because it names and maps territory that many practitioners had stumbled into without understanding what was happening to them.</p>
+
+      <div class="dark-callout">
+        <div class="dark-callout-label">⚠  Important Context</div>
+        <p>The Dark Night is not a psychological disorder, a sign of wrong practice, or a reason to stop meditating. It is a predictable, navigable stage of insight development with a beginning and an end. Knowing what it is and that it passes is itself a significant protective factor. Many practitioners have spent years suffering through it without knowing it had a name, a map, or an exit.</p>
+      </div>
+
+      <div class="nana-track">
+
+        <div class="nana-item dark-phase">
+          <button class="nana-header">
+            <span class="nana-num">ñ 5</span>
+            <span class="nana-title">Dissolution</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>The quality of perception shifts abruptly. Where the A&amp;P was vivid and arising, Dissolution is about <em>passing</em>. Phenomena are now perceived primarily as dissolving, fading, slipping away. The clarity of the A&amp;P is replaced by a softer, blurrier quality. Attention may feel harder to hold. The practitioner may feel strange, ungrounded, or as though reality is slightly less solid than usual.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item dark-phase">
+          <button class="nana-header">
+            <span class="nana-num">ñ 6</span>
+            <span class="nana-title">Fear</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>Anxiety, dread, or outright fear arises, often without clear external cause. The practitioner may feel that something is fundamentally wrong, that reality is unsafe, or that some unknown catastrophe is impending. Physical manifestations — heart pounding, chest tightness, a sense of danger — may accompany this. Ingram emphasizes: this is a stage of insight, not a crisis. The fear is the mind's reaction to the deepening perception of impermanence and the dissolution of the illusion of a stable self.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item dark-phase">
+          <button class="nana-header">
+            <span class="nana-num">ñ 7</span>
+            <span class="nana-title">Misery</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>A quality of sadness, heaviness, or grief — sometimes profound — characterizes this stage. The practitioner may feel hopeless, bereft, or as though something precious has been irrevocably lost. Old wounds may resurface. This is not depression in the clinical sense (though the two can interact), but a specific phenomenological flavor that arises from the direct perception of the unsatisfactory nature of conditioned existence.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item dark-phase">
+          <button class="nana-header">
+            <span class="nana-num">ñ 8</span>
+            <span class="nana-title">Disgust</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>A sense of revulsion or aversion toward experience — toward the constant arising and passing that cannot be stopped or satisfied. Things that normally gave pleasure may feel hollow. Ordinary life can seem tedious or repellent. This is not nihilism — it is a specific insight into the unsatisfactory nature of clinging.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item dark-phase">
+          <button class="nana-header">
+            <span class="nana-num">ñ 9</span>
+            <span class="nana-title">Desire for Deliverance</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>A clear, sometimes urgent longing to be free of the cycle of arising and passing — of the whole structure of conditioned experience. The practitioner wants out. This is not suicidal ideation (the desire is for liberation, not self-destruction), but it can be intense. Paradoxically, this desire is itself a sign of progress: the mind has seen enough of the dukkha characteristic to genuinely want release.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item dark-phase">
+          <button class="nana-header">
+            <span class="nana-num">ñ 10</span>
+            <span class="nana-title">Re-observation</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>Often the most difficult stage. The practitioner seems to cycle back through the earlier Dark Night qualities — fear, misery, disgust — but now with the additional frustration of recognizing the pattern and not being able to simply pass through it by an act of will. Practice can feel broken. Sessions may be ragged and uncomfortable. This is the stage where many practitioners conclude they are doing something wrong, or abandon practice altogether.</p>
+            <p>Ingram's advice for Re-observation: <em>keep practicing</em>. The way through is forward. The exit from the Dark Night is not retreat but the continued, precise investigation of what is actually arising — which eventually matures into Equanimity.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- EQUANIMITY & PATH -->
+    <section id="equanimity">
+      <div class="section-label">// The Map</div>
+      <h2>Equanimity, Path &amp; Fruition</h2>
+      <p>The Dark Night resolves — always — into the later stages of the progress of insight, culminating in the event of Path: the classical term for a moment of awakening.</p>
+
+      <div class="nana-track">
+
+        <div class="nana-item">
+          <button class="nana-header">
+            <span class="nana-num">ñ 11</span>
+            <span class="nana-title">Equanimity</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>The quality of practice shifts dramatically. The struggle and unpleasantness of the Dark Night lift, replaced by a spacious, open, non-reactive quality of mind. The practitioner can observe the arising and passing of phenomena — including difficult ones — without being destabilized. There is a feeling of being on a plateau: clear, stable, balanced. Practice feels effortless.</p>
+            <p>Equanimity can be quite pleasant and practitioners sometimes mistake it for a final destination. It is not — it is the penultimate stage, the ground from which Path arises. The instruction here is to continue practicing, without grasping at the Equanimity state, until the mind ripens further.</p>
+          </div></div>
+        </div>
+
+        <div class="milestone-banner">
+          <span class="milestone-label">Critical Transition</span>
+          <span class="milestone-text">Stages 12–13 (Conformity and Change of Lineage) are very brief, often imperceptible transitions immediately preceding Path.</span>
+        </div>
+
+        <div class="nana-item">
+          <button class="nana-header">
+            <span class="nana-num">ñ 14</span>
+            <span class="nana-title">Path — Magga</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p><strong>Path</strong> is the moment of awakening itself — a brief, often startling event in which the mind "clicks" through to a direct perception of Nibbāna: the unconditioned. It is typically not long — a moment or a few moments — and is often described as a gap, a cessation, a blink of "nothing" followed by a clear sense that something has fundamentally and irreversibly changed.</p>
+            <p>Path does not feel like what most people expect awakening to feel like. It is usually not dramatic, not blissful, not accompanied by lights or visions. It is more like a key turning in a lock — quiet, precise, and permanent. What follows is Fruition.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item">
+          <button class="nana-header">
+            <span class="nana-num">ñ 15</span>
+            <span class="nana-title">Fruition — Phala</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p><strong>Fruition</strong> is the immediate aftermath of Path — and one of Ingram's particularly interesting contributions is his detailed discussion of re-entering Fruition states deliberately. Unlike Path, which arises spontaneously when conditions are ripe, Fruition can be re-accessed intentionally by a practitioner who has attained a given Path.</p>
+            <p>Fruition states are characterized by a profound sense of peace, relief, and clarity — sometimes described as bathing in the aftermath of the cessation of all grasping, however briefly. Advanced practitioners report being able to "dip" into Fruition deliberately during meditation, using it as a touchstone and a source of renewal.</p>
+          </div></div>
+        </div>
+
+        <div class="nana-item">
+          <button class="nana-header">
+            <span class="nana-num">ñ 16</span>
+            <span class="nana-title">Review</span>
+            <span class="nana-chevron">▾</span>
+          </button>
+          <div class="nana-body"><div class="nana-body-inner">
+            <p>Following Path and Fruition, the mind enters a period of Review — a natural process of integrating and examining what has been attained. The earlier stages of the progress of insight may be re-visited at lower intensity, now seen with the perspective of someone who has been through them. Review can last days, weeks, or months before the next cycle of practice begins or stabilizes.</p>
+          </div></div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- FOUR PATHS -->
+    <section id="four-paths">
+      <div class="section-label">// Depth &amp; Direction</div>
+      <h2>The Four Paths of Awakening</h2>
+      <p>The Progress of Insight describes one cycle through the ñānas, culminating in one Path moment. The classical Theravāda tradition describes <strong>four such Paths</strong> — four distinct stages of awakening, each permanently eliminating specific patterns of suffering called "fetters" (<em>samyojana</em>). MCTB presents these directly.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">First Path</span>
+              <span class="acc-title">Stream Entry — Sotāpatti</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The first awakening. The fetters permanently removed at this stage include: <em>identity view</em> (the belief in a fixed, permanent self), <em>doubt</em> (fundamental uncertainty about the path and its efficacy), and <em>attachment to rites and rituals</em> as ends in themselves.</p>
+              <p>Stream entry does not eliminate craving or aversion — the practitioner still experiences desire and irritation — but the <em>compulsive identification</em> with these states is loosened. There is a new, stable background knowing that these mental events are processes arising and passing, not "me." This shift is described as irreversible: a stream-entrant cannot fall below this level of understanding.</p>
+              <p>Ingram is characteristically frank: stream entry is achievable by serious practitioners in months to years of dedicated practice. It is not the province of a special few.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Second Path</span>
+              <span class="acc-title">Once-Returning — Sakadāgāmi</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The second Path significantly weakens (without fully eliminating) the fetters of <em>sensual craving</em> and <em>ill-will</em>. Reactions to pleasant and unpleasant experience continue to arise but with noticeably less grip and intensity. The practitioner has more space around emotional reactions and recovers from them more quickly.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Third Path</span>
+              <span class="acc-title">Non-Returning — Anāgāmi</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The third Path <em>fully eliminates</em> sensual craving and ill-will. The practitioner is no longer pulled by desire for sensory experience or pushed by aversion to it, though they may still experience sensory pleasure and displeasure. The remaining fetters are subtler: attachment to form realms (the jhāna states), formless realms, conceit, restlessness, and ignorance.</p>
+              <p>MCTB2 includes significantly more discussion of third path and beyond than the first edition, reflecting Ingram's own continued practice and the reports of practitioners in the Dharma Overground community.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Fourth Path</span>
+              <span class="acc-title">Arahantship — Full Awakening</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The fourth and final path eliminates all remaining fetters — including the subtlest remaining traces of conceit ("I am"), restlessness, and ignorance. The result is a mind free of compulsive suffering in any form. Vedanā (pleasant, unpleasant, neutral feeling tones) continue to arise, as do preferences and responses — but without the layer of grasping and aversion that produces suffering.</p>
+              <p>Ingram claims this attainment, which is why his book exists. He is careful to describe what it is and is not: the arahant does not become a saint, does not acquire omniscience, and does not transcend ordinary human limitations. They can still be ignorant, make mistakes, have preferences, and behave badly in some contexts — as Ingram has acknowledged about himself. What is gone is the compulsive, unconscious suffering generated by the illusion of a separate self that must be defended and maintained.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- PRACTICE NOTES -->
+    <section id="practice-notes">
+      <div class="section-label">// Practice</div>
+      <h2>Notes on Practice</h2>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Approach</span>
+              <span class="acc-title">Ingram's Pragmatic Ethos</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The term <em>pragmatic dharma</em> — associated with Ingram and the Dharma Overground community — refers to an approach that prioritizes empirical investigation, honest reporting of results, clear maps of the territory, and frank discussion of attainments over tradition, lineage authority, or cultural reverence.</p>
+              <p>This ethos holds that: the maps are real and useful; attainments are real and discussable; technique matters and should be evaluated by results; and the goal of awakening is achievable in a modern human lifetime with serious, intelligent practice — not just by monastics after decades of robes-and-bowl renunciation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Caution</span>
+              <span class="acc-title">The Dark Night in Daily Life</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>One of Ingram's most important practical warnings is that the Dark Night does not stay on the cushion. Once a practitioner has crossed the A&amp;P, the Dark Night ñānas can color ordinary daily life — sometimes for months — producing background anxiety, irritability, grief, or a sense of meaninglessness that affects relationships and functioning.</p>
+              <p>He recommends: continue practicing through (not around) the Dark Night, maintain the three trainings in life, work with a teacher familiar with this territory if possible, and — crucially — don't try to meditate your way backward past the A&amp;P. The only direction that resolves the Dark Night is forward through it. This section of MCTB has helped many practitioners recognize what they were going through and not pathologize it unnecessarily.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Caution</span>
+              <span class="acc-title">Integration &amp; Shadow</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>MCTB2 added substantially more material on the <em>limitations</em> of the insight path — acknowledging that awakening in the Theravāda sense does not automatically resolve psychological wounds, relational patterns, or character deficits. Ingram's own public life provided a painful illustration of this, and he addresses it with unusual directness.</p>
+              <p>The insight path cleans up what it cleans up — the specific fetters described in the classical map. It does not automatically do the work of trauma healing, developmental growth, relational repair, or ethical character cultivation. Practitioners are well-advised to engage with these dimensions of development alongside — not instead of — insight practice.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Context</span>
+              <span class="acc-title">Using the Map Without Getting Lost in It</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>A common pitfall with MCTB is <em>map obsession</em>: spending more time analyzing which ñāna one might be in than actually practicing. Ingram acknowledges this irony — a book about maps can produce map-fixation — and recommends using the map as a diagnostic tool and a source of context, not as the primary object of practice.</p>
+              <p>The map is useful for: understanding unusual experiences that arise in practice, recognizing the Dark Night when it appears, knowing roughly where one is on the path, and calibrating expectations. It is not useful as a goal to be grasped at or a status to be achieved. The actual practice is always the direct investigation of this arising, in this moment.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- REFERENCES -->
+    <section id="references">
+      <div class="section-label">// Further Study</div>
+      <h2>References &amp; Resources</h2>
+      <p>Ingram's commitment to free access means the primary text is available at no cost. The community around the book is also unusually active and technically sophisticated.</p>
+      <div class="ref-grid">
+
+        <a class="ref-card" href="https://www.mctb.org" target="_blank" rel="noopener">
+          <div class="ref-icon">🌐</div>
+          <div class="ref-info">
+            <div class="ref-title">MCTB2 — Free Online Full Text</div>
+            <div class="ref-meta">mctb.org · Second Edition · Complete</div>
+            <div class="ref-desc">The complete second edition of Mastering the Core Teachings of the Buddha, freely available online. Ingram made the book free as a matter of principle. The print version is also available for those who prefer it.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://a.co/d/0hVjMf4i" target="_blank" rel="noopener">
+          <div class="ref-icon">📘</div>
+          <div class="ref-info">
+            <div class="ref-title">Mastering the Core Teachings of the Buddha (Print)</div>
+            <div class="ref-meta">Daniel Ingram · 2018 · Aeon Books (MCTB2)</div>
+            <div class="ref-desc">The second edition print version, substantially expanded from the original 2008 release. Includes new material on third path and beyond, integration, and the limitations of the insight path.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://www.dharmaoverground.org" target="_blank" rel="noopener">
+          <div class="ref-icon">💬</div>
+          <div class="ref-info">
+            <div class="ref-title">Dharma Overground</div>
+            <div class="ref-meta">dharmaoverground.org · Community Forum</div>
+            <div class="ref-desc">The online community Ingram co-founded, dedicated to frank technical discussion of meditation practice, attainments, and the Progress of Insight. One of the few spaces where practitioners openly discuss stages and experiences without the usual social prohibitions. An invaluable companion to the book.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://www.amazon.com/Path-Purification-Visuddhimagga-Bhadantacariya-Buddhaghosa/dp/1928706010" target="_blank" rel="noopener">
+          <div class="ref-icon">📜</div>
+          <div class="ref-info">
+            <div class="ref-title">The Visuddhimagga (Path of Purification)</div>
+            <div class="ref-meta">Buddhaghosa · 5th century CE · Bhikkhu Ñāṇamoli translation</div>
+            <div class="ref-desc">The classical Theravāda source text from which MCTB's insight maps are drawn. Dense and encyclopedic — not recommended as a first text, but essential for practitioners who want to understand the tradition behind the modern synthesis.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://soundcloud.com/daneilmingram/sets/mastering-the-core-teaching-of-the-buddha-revised-and-expanded-second-edition-audiobook" target="_blank" rel="noopener">
+          <div class="ref-icon">🎧</div>
+          <div class="ref-info">
+            <div class="ref-title">MCTB — Audiobook</div>
+            <div class="ref-meta">SoundCloud · Narrated by Jamison Walker</div>
+            <div class="ref-desc">An audio version for those who prefer to absorb the material while in motion. The dense theoretical sections may reward print reading, but the practical chapters on the stages and techniques translate well to audio.</div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // THEME TOGGLE
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const root = document.documentElement;
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  // FONT SIZE
+  let fontSize = 16;
+  document.getElementById('font-up').addEventListener('click', () => {
+    fontSize = Math.min(fontSize + 1, 22);
+    document.documentElement.style.fontSize = fontSize + 'px';
+  });
+  document.getElementById('font-down').addEventListener('click', () => {
+    fontSize = Math.max(fontSize - 1, 12);
+    document.documentElement.style.fontSize = fontSize + 'px';
+  });
+
+  // ACCORDION (single-select)
+  document.querySelectorAll('.acc-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.acc-item');
+      const body = item.querySelector('.acc-body');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.acc-item.open').forEach(el => {
+        el.classList.remove('open');
+        el.querySelector('.acc-body').style.maxHeight = '0';
+        el.querySelector('.acc-header').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // ÑĀNA TRACK (multi-open — each stage independent)
+  document.querySelectorAll('.nana-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.nana-item');
+      const body = item.querySelector('.nana-body');
+      const isOpen = item.classList.contains('open');
+      if (!isOpen) {
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+      } else {
+        item.classList.remove('open');
+        body.style.maxHeight = '0';
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  // ACTIVE NAV
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+  new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-25% 0px -65% 0px' }).observe
+  sections.forEach(s => {
+    new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-25% 0px -65% 0px' }).observe(s);
+  });
+</script>
+</body>
+</html>
