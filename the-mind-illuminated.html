@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Mind Illuminated — An Introduction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+<style>
+  /* ── THEME VARIABLES ── */
+  :root[data-theme="dark"] {
+    --bg:           #0e1117;
+    --bg-card:      #161b27;
+    --bg-card-alt:  #1b2130;
+    --border:       #2a3245;
+    --accent:       #9b8fc4;
+    --accent-soft:  #4a3d72;
+    --accent-glow:  rgba(155,143,196,0.10);
+    --text-primary: #e8edf5;
+    --text-body:    #b4bdd0;
+    --text-muted:   #6a7590;
+    --tag-bg:       #211d38;
+    --tag-text:     #9b8fc4;
+    --nav-bg:       #111622;
+    --nav-border:   #1f2940;
+    --section-head: #bcb2d8;
+    --quote-bg:     #161228;
+    --eq-bg:        #120f22;
+    --eq-border:    #3d3070;
+    --toggle-bg:    #1b1a2e;
+    --stage-active: rgba(155,143,196,0.15);
+    --stage-border: #3d3465;
+    --milestone-bg: #1a1630;
+    --milestone-border: #6a5aaa;
+  }
+  :root[data-theme="light"] {
+    --bg:           #f6f5fb;
+    --bg-card:      #ffffff;
+    --bg-card-alt:  #f0eef8;
+    --border:       #d8d4ea;
+    --accent:       #6652b8;
+    --accent-soft:  #cdc8e8;
+    --accent-glow:  rgba(102,82,184,0.07);
+    --text-primary: #1a1a2e;
+    --text-body:    #3c3a58;
+    --text-muted:   #8a85aa;
+    --tag-bg:       #e4e0f5;
+    --tag-text:     #6652b8;
+    --nav-bg:       #eeecf8;
+    --nav-border:   #d4d0e8;
+    --section-head: #4a3a9a;
+    --quote-bg:     #ede8f8;
+    --eq-bg:        #e8e4f5;
+    --eq-border:    #a89cd8;
+    --toggle-bg:    #e4e0f5;
+    --stage-active: rgba(102,82,184,0.06);
+    --stage-border: #bbb4e0;
+    --milestone-bg: #e8e4f8;
+    --milestone-border: #8878cc;
+  }
+
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 400;
+    background: var(--bg);
+    color: var(--text-body);
+    line-height: 1.75;
+    transition: background .3s, color .3s;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 248px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  nav.sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--nav-bg);
+    border-right: 1px solid var(--nav-border);
+    padding: 2rem 0 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    transition: background .3s, border-color .3s;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.0rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 0 1.4rem 1.4rem;
+    border-bottom: 1px solid var(--nav-border);
+    margin-bottom: .75rem;
+    line-height: 1.35;
+  }
+  nav.sidebar a {
+    display: block;
+    padding: .4rem 1.4rem;
+    font-size: .78rem;
+    font-weight: 600;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  nav.sidebar a:hover,
+  nav.sidebar a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .nav-group-label {
+    padding: .85rem 1.4rem .2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    letter-spacing: .14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    opacity: .65;
+  }
+
+  /* ── MAIN ── */
+  main {
+    padding: 3rem 3.5rem 6rem;
+    max-width: 880px;
+  }
+
+  /* ── THEME TOGGLE ── */
+  #theme-toggle {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.4rem;
+    background: var(--toggle-bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 2.4rem;
+    height: 2.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    z-index: 999;
+    transition: background .3s, border-color .3s, transform .2s;
+    box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  }
+  #theme-toggle:hover { transform: scale(1.12); }
+
+  /* ── FONT CONTROLS ── */
+  .font-controls {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    z-index: 999;
+  }
+  .font-btn {
+    background: var(--toggle-bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: .78rem;
+    color: var(--text-body);
+    font-family: 'DM Mono', monospace;
+    transition: background .2s, transform .15s;
+  }
+  .font-btn:hover { transform: scale(1.1); color: var(--accent); border-color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 3.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp .6s ease both;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .9rem;
+    opacity: .85;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.1rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    line-height: 1.08;
+    letter-spacing: -.01em;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.12rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .66rem;
+    letter-spacing: .08em;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent-soft);
+    border-radius: 3px;
+    padding: .2rem .6rem;
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION ── */
+  section {
+    margin-bottom: 3rem;
+    scroll-margin-top: 1.5rem;
+    animation: fadeUp .5s ease both;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .67rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .5rem;
+    opacity: .8;
+  }
+  section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.85rem;
+    font-weight: 400;
+    color: var(--section-head);
+    margin-bottom: 1.2rem;
+    line-height: 1.2;
+  }
+  section p {
+    font-size: .94rem;
+    color: var(--text-body);
+    line-height: 1.82;
+    margin-bottom: 1rem;
+  }
+  section p:last-child { margin-bottom: 0; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 3px solid var(--accent);
+    background: var(--quote-bg);
+    padding: 1rem 1.4rem;
+    margin: 1.5rem 0;
+    border-radius: 0 6px 6px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.12rem;
+    color: var(--text-primary);
+    line-height: 1.55;
+  }
+  .pull-quote cite {
+    display: block;
+    margin-top: .5rem;
+    font-family: 'DM Mono', monospace;
+    font-style: normal;
+    font-size: .66rem;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+  }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* ── ATTENTION / AWARENESS SPLIT ── */
+  .split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .split-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem 1.1rem;
+    transition: border-color .2s, background .2s;
+  }
+  .split-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .split-icon { font-size: 1.5rem; margin-bottom: .55rem; display: block; }
+  .split-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: .35rem;
+  }
+  .split-desc { font-size: .8rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* ── STAGES TIMELINE ── */
+  .stages-track { display: flex; flex-direction: column; gap: .5rem; margin-top: 1.2rem; }
+
+  .milestone-banner {
+    background: var(--milestone-bg);
+    border: 1px solid var(--milestone-border);
+    border-radius: 6px;
+    padding: .6rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin-bottom: .2rem;
+  }
+  .milestone-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+    font-weight: 400;
+  }
+  .milestone-text {
+    font-size: .82rem;
+    color: var(--text-primary);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: .95rem;
+  }
+
+  .stage-item {
+    background: var(--bg-card);
+    border: 1px solid var(--stage-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .stage-item:hover { border-color: var(--accent); }
+  .stage-item.open { border-color: var(--accent); background: var(--stage-active); }
+
+  .stage-header {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: .8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    cursor: pointer;
+    text-align: left;
+  }
+  .stage-num {
+    font-family: 'DM Mono', monospace;
+    font-size: .72rem;
+    font-weight: 400;
+    color: var(--accent);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent-soft);
+    border-radius: 3px;
+    padding: .18rem .55rem;
+    white-space: nowrap;
+    letter-spacing: .06em;
+    flex-shrink: 0;
+  }
+  .stage-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.0rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.25;
+    flex: 1;
+  }
+  .stage-chevron {
+    color: var(--text-muted);
+    font-size: .82rem;
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .stage-item.open .stage-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .stage-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1);
+  }
+  .stage-body-inner {
+    padding: 0 1rem .95rem;
+    font-size: .88rem;
+    color: var(--text-body);
+    line-height: 1.78;
+    border-top: 1px solid var(--stage-border);
+    padding-top: .85rem;
+  }
+  .stage-body-inner p { margin-bottom: .65rem; }
+  .stage-body-inner p:last-child { margin-bottom: 0; }
+  .stage-body-inner strong { color: var(--text-primary); }
+  .stage-body-inner em { color: var(--accent); font-style: italic; }
+  .stage-body-inner ul { margin: .4rem 0 .4rem 1rem; }
+  .stage-body-inner li { margin-bottom: .3rem; font-size: .86rem; }
+
+  /* ── ACCORDION (for concepts/techniques) ── */
+  .accordion { display: flex; flex-direction: column; gap: .6rem; }
+  .acc-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .acc-item:hover { border-color: var(--accent-soft); }
+  .acc-item.open { border-color: var(--accent); }
+  .acc-header {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: .95rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 1rem;
+    text-align: left;
+  }
+  .acc-title-wrap { display: flex; align-items: center; gap: .85rem; flex: 1; min-width: 0; }
+  .acc-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    letter-spacing: .08em;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent-soft);
+    border-radius: 3px;
+    padding: .15rem .5rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .acc-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+  .acc-chevron {
+    color: var(--text-muted);
+    font-size: .85rem;
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); color: var(--accent); }
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1);
+  }
+  .acc-body-inner {
+    padding: 0 1.2rem 1.1rem;
+    font-size: .9rem;
+    color: var(--text-body);
+    line-height: 1.78;
+    border-top: 1px solid var(--border);
+    padding-top: .9rem;
+  }
+  .acc-body-inner p { margin-bottom: .7rem; }
+  .acc-body-inner p:last-child { margin-bottom: 0; }
+  .acc-body-inner strong { color: var(--text-primary); font-weight: 600; }
+  .acc-body-inner em { color: var(--accent); font-style: italic; }
+  .acc-body-inner ul { margin: .5rem 0 .5rem 1.1rem; }
+  .acc-body-inner li { margin-bottom: .3rem; }
+
+  /* ── REFERENCES ── */
+  .ref-grid { display: flex; flex-direction: column; gap: .9rem; margin-top: 1.2rem; }
+  .ref-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-decoration: none;
+    transition: border-color .2s, background .2s;
+  }
+  .ref-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .ref-icon { font-size: 1.45rem; flex-shrink: 0; line-height: 1; margin-top: .1rem; }
+  .ref-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: .2rem;
+  }
+  .ref-meta {
+    font-size: .75rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .04em;
+    margin-bottom: .35rem;
+  }
+  .ref-desc { font-size: .82rem; color: var(--text-body); line-height: 1.55; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  section:nth-child(2) { animation-delay: .05s; }
+  section:nth-child(3) { animation-delay: .1s; }
+  section:nth-child(4) { animation-delay: .15s; }
+  section:nth-child(5) { animation-delay: .2s; }
+  section:nth-child(6) { animation-delay: .25s; }
+  section:nth-child(7) { animation-delay: .3s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--nav-border); padding: 1.2rem 0; flex-direction: row; flex-wrap: wrap; overflow-x: auto; }
+    .nav-logo { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .nav-group-label { display: none; }
+    main { padding: 2rem 1.4rem 5rem; }
+    .split-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">💡</button>
+
+<div class="font-controls">
+  <button class="font-btn" id="font-up" title="Increase text size">A+</button>
+  <button class="font-btn" id="font-down" title="Decrease text size">A−</button>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR NAV -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-logo">The Mind<br>Illuminated</div>
+
+    <div class="nav-group-label">Overview</div>
+    <a href="#culadasa">About Culadasa</a>
+    <a href="#system">The System</a>
+    <a href="#mind-model">The Mind Model</a>
+
+    <div class="nav-group-label">Core Concepts</div>
+    <a href="#attention">Attention &amp; Awareness</a>
+    <a href="#obstacles">The Obstacles</a>
+    <a href="#introspection">Introspective Awareness</a>
+
+    <div class="nav-group-label">The Ten Stages</div>
+    <a href="#stages-1-3">Stages 1–3</a>
+    <a href="#stages-4-6">Stages 4–6</a>
+    <a href="#stages-7-10">Stages 7–10</a>
+
+    <div class="nav-group-label">Practice</div>
+    <a href="#techniques">Core Techniques</a>
+    <a href="#insights">Insight &amp; Awakening</a>
+    <a href="#references">References</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">An Introduction</div>
+      <h1>The Mind<br><em>Illuminated</em></h1>
+      <p class="hero-sub">Culadasa's neuroscience-informed map of the meditative path — ten progressive stages from scattered beginner to unified, awakened mind.</p>
+      <div class="hero-tags">
+        <span class="tag">Shamatha</span>
+        <span class="tag">Vipassanā</span>
+        <span class="tag">Ten Stages</span>
+        <span class="tag">Neuroscience</span>
+        <span class="tag">Theravāda</span>
+        <span class="tag">Attention</span>
+        <span class="tag">Awareness</span>
+        <span class="tag">Samādhi</span>
+      </div>
+    </div>
+
+    <!-- CULADASA -->
+    <section id="culadasa">
+      <div class="section-label">// The Teacher</div>
+      <h2>About Culadasa (John Yates)</h2>
+      <p>John Yates — known by his Buddhist name <strong>Culadasa</strong>, meaning "small servant of the Buddha" — was an American neuroscientist and Tibetan Buddhist meditation master whose life bridged two worlds rarely in genuine conversation. After earning a PhD in physiology and spending decades in academic neuroscience, he also underwent decades of intensive meditation practice across multiple traditions, eventually training as a teacher in the Theravāda lineage.</p>
+      <p>Rather than treating science and contemplative wisdom as separate magisteria, Culadasa saw them as two perspectives on the same underlying reality. <em>The Mind Illuminated</em>, published in 2015 and co-written with Matthew Immergut and Jeremy Graves, is the product of that synthesis: a rigorous, stage-by-stage meditation manual grounded simultaneously in classical Buddhist psychology (particularly the Pāli Canon and Tibetan Vajrayāna) and contemporary cognitive neuroscience.</p>
+      <div class="pull-quote">
+        "What I offer here is a synthesis of the collective meditative wisdom of many traditions along with insights from cognitive science — a complete and coherent system that anyone can use."
+        <cite>— Culadasa, The Mind Illuminated</cite>
+      </div>
+      <p>He founded Cochise Satsang, a meditation community in Arizona, and taught until his death in 2022. His book is widely considered one of the most comprehensive and practically useful meditation manuals written in English, beloved by practitioners ranging from complete beginners to advanced meditators who found their prior training lacked a clear roadmap.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- THE SYSTEM -->
+    <section id="system">
+      <div class="section-label">// The Framework</div>
+      <h2>What is The Mind Illuminated?</h2>
+      <p>TMI (as practitioners commonly call it) is a <strong>complete, stage-based training system</strong> for the development of meditative skill. Its organizing principle is a clear map of ten progressive stages — from establishing a basic daily practice all the way through profound samādhi, deep insight, and the threshold of awakening. Each stage is defined by the specific challenges and skills that characterize it, so a practitioner always knows where they are and what they're working on.</p>
+      <p>The system integrates two traditionally distinct streams of Buddhist practice that are often treated separately: <em>shamatha</em> (calm abiding — the cultivation of stable, concentrated attention) and <em>vipassanā</em> (insight — the direct perception of impermanence, suffering, and no-self). In TMI, these are woven together from the beginning, each reinforcing the other rather than being practiced in separate retreats or phases.</p>
+      <p>TMI draws most heavily on the Pāli Canon's account of the meditative path (particularly the jhānas and the insight knowledges), but Culadasa's neuroscientific training shapes the explanatory framework at every level. The <strong>mind-system model</strong> — his account of how consciousness actually works — is the conceptual backbone that makes the practical instructions coherent.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- MIND MODEL -->
+    <section id="mind-model">
+      <div class="section-label">// The Core Model</div>
+      <h2>The Mind-System Model</h2>
+      <p>Culadasa's most distinctive contribution is his model of what the mind actually <em>is</em>. Rather than treating consciousness as a unified, singular "I" that does the meditating, he proposes — drawing on cognitive neuroscience — that the mind is better understood as a <strong>collection of semi-autonomous processors or sub-minds</strong>, each running in parallel and each capable of generating its own "intentions," perceptions, and outputs.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Model</span>
+              <span class="acc-title">Conscious vs. Unconscious Minds</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>In TMI, the mind is divided into a <strong>conscious mind</strong> and many <strong>unconscious sub-minds</strong>. The conscious mind is the "stage" where information is broadcast broadly — what we experience as awareness and attention. The unconscious sub-minds are specialized processors that handle everything from sensory processing to emotional valuation to memory to motor coordination.</p>
+              <p>Crucially, <em>most mental activity happens in the unconscious sub-minds</em>. What we experience as "our" thoughts, feelings, and decisions are actually outputs of these sub-minds that have won enough priority to enter conscious awareness. The sense of a unified self-in-charge is a kind of illusion constructed after the fact.</p>
+              <p>This is not merely a philosophical point — it has direct practical implications. Many difficulties in meditation (distraction, dullness, restlessness, craving) are understood as the behavior of unconscious sub-minds that haven't yet been brought into alignment with the practitioner's intentions.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Model</span>
+              <span class="acc-title">Unification of Mind</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The arc of TMI's ten stages is best understood as the progressive <strong>unification of mind</strong>: the gradual bringing of unconscious sub-minds into alignment with the conscious intention to meditate. Early in practice, many sub-minds have competing agendas — some want to plan dinner, some want to revisit an argument, some are bored, some are restless. This is experienced as distraction and mind-wandering.</p>
+              <p>As practice deepens, these sub-minds progressively "join" the meditation. Their competing outputs quiet. A state of inner cohesion and harmony emerges — what the tradition calls <em>samādhi</em>. At Stage 7 and beyond, the sense of effort dissolves because all parts of the mind are moving in the same direction, requiring no management.</p>
+              <p>Ultimately, deep unification creates the conditions for the insight practices that lead to awakening — the direct perception of the constructed, impermanent, and selfless nature of all experience.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Model</span>
+              <span class="acc-title">Moments of Mind</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>Culadasa also adopts the classical Buddhist analysis of consciousness as occurring in discrete <strong>moments of mind</strong> — individual, extremely brief pulses of experience arising in rapid succession. Each moment is either a moment of <em>perceiving</em> (one of the six sense objects: sight, sound, smell, taste, touch, or mental objects) or a <em>mind moment</em> where no sense object arises (a moment of pure awareness, or more commonly, a moment of non-perception).</p>
+              <p>This model explains dullness: in dull states, more and more moments are non-perceiving, reducing the effective resolution of conscious experience. It explains why increasing "mindfulness moments" in each period of awareness is the primary skill being trained.</p>
+              <p>At high stages of practice, practitioners begin to directly perceive this flickering, moment-to-moment arising and passing of consciousness — one of the key insight experiences TMI prepares practitioners for.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ATTENTION & AWARENESS -->
+    <section id="attention">
+      <div class="section-label">// Core Concepts</div>
+      <h2>Attention &amp; Peripheral Awareness</h2>
+      <p>The single most important conceptual distinction in TMI — the one that runs through every stage and every technique — is the difference between <strong>attention</strong> and <strong>peripheral awareness</strong>. Most meditation instructions conflate them. Culadasa treats them as distinct faculties that must be cultivated together.</p>
+      <div class="split-grid">
+        <div class="split-card">
+          <span class="split-icon">🔦</span>
+          <div class="split-name">Attention</div>
+          <div class="split-desc">The narrow, focused spotlight of consciousness. It isolates and analyzes selected objects in detail. Sequential and selective — at any moment, attention is on <em>one thing</em>. In TMI, the breath is the primary object of attention.</div>
+        </div>
+        <div class="split-card">
+          <span class="split-icon">🌕</span>
+          <div class="split-name">Peripheral Awareness</div>
+          <div class="split-desc">The broad, background field of consciousness — the "ambient light" of the mind. Simultaneous and holistic. It holds the larger context: sounds, body sensations, emotional tone, the sense of being in a room, the general quality of the mind itself.</div>
+        </div>
+      </div>
+      <p>Most meditators inadvertently collapse awareness into attention — narrowing so tightly onto the breath that their peripheral awareness dims or disappears. This produces a kind of tunnel-vision dullness. TMI teaches that <strong>strong, stable attention and vivid peripheral awareness must be cultivated simultaneously</strong>. They are mutually supporting, not competing.</p>
+      <p>Peripheral awareness is also the faculty through which <em>introspective monitoring</em> operates — the meta-awareness of what the mind itself is doing. Without it, a practitioner cannot notice when they have been distracted until long after the fact.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- THE OBSTACLES -->
+    <section id="obstacles">
+      <div class="section-label">// Core Concepts</div>
+      <h2>The Two Obstacles: Dullness &amp; Distraction</h2>
+      <p>Every difficulty in meditation resolves into one of two root problems — or their interaction. Understanding them precisely allows a practitioner to apply the correct remedy rather than struggling generically.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Obstacle</span>
+              <span class="acc-title">Dullness — Gross and Subtle</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>Dullness</strong> is a reduction in the vividness and power of consciousness. In the mind-moment model, it is an increase in non-perceiving moments — the mind is "online" less often. TMI distinguishes two varieties:</p>
+              <p><em>Gross dullness</em> is obvious: drowsiness, heaviness, reduced clarity, the feeling of nearly falling asleep. Most beginning meditators recognize this immediately.</p>
+              <p><em>Subtle dullness</em> is far more dangerous because it is nearly invisible. The practitioner feels calm and pleasant — the breath seems clear — but peripheral awareness has dimmed and the overall "brightness" of consciousness has quietly reduced. Many meditators mistake subtle dullness for depth. It is actually one of the primary reasons practitioners plateau and fail to progress.</p>
+              <p><strong>The antidote:</strong> Energizing practices — increasing the scope and vividness of peripheral awareness, body scanning, counting breaths, and specifically the practice of "connecting" (finding more and more detail within each breath).</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Obstacle</span>
+              <span class="acc-title">Distraction — Forgetting &amp; Mind-Wandering</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>Distraction</strong> arises when unconscious sub-minds compete for attention and succeed in pulling it away from the intended meditation object. TMI maps distraction along a spectrum:</p>
+              <p><em>Forgetting</em> is the most severe form: the practitioner has entirely lost the meditation object and doesn't know it. They are absorbed in a train of thought — planning, remembering, narrating — with no awareness that this has happened. Recovering from forgetting requires the arising of introspective awareness to "wake up" the practitioner to what has occurred.</p>
+              <p><em>Gross distraction</em>: the practitioner is still technically aware of the breath but the distraction (a thought, sound, sensation) has pushed the breath to the periphery and become the primary object of attention.</p>
+              <p><em>Subtle distraction</em>: the breath remains primary, but competing mental objects are active in the background and intermittently draw a portion of attention. This is the obstacle of the later middle stages.</p>
+              <p><strong>The antidote:</strong> Applying the "check-in" — a brief introspective awareness scan — and progressively training the mind to notice distractions earlier and earlier in their arising.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Key Skill</span>
+              <span class="acc-title">Forgetting vs. Mind-Wandering</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>TMI makes a useful distinction: <em>forgetting</em> means the meditator has completely lost awareness that they were meditating (no meta-awareness at all), while <em>mind-wandering</em> refers to a state where there is some background awareness of meditating even while attention has wandered away from the breath.</p>
+              <p>This matters because mind-wandering — while still a form of distraction — represents a higher level of introspective awareness than forgetting. A practitioner who is mind-wandering can, in principle, notice the wandering and return. A practitioner who has truly forgotten is not available to notice anything until introspective awareness spontaneously re-emerges.</p>
+              <p>Progress through the early stages of TMI is largely measured by how quickly introspective awareness fires after the onset of distraction — moving from forgetting (minutes) → mind-wandering (seconds) → noticing distraction before it fully captures attention.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INTROSPECTIVE AWARENESS -->
+    <section id="introspection">
+      <div class="section-label">// Core Concepts</div>
+      <h2>Introspective Awareness</h2>
+      <p>Underlying the entire system is the cultivation of <strong>metacognitive introspective awareness</strong> — the mind's ability to know its own state in real time. This is distinct from attention (which is focused on the breath) and from ordinary peripheral awareness (which holds the sensory environment). Introspective awareness watches <em>the mind itself</em>: noticing the quality of attention, the presence or absence of dullness, the arising of distraction, the emotional tone of the sitting.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Skill</span>
+              <span class="acc-title">The Check-In Practice</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>One of TMI's most practical tools is the deliberate <strong>check-in</strong>: a brief, intentional turning of awareness inward to scan the state of the mind. Rather than waiting passively for introspective awareness to arise spontaneously, the practitioner periodically asks: <em>Is attention on the breath? Is dullness present? Is there distraction? What is the emotional tone of this sitting?</em></p>
+              <p>Frequent check-ins in early stages train the habit of self-monitoring. Over time, introspective awareness becomes more continuous and eventually automatic — a background process running in parallel with the focused practice, quietly alerting the practitioner to obstacles as they arise rather than after they've taken hold.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Skill</span>
+              <span class="acc-title">Spontaneous Introspective Awareness</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The goal is for introspective awareness to arise <em>spontaneously</em> — without the practitioner having to deliberately invoke it. At this point, the mind has developed a reliable "watchman" function: any significant deviation from stable attention automatically generates an alert in peripheral awareness before distraction can fully capture attention or dullness can fully set in.</p>
+              <p>This represents a significant milestone in the middle stages of TMI — and it is a qualitative shift that many practitioners don't realize is possible until they experience it. The sitting begins to manage itself, with the watchman catching problems at their earliest arising and the practitioner gently returning without the mental friction of frustration or self-criticism.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- STAGES 1-3 -->
+    <section id="stages-1-3">
+      <div class="section-label">// The Ten Stages</div>
+      <h2>Stages 1–3: Establishing the Foundation</h2>
+      <p>The early stages focus on building the fundamental conditions for meditation: a reliable daily practice, basic familiarity with the breath as an object, and the first development of introspective awareness.</p>
+
+      <div class="stages-track">
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 1</span>
+            <span class="stage-title">Establishing a Practice</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>The challenge at Stage 1 is not attention — it is simply showing up. The practitioner is working to establish a consistent, regular meditation habit. This stage is complete when sitting daily (or close to it) has become a reliable part of life.</p>
+              <p>TMI's advice here is practical: set achievable session lengths, pick a consistent time, create a dedicated space, and — crucially — don't use session quality as a measure of progress. The goal at this stage is just to sit, repeatedly. Motivation and intention are the tools.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 2</span>
+            <span class="stage-title">Interrupted Attention &amp; Overcoming Mind-Wandering</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>The practitioner can hold the breath as the object, but attention is frequently interrupted by distractions — sometimes for long periods of mind-wandering or even forgetting. The primary task is learning to recognize when attention has wandered and to return, gently, without self-criticism.</p>
+              <p>The key instruction here is the quality of the return. Each time the practitioner notices they've wandered, they can briefly acknowledge and release the distraction, then appreciate the moment of waking up before returning to the breath. Over time, these moments of noticing become faster and more reliable.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 3</span>
+            <span class="stage-title">Extended Attention &amp; Overcoming Forgetting</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>Periods of sustained attention are now longer — minutes rather than seconds — but forgetting still occurs. The practitioner begins developing introspective awareness as a deliberate practice (the check-in) and starts noticing subtle dullness for the first time.</p>
+              <p>Key techniques for this stage include <em>labeling</em> (briefly noting "thinking," "planning," "remembering" when distracted) and <em>following</em> (tracking the breath through its full arc, from the beginning of the in-breath through the pause to the beginning of the out-breath). The level of detail involved in following actively combats dullness.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone-banner">
+          <span class="milestone-label">Milestone 1</span>
+          <span class="milestone-text">An established practice — sitting consistently, recovering from forgetting reliably, and beginning to notice dullness.</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STAGES 4-6 -->
+    <section id="stages-4-6">
+      <div class="section-label">// The Ten Stages</div>
+      <h2>Stages 4–6: Deepening Stability</h2>
+      <p>The middle stages are where gross obstacles have been overcome and the more demanding work of subduing subtle obstacles begins. This is often the longest phase of practice — and where many practitioners plateau without a clear map.</p>
+
+      <div class="stages-track">
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 4</span>
+            <span class="stage-title">Continuous Attention &amp; Overcoming Gross Distraction</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>Forgetting and mind-wandering are now rare. The breath remains the primary object throughout a sit, but gross distractions (thoughts, sensations, sounds) still intermittently displace it. Gross dullness may still appear.</p>
+              <p>The practitioner learns to work with distractions more skillfully: instead of simply returning attention, they begin to <em>observe</em> what is competing for attention, briefly acknowledge it as peripheral, and consciously choose to return to the breath. This intentionality strengthens the "choosing" muscle of attention.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone-banner">
+          <span class="milestone-label">Milestone 2</span>
+          <span class="milestone-text">Sustained attention — the breath is held continuously throughout a sit; only subtle distractions and dullness remain.</span>
+        </div>
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 5</span>
+            <span class="stage-title">Overcoming Subtle Dullness &amp; Increasing Mindfulness</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>Gross obstacles are gone. The primary enemy is now subtle dullness — the pleasant, calm-seeming state where peripheral awareness has quietly dimmed. The practitioner must learn to recognize it through its signature: a reduction in the scope and vividness of awareness despite attention feeling stable.</p>
+              <p>The primary tools at this stage are awareness-expanding practices: deliberately expanding peripheral awareness to include the whole body, the entire room, sounds, and emotional tone. The goal is not more focused attention but <em>more mindfulness</em> — a broader, brighter, more vivid field of consciousness in which the focused attention on the breath is embedded.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 6</span>
+            <span class="stage-title">Subduing Subtle Distraction</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>Subtle dullness has been overcome and introspective awareness is now largely spontaneous. The remaining obstacle is <em>subtle distraction</em>: competing thoughts and mental objects that are active in peripheral awareness and intermittently claim small portions of attention, even while the breath remains primary.</p>
+              <p>The work at this stage is to gradually subdue these background mental activities — not by suppressing them, but by training the mind not to respond to them. The practitioner develops a refined capacity to notice when a portion of attention has "leaked" toward a peripheral object and to smoothly reclaim it.</p>
+              <p>Completing Stage 6 produces a qualitative shift: the breath fills the entire field of attention, undisturbed by competing objects. The mind begins to feel genuinely unified.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STAGES 7-10 -->
+    <section id="stages-7-10">
+      <div class="section-label">// The Ten Stages</div>
+      <h2>Stages 7–10: Unification &amp; Samādhi</h2>
+      <p>The advanced stages represent a different order of experience — the progressive ripening of samādhi, the pacification of the senses, and the emergence of profound equanimity. Effort gives way to effortlessness; the practitioner is increasingly absorbed in states of unified awareness.</p>
+
+      <div class="stages-track">
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 7</span>
+            <span class="stage-title">Exclusive Attention &amp; Unifying the Mind</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>Subtle distraction still arises, but the practitioner can hold exclusive, undivided attention on the breath. The primary remaining work is overcoming the effort required to maintain this stability — the practice is still effortful, though far less than before.</p>
+              <p>This stage introduces <em>powerful methods</em> — strong energy techniques to keep the mind vividly awake without effort — and begins working with the joy and pleasurable sensations (pīti) that arise as the mind settles. These are celebrated as signs of progress but also managed carefully, as they can become distractions in their own right.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone-banner">
+          <span class="milestone-label">Milestone 3</span>
+          <span class="milestone-text">Effortless stability of attention — samatha. The mind sustains itself without effort. Joy, tranquility, and equanimity arise naturally.</span>
+        </div>
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 8</span>
+            <span class="stage-title">Mental Pliancy &amp; Pacifying the Senses</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>The mind sustains itself without effort. <em>Mental pliancy</em> has emerged: the mind is flexible, responsive, and obedient to intention without resistance. Unusual sensory phenomena — tingling, warmth, waves of energy — may arise as the senses begin to "pacify" (withdraw from external objects).</p>
+              <p>This is the beginning of access to the jhānas — concentrated meditative absorptions. The practitioner must work skillfully with the intense joy and pleasure that accompany this stage, learning to receive them with equanimity rather than craving or grasping.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 9</span>
+            <span class="stage-title">Mental &amp; Physical Pliancy</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>Both mental and physical pliancy are now present. The intense joy of earlier stages has matured into a profound, stable <em>meditative joy</em> — still intensely pleasurable but no longer overwhelming. The body may feel light, effortless, or even imperceptible.</p>
+              <p>The practitioner increasingly rests in states of deep stillness and radiant clarity, with peripheral awareness open and luminous. These are the stages described in the classical Pāli texts as preceding the deepest jhānas.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-item">
+          <button class="stage-header">
+            <span class="stage-num">Stage 10</span>
+            <span class="stage-title">Tranquility &amp; Equanimity</span>
+            <span class="stage-chevron">▾</span>
+          </button>
+          <div class="stage-body">
+            <div class="stage-body-inner">
+              <p>The final stage before the threshold of awakening. Meditative joy has matured into profound <em>equanimity</em> — an unshakeable stillness that is neither positive nor negative but deeply peaceful and radically open. The practitioner rests here with great stability.</p>
+              <p>Samādhi is complete. The mind is fully unified, effortlessly concentrated, radiantly clear, and deeply at peace. This is the optimal platform from which the insight practices leading to awakening are undertaken — and from which many practitioners begin exploring the deeper jhānas and cultivating specific insight knowledges.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone-banner">
+          <span class="milestone-label">Milestone 4</span>
+          <span class="milestone-text">Awakening — the fruit of sustained insight practice: a direct, irreversible shift in the understanding of the nature of experience and self.</span>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- TECHNIQUES -->
+    <section id="techniques">
+      <div class="section-label">// Core Practices</div>
+      <h2>Core Techniques</h2>
+      <p>TMI uses breath meditation as its primary vehicle, but the specific instructions are unusually detailed and progressive, with different techniques applied at different stages.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Foundation</span>
+              <span class="acc-title">Breath Meditation — Following &amp; Connecting</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The primary object of meditation throughout most of TMI is the physical sensations of breathing — typically at the nostrils, but the practitioner may also use the rise and fall of the abdomen or the breath in the whole body.</p>
+              <p><strong>Following</strong> means tracking the breath through its complete arc: the sensations at the beginning of the in-breath, the middle, the end, the pause, the beginning of the out-breath, and so on. This level of detail actively combats dullness and keeps the mind engaged.</p>
+              <p><strong>Connecting</strong> goes further: finding the linkages between one breath and the next, noticing the transitions, the subtle changes in quality and character. These practices progressively increase the resolution of attention until even a single breath contains dozens of distinct, clearly perceived moments.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Stability</span>
+              <span class="acc-title">Labeling &amp; Noting Distractions</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>When a distraction captures attention, the practitioner briefly <strong>labels</strong> it before returning to the breath — silently noting "thinking," "planning," "remembering," "hearing," "feeling." This serves several functions: it activates introspective awareness, reduces the pull of the distraction by giving it a category rather than engaging with its content, and provides useful data about the patterns of distraction in one's own mind.</p>
+              <p>The label is always brief — a single word or short phrase — and immediately followed by a gentle return to the breath. The returning is as important as the noticing: it trains the act of choosing where attention goes.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Energy</span>
+              <span class="acc-title">Antidotes to Dullness</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>TMI provides a toolkit of energy-raising techniques for working with dullness at different stages:
+              </p>
+              <ul>
+                <li><strong>Expanding awareness</strong> — deliberately enlarging peripheral awareness to include the whole body, the room, sounds</li>
+                <li><strong>Body scanning</strong> — systematically moving attention through sensations in the entire body</li>
+                <li><strong>Counting breaths</strong> — adding a numeric framework to keep attention engaged</li>
+                <li><strong>Increasing intention</strong> — silently affirming the intention to be present at the beginning of each breath</li>
+                <li><strong>Standing or walking</strong> — changing posture when sitting dullness is persistent</li>
+              </ul>
+              <p>The key insight is that dullness is not overcome by forcing more concentration — it requires more <em>mindfulness</em> (a broader, brighter awareness field), not more tunnel focus.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Insight</span>
+              <span class="acc-title">Jhāna Practice</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>From Stages 7–8 onward, TMI introduces working with the <strong>jhānas</strong> — concentrated meditative absorptions described throughout the Pāli Canon. Culadasa distinguishes between <em>sutta jhānas</em> (relatively accessible states of unified attention with joy and pleasure present) and <em>Visuddhimagga jhānas</em> (extremely deep absorptions characteristic of advanced samādhi).</p>
+              <p>The jhānas serve a dual purpose: they deepen unification and samādhi, and they provide a platform for specific insight investigations. The progression of jhāna states — from first jhāna (joy, pleasure, sustained application of attention) through fourth jhāna (profound equanimity and one-pointedness) — maps closely to the progression of later TMI stages.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Support</span>
+              <span class="acc-title">Loving-Kindness (Mettā)</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>TMI recommends loving-kindness (mettā) meditation as a supporting practice throughout the path — particularly valuable when practitioners encounter the inner resistance, self-criticism, and frustration that commonly arise in early and middle stages.</p>
+              <p>Cultivating genuine goodwill toward oneself and others directly addresses the emotional obstacles that impede unification of mind. It also serves as a "purification" practice: by bringing warmth and non-judgment to difficult psychological material that surfaces in deep meditation, the practitioner reduces the unconscious sub-minds' resistance to settling.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- INSIGHT & AWAKENING -->
+    <section id="insights">
+      <div class="section-label">// Depth &amp; Direction</div>
+      <h2>Insight &amp; Awakening</h2>
+      <p>TMI's ten stages primarily describe the development of <em>shamatha</em> — calm, stable, unified attention. But the book's deeper aim is awakening — a genuine, irreversible shift in the understanding of the nature of self and experience. Culadasa addresses this in the interludes on the insight stages.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Insight</span>
+              <span class="acc-title">Insight Meditation &amp; the Three Characteristics</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>As shamatha deepens, the conditions for <em>insight</em> (vipassanā) naturally mature. TMI describes insight as the direct perception of the three characteristics of all conditioned phenomena — <em>anicca</em> (impermanence), <em>dukkha</em> (unsatisfactoriness), and <em>anattā</em> (no-self) — not as intellectual beliefs but as clear, immediate perceptual reality.</p>
+              <p>The practitioner begins to see at the finest available resolution: every moment of experience is arising, changing, and passing. Nothing is stable. What appeared to be continuous experience is revealed as a rapid flickering of discrete moments. This perception — sustained and clear — is the engine of liberation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Insight</span>
+              <span class="acc-title">The Arising &amp; Passing Away</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>One of the classical insight milestones is the <strong>arising and passing away</strong> — a direct perception of the rapid arising and vanishing of phenomena at the level of individual mind-moments. This experience is often described as a significant shift: the practitioner sees, often in a single meditation session, the impermanence of phenomena at a finer resolution than previously available.</p>
+              <p>This can be accompanied by a sense of wonder, lightness, or joy — and sometimes by a period of what the tradition calls the <em>dukkha ñānas</em> (knowledge of suffering) in the aftermath, as the practitioner grapples with the full implications of what they've seen. TMI provides a map for navigating this territory.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Goal</span>
+              <span class="acc-title">Awakening — Stream Entry &amp; Beyond</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>Culadasa maps the stages of awakening using the traditional Theravāda framework of the four stages of liberation (<em>sotāpatti</em>, <em>sakadāgāmi</em>, <em>anāgāmi</em>, <em>arahant</em>), interpreted through the lens of the mind-system model. Each stage represents the permanent release of specific unconscious patterns — what the tradition calls "fetters" — that have kept the mind bound by suffering and the illusion of self.</p>
+              <p><em>Stream entry</em> (first awakening) is described as an irreversible event in which the practitioner directly perceives the constructed, selfless nature of experience — and can never fully return to the prior default of unconscious identification with a fixed self. This is the goal that Milestone 4 marks.</p>
+              <p>TMI's view is that awakening is not rare, not reserved for monastics, and not a single binary event but a series of clear, achievable shifts available to any serious practitioner — regardless of lifestyle — who develops the requisite samādhi and brings it to bear on insight investigation.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- REFERENCES -->
+    <section id="references">
+      <div class="section-label">// Further Study</div>
+      <h2>References &amp; Resources</h2>
+      <p>TMI is a rich, detailed text — the resources below are the best entry points into both the book and the broader community of practitioners it has generated.</p>
+      <div class="ref-grid">
+
+        <a class="ref-card" href="https://www.amazon.com/Mind-Illuminated-Meditation-Integrating-Mindfulness/dp/1501156985" target="_blank" rel="noopener">
+          <div class="ref-icon">📘</div>
+          <div class="ref-info">
+            <div class="ref-title">The Mind Illuminated: A Complete Meditation Guide Integrating Buddhist Wisdom and Brain Science</div>
+            <div class="ref-meta">Culadasa (John Yates) · 2015 · Atria Books</div>
+            <div class="ref-desc">The primary text. Detailed, comprehensive, and practically oriented — includes extensive "interludes" that explain the neuroscience and Buddhist theory behind the stage instructions. Often described as the most complete meditation manual in the English language.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://www.audible.com/pd/The-Mind-Illuminated-Audiobook/B072MF7KJ9" target="_blank" rel="noopener">
+          <div class="ref-icon">🎧</div>
+          <div class="ref-info">
+            <div class="ref-title">The Mind Illuminated (Audiobook)</div>
+            <div class="ref-meta">Narrated by Greg Baglia · Audible</div>
+            <div class="ref-desc">A well-produced audiobook version of the text. Useful for review and re-listening to specific stage instructions, though the dense theoretical interludes may reward print reading for full absorption.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://www.reddit.com/r/TheMindIlluminated/" target="_blank" rel="noopener">
+          <div class="ref-icon">💬</div>
+          <div class="ref-info">
+            <div class="ref-title">r/TheMindIlluminated — Community Forum</div>
+            <div class="ref-meta">Reddit · Active Practitioner Community</div>
+            <div class="ref-desc">One of the most active and sophisticated meditation communities online, organized specifically around TMI practice. An excellent resource for stage identification, working with specific obstacles, and connecting with experienced practitioners.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://dharmaseed.org/teacher/399/" target="_blank" rel="noopener">
+          <div class="ref-icon">🎙️</div>
+          <div class="ref-info">
+            <div class="ref-title">Culadasa Talks — Dharma Seed Archive</div>
+            <div class="ref-meta">Free Audio · dharmaseed.org</div>
+            <div class="ref-desc">A freely available archive of Culadasa's recorded dharma talks and retreat instructions. Hearing him explain the system in his own voice substantially enriches the written text.</div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // ── THEME TOGGLE ──
+  const toggle = document.getElementById('theme-toggle');
+  toggle.addEventListener('click', () => {
+    const root = document.documentElement;
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  // ── FONT SIZE ──
+  let fontSize = 16;
+  document.getElementById('font-up').addEventListener('click', () => {
+    fontSize = Math.min(fontSize + 1, 22);
+    document.documentElement.style.fontSize = fontSize + 'px';
+  });
+  document.getElementById('font-down').addEventListener('click', () => {
+    fontSize = Math.max(fontSize - 1, 12);
+    document.documentElement.style.fontSize = fontSize + 'px';
+  });
+
+  // ── ACCORDION (concept/technique panels) ──
+  document.querySelectorAll('.acc-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.acc-item');
+      const body = item.querySelector('.acc-body');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.acc-item.open').forEach(el => {
+        el.classList.remove('open');
+        el.querySelector('.acc-body').style.maxHeight = '0';
+        el.querySelector('.acc-header').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // ── STAGE ACCORDION (ten stages) ──
+  document.querySelectorAll('.stage-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.stage-item');
+      const body = item.querySelector('.stage-body');
+      const isOpen = item.classList.contains('open');
+      if (!isOpen) {
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+      } else {
+        item.classList.remove('open');
+        body.style.maxHeight = '0';
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  // ── ACTIVE NAV ON SCROLL ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-25% 0px -65% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
