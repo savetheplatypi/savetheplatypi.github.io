@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>UCLA Mindful</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & tokens ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+/* ── DARK theme (default) ── */
+:root {
+  --ink:        #0d1822;
+  --mid:        #172233;
+  --rim:        #223044;
+  --sage:       #7db89a;
+  --sage2:      #a8d4bf;
+  --gold:       #c9a96e;
+  --mist:       #ccd9e8;
+  --dim:        #617890;
+  --err:        #e07070;
+  --active-bg:  rgba(125,184,154,0.12);
+  --hdr-bg:     rgba(13,24,34,0.75);
+  --bar-bg:     rgba(10,18,28,0.96);
+  --card-bg:    #172233;
+  --intro-str:  #ccd9e8;
+  --bg-grad:
+    radial-gradient(ellipse 70% 45% at 90% 5%, rgba(125,184,154,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(125,184,154,0.05) 0%, transparent 65%),
+    linear-gradient(180deg, #172233 0%, #0d1822 100%);
+}
+
+/* ── LIGHT theme ── */
+:root.light {
+  --ink:        #f0f4f0;
+  --mid:        #ffffff;
+  --rim:        #c8ddd0;
+  --sage:       #4a9171;
+  --sage2:      #2d7055;
+  --gold:       #a07830;
+  --mist:       #1a2e22;
+  --dim:        #607870;
+  --err:        #c04040;
+  --active-bg:  rgba(74,145,113,0.10);
+  --hdr-bg:     rgba(240,244,240,0.88);
+  --bar-bg:     rgba(240,244,240,0.97);
+  --card-bg:    #ffffff;
+  --intro-str:  #1a2e22;
+  --bg-grad:
+    radial-gradient(ellipse 70% 45% at 90% 5%, rgba(74,145,113,0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(74,145,113,0.05) 0%, transparent 65%),
+    linear-gradient(180deg, #e4ede7 0%, #f0f4f0 100%);
+}
+
+html { height: 100%; }
+body {
+  min-height: 100%; background: var(--ink);
+  color: var(--mist); font-family: 'DM Sans', sans-serif;
+  font-weight: 300; font-size: 16px; line-height: 1.4;
+  overscroll-behavior: none;
+  transition: background 0.3s, color 0.3s;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0;
+  background: var(--bg-grad);
+  pointer-events: none;
+  transition: background 0.3s;
+}
+
+/* ── Theme toggle button ── */
+.theme-toggle {
+  background: none; border: 1px solid var(--rim); border-radius: 50%;
+  width: 36px; height: 36px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1;
+  color: var(--dim); transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { border-color: var(--sage); background: var(--active-bg); }
+.theme-toggle:active { transform: scale(0.9); }
+
+/* ── Layout ── */
+.app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100dvh; }
+
+/* ── Header ── */
+header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(125,184,154,0.12);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--hdr-bg); backdrop-filter: blur(10px);
+  position: sticky; top: 0; z-index: 10;
+}
+.logo { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; letter-spacing: 0.06em; }
+.logo em { color: var(--sage); font-style: normal; }
+.tagline { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); }
+
+/* ════════════════════════════════════════
+   MEDITATIONS
+════════════════════════════════════════ */
+.meditation-list { padding: 12px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+
+.med-card {
+  background: var(--card-bg); border: 1px solid var(--rim); border-radius: 16px;
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 20px; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.12s;
+  position: relative; overflow: hidden;
+}
+.med-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 10% 50%, rgba(125,184,154,0.07) 0%, transparent 70%);
+  opacity: 0; transition: opacity 0.25s;
+}
+.med-card:active { transform: scale(0.985); }
+.med-card:hover::before, .med-card.playing::before { opacity: 1; }
+.med-card.playing { border-color: var(--sage); background: var(--active-bg); }
+.med-card.loading { border-color: var(--gold); background: rgba(201,169,110,0.06); }
+.med-card.errored { border-color: var(--err); background: rgba(224,112,112,0.06); }
+
+.med-icon { font-size: 32px; flex-shrink: 0; width: 44px; text-align: center; line-height: 1; }
+.med-card.loading .med-icon { opacity: 0; }
+
+.med-info { flex: 1; min-width: 0; }
+.med-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400;
+  line-height: 1.2; color: var(--mist); transition: color 0.2s;
+}
+.med-card.playing .med-title { color: var(--sage2); }
+.med-card.errored .med-title { color: var(--err); }
+.med-dur { font-size: 13px; color: var(--dim); margin-top: 3px; letter-spacing: 0.06em; }
+.med-card.playing .med-dur { color: var(--sage); }
+
+/* wave bars */
+@keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.7)} }
+.wave { display: none; gap: 3px; align-items: center; height: 18px; flex-shrink: 0; }
+.med-card.playing:not(.paused) .wave { display: flex; }
+.wave span { display: block; width: 3px; border-radius: 2px; background: var(--sage); animation: wave 0.9s ease-in-out infinite; }
+.wave span:nth-child(1){height:18px;animation-delay:0s}
+.wave span:nth-child(2){height:12px;animation-delay:0.15s}
+.wave span:nth-child(3){height:18px;animation-delay:0.3s}
+.wave span:nth-child(4){height:10px;animation-delay:0.1s}
+
+/* spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner-wrap { display: none; width: 44px; text-align: center; flex-shrink: 0; }
+.med-card.loading .spinner-wrap { display: flex; align-items: center; justify-content: center; }
+.spinner { width: 20px; height: 20px; border: 2px solid rgba(201,169,110,0.25); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+/* ── Sticky player bar ── */
+.player-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+  background: var(--bar-bg); backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(125,184,154,0.15);
+  padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.pb-top { display: flex; align-items: center; gap: 12px; }
+.pb-title {
+  flex: 1; font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-style: italic; font-weight: 300;
+  color: var(--mist); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pb-title.idle { font-style: normal; color: var(--dim); }
+.pb-title.errmsg { font-style: normal; color: var(--err); font-size: 14px; }
+.pb-time { font-size: 13px; color: var(--dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.pb-controls { display: flex; align-items: center; gap: 10px; }
+.pb-btn {
+  background: none; border: 1px solid var(--rim); border-radius: 10px;
+  color: var(--mist); font-size: 20px; width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color 0.2s, background 0.2s; flex-shrink: 0;
+}
+.pb-btn.primary { border-color: var(--sage); background: rgba(125,184,154,0.12); font-size: 22px; width: 52px; height: 52px; }
+.pb-btn:active { background: rgba(125,184,154,0.2); }
+.pb-btn:disabled { opacity: 0.3; }
+
+.progress-row { display: flex; align-items: center; gap: 10px; }
+.prog-track { flex: 1; height: 5px; background: var(--rim); border-radius: 3px; cursor: pointer; position: relative; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--sage), var(--sage2)); border-radius: 3px; width: 0%; transition: width 0.4s linear; }
+
+/* vol row */
+.vol-row { display: flex; align-items: center; gap: 10px; }
+.vol-lbl { font-size: 12px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; width: 38px; }
+input[type=range].slider { -webkit-appearance: none; flex: 1; height: 4px; background: var(--rim); border-radius: 2px; outline: none; cursor: pointer; }
+input[type=range].slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--sage); cursor: pointer; }
+
+/* ── Attribution ── */
+.med-intro {
+  padding: 16px 20px 4px;
+  font-size: 14px; color: var(--dim); line-height: 1.65;
+  border-bottom: 1px solid rgba(125,184,154,0.08);
+}
+.med-intro strong { color: var(--intro-str); font-weight: 400; }
+
+.attribution {
+  padding: 18px 20px 140px; font-size: 11px; color: var(--dim);
+  text-align: center; letter-spacing: 0.03em; line-height: 1.6; border-top: 1px solid rgba(125,184,154,0.08);
+}
+.attribution a { color: var(--sage); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">UCLA <em>Mindful</em></div>
+    <button class="theme-toggle" id="themeToggle" title="Toggle light / dark theme">💡</button>
+  </header>
+
+  <!-- ═══════════════ MEDITATIONS ═══════════════ -->
+  <div id="panel-meditations">
+    <div class="med-intro">
+      <p>These guided meditations are led by <strong>Diana Winston</strong>, Director of Mindfulness Education at UCLA's Mindful Awareness Research Center. Each session is designed to cultivate present-moment awareness, from short breath-focused practices to extended sessions on loving kindness and working with difficulty.</p>
+    </div>
+    <div class="meditation-list" id="med-list"></div>
+    <div class="attribution">
+      <strong>"Mindful Meditations"</strong> by Diana Winston · UCLA Mindful<br>
+      ©2011–2024 The Regents of the University of California<br>
+      Licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>
+      — Non-commercial · No derivatives · Attribution required<br>
+      <a href="https://www.uclahealth.org/uclamindful/guided-meditations" target="_blank">uclahealth.org/uclamindful</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TIMER PANEL ═══════════════ -->
+
+</div>
+
+<!-- Player bar -->
+<div class="player-bar" id="playerBar">
+  <div class="pb-top">
+    <span class="pb-title idle" id="pbTitle">Select a meditation</span>
+    <span class="pb-time" id="pbTime"></span>
+  </div>
+  <div class="progress-row">
+    <div class="prog-track" id="progTrack"><div class="prog-fill" id="progFill"></div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="pb-controls">
+      <button class="pb-btn" id="btnPrev" disabled>⏮</button>
+      <button class="pb-btn primary" id="btnPlay" disabled>▶</button>
+      <button class="pb-btn" id="btnNext" disabled>⏭</button>
+    </div>
+    <div class="vol-row" style="flex:1">
+      <span class="vol-lbl">Vol</span>
+      <input type="range" class="slider" id="volSlider" min="0" max="1" step="0.02" value="0.85">
+    </div>
+  </div>
+</div>
+
+<audio id="audio" preload="none" referrerpolicy="no-referrer"></audio>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+const meditations = [
+  { title:"Body Scan",         dur:"3 min",  icon:"🫁", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/Body-Scan-Meditation.mp3" },
+  { title:"Breath · Sound · Body", dur:"12 min", icon:"🌬", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/02_Breath_Sound_Body_Meditation.mp3" },
+  { title:"Breathing",         dur:"5 min",  icon:"🌊", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/01_Breathing_Meditation.mp3" },
+  { title:"Complete Guide",    dur:"19 min", icon:"🧘", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/03_Complete_Meditation_Instructions.mp3" },
+  { title:"Loving Kindness",   dur:"9 min",  icon:"🤍", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/05_Loving_Kindness_Meditation.mp3" },
+  { title:"Difficulties",      dur:"7 min",  icon:"🌿", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/04_Meditation_for_Working_with_Difficulties.mp3" },
+  { title:"Body & Sound",      dur:"3 min",  icon:"🔔", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/Body-Sound-Meditation.mp3" },
+  { title:"Sleep Scan",        dur:"13 min", icon:"🌙", src:"https://d1cy5zxxhbcbkk.cloudfront.net/guided-meditations/Body-Scan-for-Sleep.mp3" },
+];
+
+// ══════════════════════════════════════════
+//  MEDITATION CARDS
+// ══════════════════════════════════════════
+const list   = document.getElementById('med-list');
+const audio  = document.getElementById('audio');
+const pbTitle = document.getElementById('pbTitle');
+const pbTime  = document.getElementById('pbTime');
+const progFill = document.getElementById('progFill');
+const progTrack = document.getElementById('progTrack');
+const btnPlay = document.getElementById('btnPlay');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const volSlider = document.getElementById('volSlider');
+
+let currentIdx = -1;
+const cards = [];
+
+meditations.forEach((m, i) => {
+  const card = document.createElement('div');
+  card.className = 'med-card';
+  card.innerHTML = `
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+    <div class="med-icon">${m.icon}</div>
+    <div class="med-info">
+      <div class="med-title">${m.title}</div>
+      <div class="med-dur">${m.dur}</div>
+    </div>
+    <div class="wave"><span></span><span></span><span></span><span></span></div>
+  `;
+  card.addEventListener('click', () => handleClick(i));
+  list.appendChild(card);
+  cards.push(card);
+});
+
+function setCardState(i, state) {
+  cards[i].classList.remove('loading','playing','paused','errored');
+  if (state) cards[i].classList.add(state);
+  if (state === 'paused') cards[i].classList.add('playing');
+}
+function clearCards() { cards.forEach((_,i) => setCardState(i,'')); }
+
+function fmt(s) {
+  if (!isFinite(s)||isNaN(s)) return '';
+  return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+}
+
+function setTitle(text, cls) {
+  pbTitle.className = 'pb-title' + (cls ? ' '+cls : '');
+  pbTitle.textContent = text;
+}
+
+function enableCtrl(on) { btnPlay.disabled=btnPrev.disabled=btnNext.disabled=!on; }
+
+function handleAudioError(msg) {
+  if (currentIdx < 0) return;
+  setCardState(currentIdx, 'errored');
+  setTitle((msg||'Error') + ' — tap to retry', 'errmsg');
+  btnPlay.textContent = '▶'; pbTime.textContent = '';
+}
+
+function loadAndPlay(i) {
+  const m = meditations[i]; currentIdx = i;
+  clearCards(); setCardState(i,'loading');
+  setTitle(m.title); pbTime.textContent = '';
+  progFill.style.width = '0%';
+  btnPlay.textContent = '⏸'; enableCtrl(true);
+  audio.pause(); audio.removeAttribute('src'); audio.load();
+  audio.src = m.src; audio.volume = parseFloat(volSlider.value); audio.load();
+  const p = audio.play();
+  if (p) p.catch(err => {
+    console.error('[UCLA Mindful] play() rejected —', err.name, err.message);
+    handleAudioError(err.name === 'NotAllowedError' ? 'Autoplay blocked' : err.name);
+  });
+}
+
+function handleClick(i) {
+  if (i === currentIdx && !audio.error) togglePlay();
+  else loadAndPlay(i);
+}
+
+function togglePlay() {
+  if (currentIdx < 0) return;
+  if (audio.paused) {
+    const p = audio.play();
+    if (p) p.catch(err => handleAudioError(err.name));
+  } else { audio.pause(); }
+}
+
+audio.addEventListener('play',    () => { if(currentIdx>=0){setCardState(currentIdx,'playing'); setTitle(meditations[currentIdx].title); btnPlay.textContent='⏸';} });
+audio.addEventListener('pause',   () => { if(currentIdx>=0){setCardState(currentIdx,'paused');  btnPlay.textContent='▶';} });
+audio.addEventListener('waiting', () => { if(currentIdx>=0) setCardState(currentIdx,'loading'); });
+audio.addEventListener('canplay', () => { if(currentIdx>=0 && cards[currentIdx].classList.contains('loading')) setCardState(currentIdx, audio.paused?'paused':'playing'); });
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration) return;
+  progFill.style.width = (audio.currentTime/audio.duration*100)+'%';
+  pbTime.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
+});
+audio.addEventListener('ended', () => {
+  if (currentIdx >= 0) {
+    setCardState(currentIdx, '');
+    setTitle(meditations[currentIdx].title + ' — complete', 'idle');
+    btnPlay.textContent = '▶'; pbTime.textContent = '';
+  }
+});
+audio.addEventListener('error', () => {
+  const codes={1:'Aborted',2:'Network error',3:'Decode error',4:'Not supported'};
+  const msg = audio.error ? (codes[audio.error.code]||`Error ${audio.error.code}`) : 'Load failed';
+  console.error('[UCLA Mindful] audio error —', msg, audio.src);
+  handleAudioError(msg);
+});
+
+btnPlay.addEventListener('click', togglePlay);
+btnPrev.addEventListener('click', () => { if(currentIdx>0) loadAndPlay(currentIdx-1); });
+btnNext.addEventListener('click', () => loadAndPlay((currentIdx+1)%meditations.length));
+progTrack.addEventListener('click', e => {
+  if (!audio.duration) return;
+  const r = progTrack.getBoundingClientRect();
+  audio.currentTime = ((e.clientX-r.left)/r.width)*audio.duration;
+});
+volSlider.addEventListener('input', () => { audio.volume=parseFloat(volSlider.value); });
+
+// ── Theme toggle ──────────────────────────────────────────────────────────────
+const themeToggle = document.getElementById('themeToggle');
+const html = document.documentElement;
+if (localStorage.getItem('theme') === 'light') html.classList.add('light');
+themeToggle.addEventListener('click', () => {
+  html.classList.toggle('light');
+  localStorage.setItem('theme', html.classList.contains('light') ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>

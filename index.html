@@ -374,7 +374,15 @@ audio.addEventListener('timeupdate', () => {
   npTime.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
 });
 
-audio.addEventListener('ended', () => loadAndPlay((currentIdx + 1) % meditations.length));
+audio.addEventListener('ended', () => {
+  if (currentIdx >= 0) {
+    setCardState(currentIdx, '');
+    setNowPlaying(meditations[currentIdx].title + ' — complete', 'idle');
+    btnPlay.textContent = '▶';
+    progressFill.style.width = '0%';
+    npTime.textContent = '';
+  }
+});
 
 audio.addEventListener('error', () => {
   const codes = { 1:'Aborted', 2:'Network error', 3:'Decode error', 4:'Not supported' };
