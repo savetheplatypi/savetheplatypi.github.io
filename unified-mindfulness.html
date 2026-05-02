@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unified Mindfulness — An Introduction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+<style>
+  /* ── THEME VARIABLES ── */
+  :root[data-theme="dark"] {
+    --bg:           #0e1117;
+    --bg-card:      #161b27;
+    --bg-card-alt:  #1b2130;
+    --border:       #2a3245;
+    --accent:       #7eb8c9;
+    --accent-soft:  #3d6070;
+    --accent-glow:  rgba(126,184,201,0.12);
+    --text-primary: #e8edf5;
+    --text-body:    #b4bdd0;
+    --text-muted:   #6a7590;
+    --tag-bg:       #1e2d3e;
+    --tag-text:     #7eb8c9;
+    --nav-bg:       #111622;
+    --nav-border:   #1f2940;
+    --section-head: #9ecfdf;
+    --quote-bg:     #131b2a;
+    --eq-bg:        #0d1c28;
+    --eq-border:    #2a5060;
+    --toggle-bg:    #1b2a3a;
+  }
+  :root[data-theme="light"] {
+    --bg:           #f5f7fb;
+    --bg-card:      #ffffff;
+    --bg-card-alt:  #f0f4fa;
+    --border:       #d4dce8;
+    --accent:       #2e7b96;
+    --accent-soft:  #c2dfe8;
+    --accent-glow:  rgba(46,123,150,0.08);
+    --text-primary: #1a2232;
+    --text-body:    #3c4a60;
+    --text-muted:   #8a96aa;
+    --tag-bg:       #ddeef4;
+    --tag-text:     #2e7b96;
+    --nav-bg:       #eef2f8;
+    --nav-border:   #d0d9e8;
+    --section-head: #1e6a85;
+    --quote-bg:     #e8f4f8;
+    --eq-bg:        #ddeef4;
+    --eq-border:    #8ec5d6;
+    --toggle-bg:    #dde8f0;
+  }
+
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 400;
+    background: var(--bg);
+    color: var(--text-body);
+    line-height: 1.75;
+    transition: background .3s, color .3s;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  nav.sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--nav-bg);
+    border-right: 1px solid var(--nav-border);
+    padding: 2rem 0 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    transition: background .3s, border-color .3s;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 0 1.4rem 1.5rem;
+    border-bottom: 1px solid var(--nav-border);
+    margin-bottom: .75rem;
+    line-height: 1.3;
+  }
+  nav.sidebar a {
+    display: block;
+    padding: .45rem 1.4rem;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  nav.sidebar a:hover,
+  nav.sidebar a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .nav-group-label {
+    padding: .9rem 1.4rem .25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: .65rem;
+    letter-spacing: .12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    opacity: .7;
+  }
+
+  /* ── MAIN ── */
+  main {
+    padding: 3rem 3.5rem 6rem;
+    max-width: 860px;
+  }
+
+  /* ── THEME TOGGLE ── */
+  #theme-toggle {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.4rem;
+    background: var(--toggle-bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 2.4rem;
+    height: 2.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    z-index: 999;
+    transition: background .3s, border-color .3s, transform .2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  #theme-toggle:hover { transform: scale(1.12); }
+
+  /* ── HERO ── */
+  .hero {
+    margin-bottom: 3.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .9rem;
+    opacity: .85;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.2rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -.01em;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-size: .95rem;
+    color: var(--text-muted);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+  }
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    letter-spacing: .08em;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent-soft);
+    border-radius: 3px;
+    padding: .2rem .6rem;
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION ── */
+  section {
+    margin-bottom: 3rem;
+    scroll-margin-top: 1.5rem;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .5rem;
+    opacity: .8;
+  }
+  section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.9rem;
+    font-weight: 400;
+    color: var(--section-head);
+    margin-bottom: 1.2rem;
+    line-height: 1.2;
+  }
+  section p {
+    font-size: .95rem;
+    color: var(--text-body);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+  section p:last-child { margin-bottom: 0; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 3px solid var(--accent);
+    background: var(--quote-bg);
+    padding: 1rem 1.4rem;
+    margin: 1.5rem 0;
+    border-radius: 0 6px 6px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--text-primary);
+    line-height: 1.55;
+  }
+  .pull-quote cite {
+    display: block;
+    margin-top: .5rem;
+    font-family: 'DM Mono', monospace;
+    font-style: normal;
+    font-size: .68rem;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+  }
+
+  /* ── EQUATION BOX ── */
+  .equation-box {
+    background: var(--eq-bg);
+    border: 1px solid var(--eq-border);
+    border-radius: 8px;
+    padding: 1.4rem 1.8rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+  .equation-box .eq-line {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: .05em;
+    margin-bottom: .4rem;
+  }
+  .equation-box .eq-note {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* ── THREE PILLARS GRID ── */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .pillar-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem 1rem;
+    text-align: center;
+    transition: border-color .2s, background .2s;
+  }
+  .pillar-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .pillar-icon {
+    font-size: 1.6rem;
+    margin-bottom: .5rem;
+    display: block;
+  }
+  .pillar-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: .3rem;
+  }
+  .pillar-desc {
+    font-size: .78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── ACCORDION ── */
+  .accordion { display: flex; flex-direction: column; gap: .6rem; }
+  .acc-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .acc-item:hover { border-color: var(--accent-soft); }
+  .acc-item.open { border-color: var(--accent); }
+  .acc-header {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: .95rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 1rem;
+    text-align: left;
+  }
+  .acc-title-wrap { display: flex; align-items: center; gap: .85rem; flex: 1; min-width: 0; }
+  .acc-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem;
+    letter-spacing: .08em;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent-soft);
+    border-radius: 3px;
+    padding: .15rem .5rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .acc-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+  .acc-chevron {
+    color: var(--text-muted);
+    font-size: .85rem;
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); color: var(--accent); }
+  .acc-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1);
+  }
+  .acc-body-inner {
+    padding: 0 1.2rem 1.1rem;
+    font-size: .9rem;
+    color: var(--text-body);
+    line-height: 1.78;
+    border-top: 1px solid var(--border);
+    padding-top: .9rem;
+  }
+  .acc-body-inner p { margin-bottom: .7rem; }
+  .acc-body-inner p:last-child { margin-bottom: 0; }
+  .acc-body-inner strong { color: var(--text-primary); font-weight: 600; }
+  .acc-body-inner em { color: var(--accent); font-style: italic; }
+  .acc-body-inner ul { margin: .5rem 0 .5rem 1.1rem; }
+  .acc-body-inner li { margin-bottom: .3rem; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  /* ── REFERENCES ── */
+  .ref-grid { display: flex; flex-direction: column; gap: .9rem; margin-top: 1.2rem; }
+  .ref-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-decoration: none;
+    transition: border-color .2s, background .2s;
+  }
+  .ref-card:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .ref-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: .1rem;
+  }
+  .ref-info {}
+  .ref-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: .2rem;
+  }
+  .ref-meta {
+    font-size: .78rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .04em;
+    margin-bottom: .35rem;
+  }
+  .ref-desc {
+    font-size: .83rem;
+    color: var(--text-body);
+    line-height: 1.55;
+  }
+
+  /* ── FONT SIZE CONTROLS ── */
+  .font-controls {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    z-index: 999;
+  }
+  .font-btn {
+    background: var(--toggle-bg);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: .85rem;
+    color: var(--text-body);
+    transition: background .2s, transform .15s;
+    font-family: 'DM Mono', monospace;
+    font-weight: 400;
+  }
+  .font-btn:hover { transform: scale(1.1); color: var(--accent); border-color: var(--accent); }
+
+  /* ── FADE IN ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero { animation: fadeUp .6s ease both; }
+  section { animation: fadeUp .5s ease both; }
+  section:nth-child(2) { animation-delay: .05s; }
+  section:nth-child(3) { animation-delay: .1s; }
+  section:nth-child(4) { animation-delay: .15s; }
+  section:nth-child(5) { animation-delay: .2s; }
+  section:nth-child(6) { animation-delay: .25s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--nav-border); padding: 1.2rem 0; flex-direction: row; flex-wrap: wrap; overflow-x: auto; }
+    .nav-logo { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .nav-group-label { display: none; }
+    main { padding: 2rem 1.4rem 5rem; }
+    .pillars-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">💡</button>
+
+<div class="font-controls">
+  <button class="font-btn" id="font-up" title="Increase text size">A+</button>
+  <button class="font-btn" id="font-down" title="Decrease text size">A−</button>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR NAV -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-logo">Unified<br>Mindfulness</div>
+
+    <div class="nav-group-label">Overview</div>
+    <a href="#shinzen">About Shinzen</a>
+    <a href="#system">The System</a>
+    <a href="#pillars">Mindfulness Pillars</a>
+
+    <div class="nav-group-label">Core Concepts</div>
+    <a href="#see-hear-feel">See Hear Feel</a>
+    <a href="#in-out">Internal &amp; External</a>
+    <a href="#rest">Rest &amp; Gone</a>
+    <a href="#equation">The Equation</a>
+
+    <div class="nav-group-label">Techniques</div>
+    <a href="#techniques">Core Practices</a>
+
+    <div class="nav-group-label">Depth</div>
+    <a href="#insights">Insights &amp; Goals</a>
+    <a href="#references">References</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">An Introduction</div>
+      <h1>Unified<br><em>Mindfulness</em></h1>
+      <p class="hero-sub">Shinzen Young's systematic, science-compatible framework for transforming human experience through rigorous sensory clarity.</p>
+      <div class="hero-tags">
+        <span class="tag">Secular</span>
+        <span class="tag">Science-Based</span>
+        <span class="tag">Systematic</span>
+        <span class="tag">Cross-Tradition</span>
+        <span class="tag">Concentration</span>
+        <span class="tag">Clarity</span>
+        <span class="tag">Equanimity</span>
+      </div>
+    </div>
+
+    <!-- SHINZEN -->
+    <section id="shinzen">
+      <div class="section-label">// The Teacher</div>
+      <h2>About Shinzen Young</h2>
+      <p>Shinzen Young is an American mindfulness teacher and neuroscience research consultant whose work spans more than five decades. After completing a PhD in Buddhist studies at the University of Wisconsin, he spent years training intensively in Japanese Buddhist monasteries — immersing himself in Zen, Vajrayana, and Theravada traditions — before dedicating his life to making contemplative practice accessible in a modern, secular context.</p>
+      <p>Shinzen is perhaps best known for his unusually analytical mind. Rather than presenting meditation as a cultural or religious artifact, he approached it the way a mathematician or systems engineer would: stripping away tradition-specific terminology, identifying the underlying functional mechanics, and rebuilding a single unified map that could include all of them. The result is Unified Mindfulness — a framework that is simultaneously rooted in classical enlightenment traditions and expressed in language that resonates with scientists, therapists, and practitioners with no prior background in Buddhism.</p>
+      <div class="pull-quote">
+        "Meditation is not about what happens during the sit. It's about what happens during the rest of your life."
+        <cite>— Shinzen Young</cite>
+      </div>
+      <p>He has collaborated with neuroscience researchers at Harvard, Carnegie Mellon, and the University of Vermont, contributing to studies on meditation's effects on pain, anxiety, and emotional regulation. He continues to teach globally through retreats, online programs, and his long-running audio series.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- THE SYSTEM -->
+    <section id="system">
+      <div class="section-label">// The Framework</div>
+      <h2>What is Unified Mindfulness?</h2>
+      <p>Unified Mindfulness (UM) is a comprehensive training system designed to develop <strong>mindfulness skills</strong> that can be applied to any moment of experience — sitting in formal meditation, navigating conflict at work, or lying in pain at 3am. It is not a religion, philosophy, or fixed technique, but a <em>meta-framework</em>: a way of orienting to experience that is compatible with virtually any contemplative tradition or none at all.</p>
+      <p>The system is built around a key insight: all human experience — every thought, sensation, emotion, image, or sound — can be sorted into a small number of sensory categories. By learning to observe these categories with increasing precision, a practitioner develops skills that reorganize their relationship to suffering, pleasure, and the moment-to-moment flow of awareness itself.</p>
+      <p>Unified Mindfulness is intentionally <strong>modular and scalable</strong>. A beginner can learn a single technique in minutes; an advanced practitioner can spend years exploring the full map. Every level of the practice produces measurable benefits.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- THREE PILLARS -->
+    <section id="pillars">
+      <div class="section-label">// The Three Qualities</div>
+      <h2>The Pillars of Mindfulness Skill</h2>
+      <p>In Shinzen's framework, mindfulness is not just one thing — it is the coordinated development of three distinct qualities. Together, they constitute what he calls <em>mindfulness skill</em>, and they reinforce each other in a virtuous cycle.</p>
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <span class="pillar-icon">🔍</span>
+          <div class="pillar-name">Concentration</div>
+          <div class="pillar-desc">The ability to direct and sustain attention on a chosen object or field of experience.</div>
+        </div>
+        <div class="pillar-card">
+          <span class="pillar-icon">🔬</span>
+          <div class="pillar-name">Clarity</div>
+          <div class="pillar-desc">The ability to observe the fine-grained detail of sensory experience — its texture, movement, and component parts.</div>
+        </div>
+        <div class="pillar-card">
+          <span class="pillar-icon">⚖️</span>
+          <div class="pillar-name">Equanimity</div>
+          <div class="pillar-desc">The ability to allow experience to arise, flow, and pass without interference — the opposite of suppression or indulgence.</div>
+        </div>
+      </div>
+      <p>Equanimity in particular is a cornerstone concept. It is not detachment or indifference — it is <em>non-interference</em> with the natural flow of sensory experience. Shinzen sometimes defines it as "dropping the war with yourself."</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- CORE CONCEPTS -->
+    <section id="see-hear-feel">
+      <div class="section-label">// Core Concepts</div>
+      <h2>See · Hear · Feel</h2>
+      <p>The foundational insight of Unified Mindfulness is that all subjective experience can be sorted into three primary <strong>sensory flavor categories</strong>:</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">See</span>
+              <span class="acc-title">Visual Experience</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>See</strong> refers to all visual experience — both external (what you see with your eyes open in the physical world) and internal (mental imagery, visualization, the "mind's eye").</p>
+              <p><em>See Out</em> is the visual field as it appears in ordinary waking perception. <em>See In</em> refers to spontaneous mental images: the flicker of a face, a remembered scene, the visual texture of a daydream or intrusive thought.</p>
+              <p>Most people are not aware how continuously active their visual imagination is until they begin to track it with concentration and clarity.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Hear</span>
+              <span class="acc-title">Auditory Experience</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>Hear</strong> includes all auditory experience — both external sounds in the environment (<em>Hear Out</em>) and internal sounds: inner dialogue, mental chatter, the voice of thought, auditory memory (<em>Hear In</em>).</p>
+              <p>Inner talk — the stream of commentary, planning, self-criticism, and narration — is classified here. Most of what we call "thinking" is experienced as Hear In.</p>
+              <p>Learning to note inner talk as <em>sound</em> (rather than identifying with it as "what I believe") is a pivotal perceptual shift in the practice.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Feel</span>
+              <span class="acc-title">Somatic &amp; Emotional Experience</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>Feel</strong> encompasses all somatic and emotional experience. <em>Feel Out</em> is tactile sensation — touch, temperature, pressure, texture, proprioception as experienced in the body.</p>
+              <p><em>Feel In</em> is where emotional experience lives: the tightness in the chest that is anxiety, the warmth spreading through the torso that is joy, the leaden heaviness of grief. Shinzen's crucial observation is that <strong>all emotions have a body component</strong> — and that tracking that component directly is what makes them workable.</p>
+              <p>This category dissolves the false boundary between "physical sensation" and "emotion," revealing that they exist on a single continuum of felt somatic experience.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="in-out">
+      <div class="section-label">// Core Concepts</div>
+      <h2>Internal &amp; External</h2>
+      <p>Each of the three sensory categories (See, Hear, Feel) is divided along a second dimension: <strong>In</strong> vs. <strong>Out</strong>. This produces six basic sensory flavors that together cover all possible human experience:</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">In</span>
+              <span class="acc-title">Internal / Subjective Experience</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><em>Internal</em> experience refers to subjective mental events: thoughts, mental images, inner dialogue, emotions as felt in the body, impulses, memories, and imagination.</p>
+              <p>These are the events "inside" — that arise spontaneously in awareness and have no direct external physical correlate at the moment they occur.</p>
+              <p>In UM, learning to see internal experience clearly — to notice mental images as <em>images</em>, thoughts as <em>sounds</em>, emotions as <em>sensations</em> — strips away the implicit self-referencing that amplifies suffering.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Out</span>
+              <span class="acc-title">External / Objective Experience</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><em>External</em> experience refers to the ongoing flow of sensory contact with the physical world: sights in the visual field, ambient sounds, physical sensations of touch and proprioception.</p>
+              <p>Focusing on external experience grounds attention in the present environment, interrupts compulsive internal narratives, and develops "contact" — the quality of being genuinely present with what is actually happening.</p>
+              <p>Many UM practices deliberately alternate between In and Out to develop flexible, panoramic awareness.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Together</span>
+              <span class="acc-title">The Six Sensory Flavors</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The combination of three categories and two dimensions produces a complete map:</p>
+              <ul>
+                <li><strong>See In</strong> — mental imagery, visual imagination</li>
+                <li><strong>See Out</strong> — the external visual field</li>
+                <li><strong>Hear In</strong> — inner dialogue, mental chatter, thought</li>
+                <li><strong>Hear Out</strong> — environmental sounds</li>
+                <li><strong>Feel In</strong> — emotions, felt sense, somatic emotional experience</li>
+                <li><strong>Feel Out</strong> — physical touch, body sensation, proprioception</li>
+              </ul>
+              <p>In formal noting practice, a practitioner labels whatever arises using these abbreviations — creating a precise, intimate map of the flow of consciousness moment to moment.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="rest">
+      <div class="section-label">// Core Concepts</div>
+      <h2>Rest &amp; Gone</h2>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Rest</span>
+              <span class="acc-title">The Background of Awareness</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>Rest</strong> refers to the experience of <em>absence</em> — the moments between thoughts, the silence beneath sound, the stillness between sensations. Rather than filling every moment with an active sensory object, the practitioner learns to focus on the <em>background</em> of awareness itself.</p>
+              <p>This is sometimes called "Focus on Rest" or simply "Restful Awareness." It is deceptively simple and profoundly important — it trains the practitioner to notice that awareness itself is always present, even when specific sensory events are quiet or absent.</p>
+              <p>Rest is the felt sense of stillness, spaciousness, and quiet that underlies even busy minds. Contact with Rest naturally produces equanimity.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Gone</span>
+              <span class="acc-title">Noticing the Moment of Completion</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>Gone</strong> is one of Shinzen's most distinctive contributions. Rather than tracking sensory events as they arise, the practitioner focuses on <em>the instant they vanish</em> — the precise moment when a thought, sensation, or emotion ends.</p>
+              <p>Noting "Gone" trains a particularly fine level of perceptual resolution. It reveals impermanence not as a philosophical idea but as a direct, lived perception: all experience is in constant flux, constantly completing and dissolving.</p>
+              <p>This practice naturally loosens the grip of difficult experiences. When you are tracking how quickly something ends, it becomes much harder to catastrophize about it lasting forever. "Gone" is sometimes described as the most efficient technique for working with pain, craving, and anxiety.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="equation">
+      <div class="section-label">// Core Concepts</div>
+      <h2>The Equations</h2>
+      <p>Shinzen's systematic mind expressed itself in a pair of equations that have become central to how practitioners understand the purpose of the practice:</p>
+
+      <div class="equation-box">
+        <div class="eq-line">Suffering = Pain × Resistance</div>
+        <div class="eq-note">The fundamental insight on difficulty</div>
+      </div>
+
+      <p>Physical or emotional pain is unavoidable — it is part of being alive. But <strong>suffering</strong> is not identical to pain. Suffering is what happens when we contract around, fight against, suppress, or grasp at painful experience. Equanimity training directly targets the <em>Resistance</em> variable — and even a small reduction in resistance significantly reduces the overall experience of suffering, even when the pain remains unchanged.</p>
+
+      <div class="equation-box">
+        <div class="eq-line">Fulfillment = Pleasure × Acceptance</div>
+        <div class="eq-note">The parallel insight on joy</div>
+      </div>
+
+      <p>The same principle applies in the other direction. When pleasant experience is allowed to flow freely — neither grasped at nor artificially prolonged — it is <em>fully received</em>. Equanimity amplifies genuine fulfillment just as it reduces suffering. This is the seldom-discussed upside of the practice: mindfulness doesn't flatten experience, it deepens it.</p>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- TECHNIQUES -->
+    <section id="techniques">
+      <div class="section-label">// Core Practices</div>
+      <h2>Techniques &amp; Approaches</h2>
+      <p>UM offers a modular library of techniques that can be mixed and matched depending on a practitioner's needs and preferences. Below are some of the most fundamental.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Foundation</span>
+              <span class="acc-title">See Hear Feel (SHF)</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The entry point for most UM practitioners. The meditator notes whatever arises in awareness using the labels <em>See</em>, <em>Hear</em>, or <em>Feel</em> (with In/Out as refinements). The pace is gentle — a note every few seconds is plenty.</p>
+              <p>SHF is like a sonar for consciousness: each note sends a pulse into awareness and receives back a precise reading of what is actually present. Over time, it dissolves the blur of unexamined experience into a clear, vivid stream of discrete sensory events.</p>
+              <p>This practice is suitable for any experience — bliss, boredom, dread, joy — and has no contraindications. It is the foundation on which all other UM techniques are built.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Open</span>
+              <span class="acc-title">Do Nothing (Open Awareness)</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p><strong>Do Nothing</strong> is deceptively radical: the practitioner drops all intention to control attention and simply allows whatever happens to happen. No object is preferred, no experience is sought or avoided. Attention is allowed to move wherever it wants.</p>
+              <p>This is not laziness or "just sitting" without awareness — it is a precise instruction. The moment you notice you are <em>trying</em> to control something, you let go of the trying. It is the practice of pure allowing.</p>
+              <p>Do Nothing is particularly useful for practitioners who have become effortful or rigid in their concentration, and for exploring what awareness is like when self-direction is suspended entirely.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Noting</span>
+              <span class="acc-title">Focus on Gone</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The practitioner focuses their attention on the precise moment when each sensory event completes — when a thought ends, a sound disappears, a sensation dissolves. They note "Gone" silently each time this happens.</p>
+              <p>This technique is particularly powerful for working with chronic pain, addictive craving, or intrusive thoughts. It reveals that even the most persistent and overwhelming experiences are actually ending — constantly, rapidly, moment after moment — which radically changes the practitioner's relationship to them.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Somatic</span>
+              <span class="acc-title">Feel In — Working with Emotion</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>When a difficult emotion arises, the practitioner <em>focuses directly on its body component</em> — the physical location, texture, vibration, or movement of the feeling in the body. The emotion is tracked not as a story or meaning but as <em>pure somatic sensation</em>.</p>
+              <p>This approach sidesteps the cognitive trap of emotional processing (analyzing why you feel what you feel) and goes directly to the experiential substrate. Emotions processed this way — with equanimity — tend to resolve more completely and more quickly than emotions analyzed or suppressed.</p>
+              <p>Shinzen emphasizes: you don't have to like what you're feeling to work with it this way. Equanimity is not approval — it is non-interference.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Daily Life</span>
+              <span class="acc-title">Mini-Sessions &amp; Everyday Noting</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>One of Shinzen's emphases is that mindfulness practice need not be confined to formal sits. Short "mini-sessions" of 5–20 minutes throughout the day — or even informal noting during daily activity — compound over time into significant development of concentration, clarity, and equanimity.</p>
+              <p><strong>High-quality minutes matter more than high-quantity minutes.</strong> Ten deeply concentrated minutes of SHF practice can produce more development than an unfocused hour of sitting. The system is designed to be integrated into ordinary life.</p>
+              <p>This is particularly relevant for modern practitioners with busy schedules — UM is explicitly designed to work outside monastery conditions.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Rest</span>
+              <span class="acc-title">Focus on Rest</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>The practitioner focuses on the moments <em>between</em> and <em>beneath</em> sensory events — the stillness between thoughts, the silence between sounds, the neutral background of bodily sensation. This is not a void but a <em>presence</em>: the awareness itself that holds all experience.</p>
+              <p>This practice develops the capacity to contact stillness, spaciousness, and equanimity directly — not as a result of processing or resolving experience, but as a dimension of awareness that is always already present.</p>
+              <p>At deep levels, Focus on Rest begins to dissolve the distinction between the observer and the observed, opening into states described in classical traditions as samadhi, non-dual awareness, or rigpa.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- INSIGHTS & GOALS -->
+    <section id="insights">
+      <div class="section-label">// Depth &amp; Direction</div>
+      <h2>Insights &amp; Deeper Goals</h2>
+      <p>While the entry-level benefits of UM practice are practical and accessible — reduced stress, clearer thinking, more emotional resilience — the system points toward a deeper possibility rooted in the classical enlightenment traditions.</p>
+      <div class="accordion">
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Insight</span>
+              <span class="acc-title">Flow — The Impermanence of Experience</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>As concentration and clarity deepen, a practitioner begins to perceive the continuous <strong>flow</strong> of sensory experience — the fact that nothing is static. Every thought, image, sensation, and sound is a process: arising, changing, and passing away, often in fractions of a second.</p>
+              <p>This is the direct perception of <em>anicca</em> (impermanence), one of the three marks of existence in Buddhist teaching. When experienced directly — not as a belief but as a clear, stable perceptual reality — it fundamentally changes the practitioner's relationship to both pleasure and pain.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Insight</span>
+              <span class="acc-title">Oneness — The Unity of Experience</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>At a certain depth, the practitioner begins to notice that the apparent boundaries between inside and outside, self and world, begin to blur. See, Hear, and Feel — internal and external — are revealed as a unified field of sensory arising rather than separate compartments.</p>
+              <p>This experience of <em>Oneness</em> corresponds to what various traditions call nonduality, unity consciousness, or the dissolution of the self/world boundary. In UM, it is not a mystical goal but a natural consequence of sustained high-quality practice — a direct perception of what experience is actually like when not filtered through habitual self-referencing.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Insight</span>
+              <span class="acc-title">No Self — The Dissolution of the Observer</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>Perhaps the most radical perceptual shift in the system: the practitioner begins to notice that the sense of a fixed, separate "self" doing the meditating is itself a sensory event — a process arising and passing like any other. There is no stable observer standing apart from experience; there is only experiencing.</p>
+              <p>This corresponds to <em>anatta</em> (no-self) in Buddhist teaching, and to what Shinzen calls "the dissolution of the Cartesian observer." It is not nihilistic — function, care, and engagement continue — but the <em>suffering</em> that arises from defending and maintaining a fixed self-concept begins to collapse.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-header" aria-expanded="false">
+            <div class="acc-title-wrap">
+              <span class="acc-tag">Goal</span>
+              <span class="acc-title">Enlightenment as a Gradient</span>
+            </div>
+            <span class="acc-chevron">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-body-inner">
+              <p>Shinzen explicitly reframes enlightenment not as a binary event ("awakened / not awakened") but as a <strong>continuous variable</strong> — a gradient of increasing freedom, clarity, and equanimity that any practitioner can move along, incrementally, through sustained practice.</p>
+              <p>This reframing removes the mystical gatekeeping that has historically surrounded enlightenment in traditional contexts, and opens the possibility that every moment of high-quality practice makes measurable progress toward what the traditions promised: a life of greater freedom, less suffering, and more genuine connection.</p>
+              <p>It also aligns with the neuroscientific view of meditation: skills that are trained, developed incrementally, and measured by outcomes — not by membership in a lineage or arrival at a fixed destination.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- REFERENCES -->
+    <section id="references">
+      <div class="section-label">// Further Study</div>
+      <h2>References &amp; Resources</h2>
+      <p>The following resources are the most direct entry points into Shinzen's teaching for a new practitioner.</p>
+      <div class="ref-grid">
+
+        <a class="ref-card" href="https://www.amazon.com/Science-Enlightenment-How-Meditation-Works/dp/1683641752" target="_blank" rel="noopener">
+          <div class="ref-icon">📘</div>
+          <div class="ref-info">
+            <div class="ref-title">The Science of Enlightenment: How Meditation Works</div>
+            <div class="ref-meta">Shinzen Young · 2016 · Sounds True</div>
+            <div class="ref-desc">The definitive written introduction to Shinzen's framework. Covers the history of his training, the structure of the UM system, and its connection to classical enlightenment traditions — in his uniquely precise, cross-disciplinary voice.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://www.audible.com/pd/The-Science-of-Enlightenment-Audiobook/B002V8KTYQ" target="_blank" rel="noopener">
+          <div class="ref-icon">🎧</div>
+          <div class="ref-info">
+            <div class="ref-title">The Science of Enlightenment (Audio)</div>
+            <div class="ref-meta">Shinzen Young · Sounds True · Narrated by the Author</div>
+            <div class="ref-desc">The audio version — narrated by Shinzen himself — is widely considered the preferred format by long-time students. His voice and delivery carry nuances of tone and emphasis that enrich the content significantly. Originally recorded as a multi-disc audio program before the book was written.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://unifiedmindfulness.com" target="_blank" rel="noopener">
+          <div class="ref-icon">🌐</div>
+          <div class="ref-info">
+            <div class="ref-title">UnifiedMindfulness.com</div>
+            <div class="ref-meta">Official Training Platform</div>
+            <div class="ref-desc">The official hub for UM training: guided meditations, instructor directories, the UM app, and structured courses for practitioners at every level.</div>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://www.youtube.com/@ShinzenYoung" target="_blank" rel="noopener">
+          <div class="ref-icon">▶️</div>
+          <div class="ref-info">
+            <div class="ref-title">Shinzen Young — YouTube Channel</div>
+            <div class="ref-meta">Lectures, guided meditations &amp; interviews</div>
+            <div class="ref-desc">A rich archive of talks, guided practices, and Q&amp;A sessions covering the full breadth of the UM system. An excellent free entry point.</div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // ── THEME TOGGLE ──
+  const toggle = document.getElementById('theme-toggle');
+  const root   = document.documentElement;
+  toggle.addEventListener('click', () => {
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  // ── FONT SIZE ──
+  let fontSize = 16;
+  document.getElementById('font-up').addEventListener('click', () => {
+    fontSize = Math.min(fontSize + 1, 22);
+    document.documentElement.style.fontSize = fontSize + 'px';
+  });
+  document.getElementById('font-down').addEventListener('click', () => {
+    fontSize = Math.max(fontSize - 1, 12);
+    document.documentElement.style.fontSize = fontSize + 'px';
+  });
+
+  // ── ACCORDION ──
+  document.querySelectorAll('.acc-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.acc-item');
+      const body = item.querySelector('.acc-body');
+      const isOpen = item.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.acc-item.open').forEach(el => {
+        el.classList.remove('open');
+        el.querySelector('.acc-body').style.maxHeight = '0';
+        el.querySelector('.acc-header').setAttribute('aria-expanded', 'false');
+      });
+
+      // Open clicked if it wasn't already open
+      if (!isOpen) {
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // ── ACTIVE NAV ON SCROLL ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
