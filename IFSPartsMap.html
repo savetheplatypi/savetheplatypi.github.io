@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inner Compass — IFS Parts Map</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; }
+    textarea { font-family: 'DM Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3a3230; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+  // ═══════════════════════════════════════════════════════
+  //  SUPABASE
+  // ═══════════════════════════════════════════════════════
+  const SUPABASE_URL  = "https://fffcdprckmnkifsmscdn.supabase.co";
+  const SUPABASE_ANON = "sb_publishable_hFsYvuebu91jc57gM0rM4A_PtukhrQS";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  const { useState, useEffect, useRef, useCallback } = React;
+
+  // ═══════════════════════════════════════════════════════
+  //  THEME
+  // ═══════════════════════════════════════════════════════
+  const DK = {
+    bg:"#12100e", card:"#1e1a18", border:"#352e2b", subtle:"#261f1c",
+    panel:"#1a1614", text:"#ede5da", muted:"#7d7068", faint:"#3a3230",
+    self:"#f0b429", mgr:"#5f9fc4", ff:"#c96c42", exile:"#b87090", input:"#201c1a",
+  };
+  const LT = {
+    bg:"#f0ebe3", card:"#ffffff", border:"#d0c8be", subtle:"#e6e0d8",
+    panel:"#ece6de", text:"#221c12", muted:"#7a6f62", faint:"#c8c0b4",
+    self:"#b8880a", mgr:"#2a7aaa", ff:"#b8522a", exile:"#9a5578", input:"#ffffff",
+  };
+  const tc = (t, h) =>
+    ({ self:h.self, manager:h.mgr, firefighter:h.ff, exile:h.exile }[t] || h.muted);
+
+  // ═══════════════════════════════════════════════════════
+  //  PART LIBRARY
+  // ═══════════════════════════════════════════════════════
+  const LIB = [
+    { name:"Inner Critic",     type:"manager",     em:"⚖️",  tag:"Judges to prevent shame",
+      desc:"Maintains standards through relentless self-evaluation, believing that if it stops criticizing, everything will fall apart. Often formed in environments where love felt conditional on performance. Works ceaselessly to protect exiles carrying shame or humiliation from being exposed." },
+    { name:"People Pleaser",   type:"manager",     em:"🤝",  tag:"Keeps peace at all costs",
+      desc:"Constantly monitors others' emotional states and adjusts behavior to prevent conflict or disapproval. Often formed when expressing authentic needs felt dangerous or was met with withdrawal, punishment, or emotional unavailability." },
+    { name:"Perfectionist",    type:"manager",     em:"🎯",  tag:"Flawless to stay safe",
+      desc:"Believes perfect performance will prevent rejection or failure. Works without rest to protect exiles carrying shame or inadequacy from ever being seen by others." },
+    { name:"Intellectualizer", type:"manager",     em:"🧠",  tag:"Thinks instead of feels",
+      desc:"Analyzes emotions from a safe distance rather than experiencing them. Keeps vulnerable exiles from surfacing by maintaining residence in the analytical mind, where things can be understood but not felt." },
+    { name:"Achiever",         type:"manager",     em:"🏆",  tag:"Worth through accomplishment",
+      desc:"Drives relentlessly toward goals to prove value and keep shame at bay. May be protecting a deep core belief of worthlessness or inadequacy that formed very early." },
+    { name:"Controller",       type:"manager",     em:"🗂️", tag:"Plans to feel safe",
+      desc:"Plans, organizes, and manages every variable to prevent overwhelm or catastrophe. Often formed when early environments felt chaotic, unpredictable, or emotionally unsafe." },
+    { name:"Caretaker",        type:"manager",     em:"💞",  tag:"Gives to stay connected",
+      desc:"Focuses intensely on others' needs to maintain connection and prevent abandonment. Often does not know how to receive care in return — giving is the only role that feels safe and worthy." },
+    { name:"Avoider",          type:"manager",     em:"🌿",  tag:"Sidesteps pain gracefully",
+      desc:"Steers clear of triggering situations, conversations, or feelings through distraction, procrastination, or subtle withdrawal. Believes avoidance is far safer than contact with what lies beneath." },
+    { name:"Numbing Agent",    type:"firefighter", em:"🌊",  tag:"Makes the pain stop fast",
+      desc:"Reaches for substances, food, screens — whatever numbs quickly — when exiles flood with unbearable pain. Acts without deliberation to restore quiet. Not malicious; desperate, and genuinely trying to help." },
+    { name:"Rage",             type:"firefighter", em:"⚡",  tag:"Explodes to scatter pain",
+      desc:"Erupts in anger, blame, or aggression to overwhelm intolerable feelings of helplessness or shame. The intensity of rage can temporarily eclipse everything else, including the pain that triggered it." },
+    { name:"Dissociator",      type:"firefighter", em:"🌫️", tag:"Checks out when flooded",
+      desc:"Spaces out, zones away, or mentally exits the present when emotional flooding becomes too intense to stay with. A protective absence — leaving the body so the exile's pain doesn't have to be felt consciously." },
+    { name:"Risk-Taker",       type:"firefighter", em:"🔥",  tag:"Intensity as escape",
+      desc:"Pursues adrenaline, intensity, or excitement as a fast-acting escape from emotional pain or a pervasive sense of deadness or emptiness. Aliveness is preferable to the numbness of exile pain." },
+    { name:"Wounded Child",    type:"exile",       em:"💙",  tag:"Hurt and waiting to be seen",
+      desc:"Carries the raw emotional pain from early wounding — criticism, neglect, rejection. Holds the unprocessed residue of formative injuries, frozen in the moment they occurred, waiting to be witnessed." },
+    { name:"Abandoned One",    type:"exile",       em:"🌧️", tag:"Fears being left behind",
+      desc:"Holds the terror of abandonment — real or perceived — and the desperate ache for someone to choose to stay, to come back, to not leave. Often very young and very alone in that memory." },
+    { name:"Shame-Bearer",     type:"exile",       em:"🫧",  tag:"Believes I am the problem",
+      desc:"Carries the core belief that something is fundamentally wrong, bad, or broken at the center of who you are. Often the deepest exile, most heavily guarded by the whole protective system." },
+    { name:"Humiliated One",   type:"exile",       em:"🌑",  tag:"Remembers every exposure",
+      desc:"Holds specific memories of public shaming, mockery, or humiliation that feel completely timeless — as though they are still actively happening rather than events from the past." },
+    { name:"Lonely One",       type:"exile",       em:"🌙",  tag:"Aches for real connection",
+      desc:"Carries the pain of profound isolation — of never being fully known, chosen, or truly met by another person. The longing is not just for company, but for genuine recognition." },
+    { name:"Helpless One",     type:"exile",       em:"🌱",  tag:"Trapped, unable to change",
+      desc:"Holds the experience of being small, powerless, and unable to alter the circumstances causing pain. Often formed in situations where a child had nowhere to go and no one to help." },
+  ];
+
+  const REL = [
+    { v:"protects",     l:"Protects",     c:"#5f9fc4" },
+    { v:"triggered_by", l:"Triggered by", c:"#c96c42" },
+    { v:"blends_with",  l:"Blends with",  c:"#b87090" },
+    { v:"aware_of",     l:"Aware of",     c:"#8a9a7a" },
+  ];
+
+  // ═══════════════════════════════════════════════════════
+  //  MAP LAYOUT
+  // ═══════════════════════════════════════════════════════
+  const CW = 154, CH = 78, CG = 18;
+  const TY = { self:44, manager:206, firefighter:328, exile:468 };
+  const MAPH = 610;
+
+  // ═══════════════════════════════════════════════════════
+  //  DB MAPPERS
+  // ═══════════════════════════════════════════════════════
+  const dbToPart = r => ({
+    id:r.id, name:r.name, type:r.type, em:r.em, tag:r.tag,
+    desc:r.description, formation:r.formation, burden:r.burden,
+    posX:r.pos_x||0, createdAt:r.created_at,
+  });
+  const partToDb = (p, uid) => ({
+    id:p.id, user_id:uid, name:p.name, type:p.type,
+    em:p.em||null, tag:p.tag||null, description:p.desc||null,
+    formation:p.formation||null, burden:p.burden||null, pos_x:p.posX||0,
+  });
+  const dbToRel  = r => ({ id:r.id, from:r.from_id, to:r.to_id, type:r.type });
+  const relToDb  = (r, uid) => ({ id:r.id, user_id:uid, from_id:r.from, to_id:r.to, type:r.type });
+  const dbToNote = r => ({ id:r.id, partId:r.part_id, content:r.content, ntype:r.ntype, createdAt:r.created_at });
+  const noteToDb = (n, uid) => ({ id:n.id, part_id:n.partId, user_id:uid, content:n.content, ntype:n.ntype });
+  const dbToSess = r => ({ id:r.id, title:r.title, date:r.date, content:r.content, partsWorked:r.parts_worked||[], createdAt:r.created_at });
+  const sessToDb = (s, uid) => ({ id:s.id, user_id:uid, title:s.title, date:s.date, content:s.content, parts_worked:s.partsWorked||[] });
+
+  // ═══════════════════════════════════════════════════════
+  //  LOCAL STORAGE FALLBACK
+  // ═══════════════════════════════════════════════════════
+  const LS = {
+    get: k => { try { return JSON.parse(localStorage.getItem(k)||'null'); } catch { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+
+  const DEFAULT_SELF = {
+    id:'self-0', name:'Self', type:'self', em:'✦',
+    desc:'The compassionate, curious, calm core presence. Not a part — your true nature.',
+    posX:280, createdAt:new Date().toISOString(),
+  };
+
+  // ═══════════════════════════════════════════════════════
+  //  STYLE HELPERS
+  // ═══════════════════════════════════════════════════════
+  const IS = th => ({
+    padding:'8px 11px', borderRadius:7, border:`1px solid ${th.border}`,
+    background:th.input, color:th.text, fontSize:13, outline:'none',
+    fontFamily:"'DM Sans',sans-serif", display:'block',
+  });
+  const BS = (bg, color) => ({
+    background:bg, color, border:'none', borderRadius:7, cursor:'pointer',
+    fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:500,
+  });
+
+  // ═══════════════════════════════════════════════════════
+  //  APP
+  // ═══════════════════════════════════════════════════════
+  function App() {
+    useEffect(() => {
+      const l = document.createElement('link');
+      l.href = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap";
+      l.rel = 'stylesheet';
+      document.head.appendChild(l);
+    }, []);
+
+    const [dark,     setDark]     = useState(true);
+    const th                      = dark ? DK : LT;
+    const [user,     setUser]     = useState(null);
+    const [loading,  setLoading]  = useState(true);
+    const [view,     setView]     = useState('library');
+    const [parts,    setParts]    = useState(() => LS.get('ifs_p') || [DEFAULT_SELF]);
+    const [rels,     setRels]     = useState(() => LS.get('ifs_r') || []);
+    const [pnotes,   setPnotes]   = useState(() => LS.get('ifs_n') || []);
+    const [sessions, setSessions] = useState(() => LS.get('ifs_s') || []);
+    const [selId,    setSelId]    = useState(null);
+
+    useEffect(() => { LS.set('ifs_p', parts);    }, [parts]);
+    useEffect(() => { LS.set('ifs_r', rels);     }, [rels]);
+    useEffect(() => { LS.set('ifs_n', pnotes);   }, [pnotes]);
+    useEffect(() => { LS.set('ifs_s', sessions); }, [sessions]);
+
+    const loadUserData = useCallback(async (userId) => {
+      try {
+        const [{ data:pD }, { data:rD }, { data:nD }, { data:sD }] = await Promise.all([
+          sb.from('parts').select('*').eq('user_id', userId),
+          sb.from('relationships').select('*').eq('user_id', userId),
+          sb.from('part_notes').select('*').eq('user_id', userId),
+          sb.from('sessions').select('*').eq('user_id', userId).order('created_at', { ascending:false }),
+        ]);
+        if (pD && pD.length > 0) {
+          setParts(pD.map(dbToPart));
+        } else {
+          await sb.from('parts').upsert(partToDb(DEFAULT_SELF, userId));
+          setParts([DEFAULT_SELF]);
+        }
+        if (rD) setRels(rD.map(dbToRel));
+        if (nD) setPnotes(nD.map(dbToNote));
+        if (sD) setSessions(sD.map(dbToSess));
+      } catch (err) { console.error('Supabase load error:', err); }
+    }, []);
+
+    useEffect(() => {
+      sb.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user || null);
+        if (session?.user) loadUserData(session.user.id);
+        setLoading(false);
+      });
+      const { data: { subscription } } = sb.auth.onAuthStateChange((event, session) => {
+        setUser(session?.user || null);
+        if (session?.user && event === 'SIGNED_IN') loadUserData(session.user.id);
+        if (event === 'SIGNED_OUT') {
+          setParts(LS.get('ifs_p') || [DEFAULT_SELF]);
+          setRels(LS.get('ifs_r') || []);
+          setPnotes(LS.get('ifs_n') || []);
+          setSessions(LS.get('ifs_s') || []);
+        }
+        setLoading(false);
+      });
+      return () => subscription.unsubscribe();
+    }, [loadUserData]);
+
+    const nextX = useCallback((type) => {
+      const same = parts.filter(p => p.type === type);
+      return 30 + same.length * (CW + CG);
+    }, [parts]);
+
+    const addPart = useCallback((data) => {
+      const np = { id:Date.now().toString(), posX:nextX(data.type), createdAt:new Date().toISOString(), ...data };
+      setParts(p => [...p, np]);
+      if (user) sb.from('parts').upsert(partToDb(np, user.id)).catch(console.error);
+      return np;
+    }, [nextX, user]);
+
+    const updPart = useCallback((id, u) => {
+      setParts(p => {
+        const next = p.map(x => x.id === id ? { ...x, ...u } : x);
+        const updated = next.find(x => x.id === id);
+        if (user && updated) sb.from('parts').upsert(partToDb(updated, user.id)).catch(console.error);
+        return next;
+      });
+    }, [user]);
+
+    const delPart = useCallback((id) => {
+      setParts(p => p.filter(x => x.id !== id));
+      setRels(r => r.filter(x => x.from !== id && x.to !== id));
+      setPnotes(n => n.filter(x => x.partId !== id));
+      if (selId === id) setSelId(null);
+      if (user) {
+        sb.from('parts').delete().eq('id', id).catch(console.error);
+        sb.from('relationships').delete().or(`from_id.eq.${id},to_id.eq.${id}`).catch(console.error);
+        sb.from('part_notes').delete().eq('part_id', id).catch(console.error);
+      }
+    }, [selId, user]);
+
+    const addRel = useCallback((rel) => {
+      const nr = { id:Date.now().toString(), ...rel };
+      setRels(r => [...r, nr]);
+      if (user) sb.from('relationships').insert(relToDb(nr, user.id)).catch(console.error);
+    }, [user]);
+
+    const delRel = useCallback((id) => {
+      setRels(r => r.filter(x => x.id !== id));
+      if (user) sb.from('relationships').delete().eq('id', id).catch(console.error);
+    }, [user]);
+
+    const addNote = useCallback((pid, content, ntype='insight') => {
+      const nn = { id:Date.now().toString(), partId:pid, content, ntype, createdAt:new Date().toISOString() };
+      setPnotes(n => [...n, nn]);
+      if (user) sb.from('part_notes').insert(noteToDb(nn, user.id)).catch(console.error);
+    }, [user]);
+
+    const addSess = useCallback((data) => {
+      const ns = { id:Date.now().toString(), createdAt:new Date().toISOString(), ...data };
+      setSessions(s => [ns, ...s]);
+      if (user) sb.from('sessions').insert(sessToDb(ns, user.id)).catch(console.error);
+    }, [user]);
+
+    const updSess = useCallback((id, u) => {
+      setSessions(s => {
+        const next = s.map(x => x.id === id ? { ...x, ...u } : x);
+        const updated = next.find(x => x.id === id);
+        if (user && updated) sb.from('sessions').upsert(sessToDb(updated, user.id)).catch(console.error);
+        return next;
+      });
+    }, [user]);
+
+    const selPart  = parts.find(p => p.id === selId);
+    const selNotes = pnotes.filter(n => n.partId === selId);
+
+    if (loading) return <LoadingScreen th={th} />;
+    if (!user)   return <AuthScreen th={th} dark={dark} setDark={setDark} />;
+
+    return (
+      <div style={{ display:'flex', height:'100vh', overflow:'hidden', background:th.bg, color:th.text, fontFamily:"'DM Sans',sans-serif", fontSize:14 }}>
+        <Sidebar view={view} setView={setView} dark={dark} setDark={setDark} th={th} parts={parts} user={user} />
+        <div style={{ flex:1, overflow:'hidden', display:'flex' }}>
+          {view === 'library'  && <LibraryView parts={parts} onAdd={addPart} onNav={() => setView('map')} th={th} />}
+          {view === 'map'      && <MapView parts={parts} rels={rels} selId={selId} onSel={setSelId}
+            onMove={(id,x) => updPart(id,{posX:x})} onAdd={addPart} onAddRel={addRel} onDelRel={delRel} th={th} />}
+          {view === 'sessions' && <SessionsView sessions={sessions} parts={parts} onAdd={addSess} onUpd={updSess} th={th} />}
+          {view === 'settings' && <SettingsView parts={parts} rels={rels} pnotes={pnotes} sessions={sessions}
+            onImport={d => { setParts(d.parts||[]); setRels(d.rels||[]); setPnotes(d.pnotes||[]); setSessions(d.sessions||[]); }}
+            th={th} user={user} />}
+        </div>
+        {selPart && (
+          <PartDrawer part={selPart} notes={selNotes} parts={parts} rels={rels}
+            onClose={() => setSelId(null)} onUpd={u => updPart(selId, u)}
+            onNote={(c,t) => addNote(selId, c, t)} onDel={() => delPart(selId)}
+            onDelRel={delRel} onSel={setSelId} th={th} />
+        )}
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  LOADING + AUTH
+  // ═══════════════════════════════════════════════════════
+  function LoadingScreen({ th }) {
+    return (
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', background:th.bg }}>
+        <div style={{ textAlign:'center' }}>
+          <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:40, color:th.self, marginBottom:14 }}>✦</div>
+          <div style={{ color:th.muted, fontSize:13 }}>Loading…</div>
+        </div>
+      </div>
+    );
+  }
+
+  function AuthScreen({ th, dark, setDark }) {
+    const signIn = async () => {
+      await sb.auth.signInWithOAuth({
+        provider:'google',
+        options:{ redirectTo: window.location.origin + window.location.pathname },
+      });
+    };
+    return (
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', background:th.bg, fontFamily:"'DM Sans',sans-serif" }}>
+        <div style={{ textAlign:'center', maxWidth:400, padding:'0 32px' }}>
+          <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:56, color:th.self, lineHeight:1, marginBottom:10 }}>✦</div>
+          <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:40, fontWeight:600, color:th.text, margin:'0 0 10px' }}>
+            Inner Compass
+          </h1>
+          <p style={{ color:th.muted, fontSize:14, lineHeight:1.75, margin:'0 0 36px' }}>
+            A private space to map your internal system, understand your parts, and track your journey in IFS therapy.
+          </p>
+          <button onClick={signIn}
+            style={{ ...BS(th.self, dark ? '#12100e' : '#fff'), padding:'12px 26px', fontSize:15, borderRadius:10,
+              display:'inline-flex', alignItems:'center', gap:10 }}>
+            <svg width="18" height="18" viewBox="0 0 18 18">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+              <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+            </svg>
+            Sign in with Google
+          </button>
+          <p style={{ color:th.faint, fontSize:11, marginTop:30, lineHeight:1.7 }}>
+            Your data is stored privately and never shared without your consent.
+          </p>
+          <button onClick={() => setDark(d => !d)}
+            style={{ ...BS('none', th.muted), marginTop:16, padding:'4px 8px', fontSize:17 }}>
+            💡
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  SIDEBAR
+  // ═══════════════════════════════════════════════════════
+  function Sidebar({ view, setView, dark, setDark, th, parts, user }) {
+    const nav = [
+      { id:'library',  icon:'📚', label:'Library'  },
+      { id:'map',      icon:'🗺️', label:'Map'       },
+      { id:'sessions', icon:'📓', label:'Sessions'  },
+      { id:'settings', icon:'⚙️', label:'Settings'  },
+    ];
+    return (
+      <div style={{ width:196, background:th.panel, borderRight:`1px solid ${th.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
+        <div style={{ padding:'22px 18px 18px', borderBottom:`1px solid ${th.border}` }}>
+          <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:21, fontWeight:600, color:th.self, letterSpacing:'0.02em', lineHeight:1 }}>
+            Inner Compass
+          </div>
+          <div style={{ fontSize:11, color:th.muted, marginTop:4 }}>IFS Parts Mapping</div>
+        </div>
+        <nav style={{ flex:1, padding:'12px 9px' }}>
+          {nav.map(item => (
+            <button key={item.id} onClick={() => setView(item.id)}
+              style={{ width:'100%', display:'flex', alignItems:'center', gap:9, padding:'9px 10px',
+                borderRadius:8, border:'none', cursor:'pointer', marginBottom:3,
+                background:view === item.id ? th.subtle : 'transparent',
+                color:view === item.id ? th.text : th.muted,
+                fontFamily:"'DM Sans',sans-serif", fontSize:13,
+                fontWeight:view === item.id ? 500 : 400, textAlign:'left' }}>
+              <span style={{ fontSize:14 }}>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div style={{ padding:'12px 14px', borderTop:`1px solid ${th.border}` }}>
+          {user && (
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+              {user.user_metadata?.avatar_url && (
+                <img src={user.user_metadata.avatar_url} alt=""
+                  style={{ width:24, height:24, borderRadius:'50%', flexShrink:0 }} />
+              )}
+              <span style={{ fontSize:11, color:th.muted, flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                {user.user_metadata?.name || user.email}
+              </span>
+            </div>
+          )}
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <button onClick={() => sb.auth.signOut()} style={{ ...BS('none', th.muted), fontSize:11, padding:0 }}>
+              Sign out
+            </button>
+            <button onClick={() => setDark(d => !d)} title={dark ? 'Light mode' : 'Dark mode'}
+              style={{ ...BS('none', th.muted), fontSize:17, padding:2, lineHeight:1 }}>💡</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  LIBRARY VIEW
+  // ═══════════════════════════════════════════════════════
+  function LibraryView({ parts, onAdd, onNav, th }) {
+    const [filter,     setFilter]     = useState('all');
+    const [search,     setSearch]     = useState('');
+    const [showCustom, setShowCustom] = useState(false);
+    const [custom,     setCustom]     = useState({ name:'', type:'manager', em:'', desc:'', tag:'' });
+
+    const filters = [
+      { v:'all',         l:'All'          },
+      { v:'manager',     l:'Managers'     },
+      { v:'firefighter', l:'Firefighters' },
+      { v:'exile',       l:'Exiles'       },
+    ];
+
+    const shown = LIB.filter(p =>
+      (filter === 'all' || p.type === filter) &&
+      (p.name.toLowerCase().includes(search.toLowerCase()) ||
+       p.tag.toLowerCase().includes(search.toLowerCase()))
+    );
+
+    const hasPart = name => parts.some(p => p.name === name);
+
+    const handleAdd = lib => {
+      if (hasPart(lib.name)) return;
+      onAdd({ name:lib.name, type:lib.type, em:lib.em, desc:lib.desc, tag:lib.tag });
+      onNav();
+    };
+
+    const handleCustom = () => {
+      if (!custom.name.trim()) return;
+      onAdd({ ...custom, em:custom.em || '●' });
+      setCustom({ name:'', type:'manager', em:'', desc:'', tag:'' });
+      setShowCustom(false);
+      onNav();
+    };
+
+    return (
+      <div style={{ flex:1, overflowY:'auto', padding:'36px 44px' }}>
+        <div style={{ maxWidth:760, marginBottom:36 }}>
+          <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:40, fontWeight:600, color:th.text, margin:'0 0 14px', lineHeight:1.15 }}>
+            Understanding Your Parts
+          </h1>
+          <p style={{ color:th.muted, lineHeight:1.75, fontSize:14, margin:'0 0 22px' }}>
+            In Internal Family Systems, we each contain a constellation of protective and wounded sub-personalities
+            called <em>parts</em>, organized around a compassionate core called <strong style={{ color:th.text }}>Self</strong>.
+            Protectors — managers and firefighters — work to keep vulnerable <strong style={{ color:th.exile }}>exile</strong> parts
+            from flooding the system with old pain. Add the parts that resonate, then explore your map.
+          </p>
+          <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
+            {[{ t:'self',l:'Self',d:'Your core nature' },{ t:'manager',l:'Managers',d:'Proactive protectors' },
+              { t:'firefighter',l:'Firefighters',d:'Reactive protectors' },{ t:'exile',l:'Exiles',d:'Wounded parts' }].map(x => (
+              <div key={x.t} style={{ padding:'8px 14px', borderRadius:8, background:th.subtle, borderLeft:`3px solid ${tc(x.t, th)}`, fontSize:12 }}>
+                <div style={{ color:tc(x.t, th), fontWeight:500 }}>{x.l}</div>
+                <div style={{ color:th.muted, marginTop:1 }}>{x.d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display:'flex', gap:10, marginBottom:22, alignItems:'center', flexWrap:'wrap' }}>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search parts…"
+            style={{ ...IS(th), width:210 }} />
+          <div style={{ display:'flex', gap:5 }}>
+            {filters.map(f => (
+              <button key={f.v} onClick={() => setFilter(f.v)}
+                style={{ padding:'6px 13px', borderRadius:20, cursor:'pointer', fontSize:12,
+                  border:`1px solid ${filter === f.v ? tc(f.v === 'all' ? 'manager' : f.v, th) : th.border}`,
+                  background:filter === f.v ? th.subtle : 'transparent',
+                  color:filter === f.v ? th.text : th.muted, fontFamily:"'DM Sans',sans-serif" }}>
+                {f.l}
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setShowCustom(s => !s)}
+            style={{ ...BS(showCustom ? th.self : th.subtle, showCustom ? th.bg : th.text),
+              marginLeft:'auto', padding:'8px 16px', border:`1px solid ${showCustom ? th.self : th.border}` }}>
+            + Custom Part
+          </button>
+        </div>
+
+        {showCustom && (
+          <div style={{ background:th.card, border:`1px solid ${th.border}`, borderRadius:12, padding:20, marginBottom:22 }}>
+            <div style={{ display:'flex', gap:10, marginBottom:10, flexWrap:'wrap' }}>
+              <input value={custom.em} onChange={e => setCustom(c => ({ ...c, em:e.target.value }))} placeholder="Emoji"
+                style={{ ...IS(th), width:56, textAlign:'center', fontSize:18 }} />
+              <input value={custom.name} onChange={e => setCustom(c => ({ ...c, name:e.target.value }))} placeholder="Part name"
+                style={{ ...IS(th), flex:1, minWidth:160 }} />
+              <select value={custom.type} onChange={e => setCustom(c => ({ ...c, type:e.target.value }))}
+                style={{ ...IS(th), width:150 }}>
+                <option value="manager">Manager</option>
+                <option value="firefighter">Firefighter</option>
+                <option value="exile">Exile</option>
+              </select>
+            </div>
+            <input value={custom.tag} onChange={e => setCustom(c => ({ ...c, tag:e.target.value }))}
+              placeholder="Short tagline…"
+              style={{ ...IS(th), width:'100%', marginBottom:10, boxSizing:'border-box' }} />
+            <textarea value={custom.desc} onChange={e => setCustom(c => ({ ...c, desc:e.target.value }))}
+              placeholder="Describe this part — its role, fears, what it protects, when it shows up…"
+              rows={3} style={{ ...IS(th), width:'100%', resize:'vertical', boxSizing:'border-box' }} />
+            <div style={{ display:'flex', gap:8, marginTop:12 }}>
+              <button onClick={handleCustom} style={{ ...BS(th.self, th.bg), padding:'8px 20px' }}>Add to Map</button>
+              <button onClick={() => setShowCustom(false)} style={{ ...BS(th.faint, th.muted), padding:'8px 14px' }}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(285px,1fr))', gap:14 }}>
+          {shown.map(p => (
+            <LibCard key={p.name} part={p} added={hasPart(p.name)} onAdd={() => handleAdd(p)} th={th} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function LibCard({ part, added, onAdd, th }) {
+    const [open, setOpen] = useState(false);
+    const color = tc(part.type, th);
+    return (
+      <div onClick={() => setOpen(o => !o)}
+        style={{ background:th.card, border:`1.5px solid ${open ? color : th.border}`,
+          borderRadius:12, padding:16, cursor:'pointer', transition:'border-color 0.15s', opacity:added ? 0.65 : 1 }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
+          <div style={{ display:'flex', gap:10, alignItems:'center', flex:1, minWidth:0 }}>
+            <span style={{ fontSize:22, flexShrink:0 }}>{part.em}</span>
+            <div style={{ minWidth:0 }}>
+              <div style={{ fontWeight:500, color:th.text, fontSize:13 }}>{part.name}</div>
+              <div style={{ fontSize:11, color, marginTop:2 }}>{part.tag}</div>
+            </div>
+          </div>
+          <div style={{ flexShrink:0, marginTop:2 }}>
+            {added ? (
+              <span style={{ fontSize:11, color:th.muted, padding:'3px 9px', borderRadius:20, border:`1px solid ${th.border}` }}>Added ✓</span>
+            ) : (
+              <button onClick={e => { e.stopPropagation(); onAdd(); }}
+                style={{ ...BS(color+'22', color), padding:'4px 11px', fontSize:11, border:`1px solid ${color}` }}>
+                + Add
+              </button>
+            )}
+          </div>
+        </div>
+        {open && <p style={{ margin:'12px 0 0', fontSize:12.5, color:th.muted, lineHeight:1.75 }}>{part.desc}</p>}
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  MAP VIEW
+  // ═══════════════════════════════════════════════════════
+  function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel, th }) {
+    const [relMode, setRelMode] = useState(null);
+    const [relFrom, setRelFrom] = useState(null);
+    const [relType, setRelType] = useState('protects');
+    const [mapW,    setMapW]    = useState(1000);
+
+    useEffect(() => {
+      const max = parts.reduce((m, p) => Math.max(m, (p.posX||0) + CW + 60), 800);
+      setMapW(max);
+    }, [parts]);
+
+    const handleCardClick = id => {
+      if (relMode === 'pick-first') {
+        setRelFrom(id); setRelMode('pick-second');
+      } else if (relMode === 'pick-second' && relFrom && id !== relFrom) {
+        onAddRel({ from:relFrom, to:id, type:relType });
+        setRelMode(null); setRelFrom(null);
+      } else {
+        onSel(selId === id ? null : id);
+      }
+    };
+
+    const drag = useRef({ active:false, id:null, startX:0, startPosX:0 });
+    const handleMouseDown = (e, part) => {
+      e.preventDefault();
+      drag.current = { active:true, id:part.id, startX:e.clientX, startPosX:part.posX||0 };
+    };
+    useEffect(() => {
+      const mv = e => {
+        const d = drag.current;
+        if (!d.active) return;
+        onMove(d.id, Math.max(10, d.startPosX + (e.clientX - d.startX)));
+      };
+      const up = () => { drag.current.active = false; };
+      window.addEventListener('mousemove', mv);
+      window.addEventListener('mouseup', up);
+      return () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); };
+    }, [onMove]);
+
+    const tiers = [
+      { type:'self',        label:'✦  Self',     y:TY.self },
+      { type:'manager',     label:'Managers',     y:TY.manager },
+      { type:'firefighter', label:'Firefighters', y:TY.firefighter },
+      { type:'exile',       label:'Exiles',       y:TY.exile },
+    ];
+
+    const handleNewPart = () => {
+      const name = window.prompt('Part name:');
+      if (!name) return;
+      const type = (window.prompt('Type:\n  manager\n  firefighter\n  exile') || 'manager').toLowerCase().trim();
+      if (!['manager','firefighter','exile'].includes(type)) return;
+      onAdd({ name, type, em:'●', desc:'' });
+    };
+
+    return (
+      <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        {/* Toolbar */}
+        <div style={{ display:'flex', alignItems:'center', gap:10, padding:'11px 18px',
+          borderBottom:`1px solid ${th.border}`, background:th.panel, flexShrink:0, flexWrap:'wrap' }}>
+          <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, color:th.text, fontWeight:500 }}>
+            Parts Map
+          </span>
+          <div style={{ flex:1 }} />
+          {relMode ? (
+            <div style={{ display:'flex', alignItems:'center', gap:10, background:th.subtle,
+              padding:'6px 14px', borderRadius:8, border:`1px solid ${th.border}` }}>
+              <span style={{ fontSize:12, color:th.muted }}>
+                {relMode === 'pick-first' ? '① Click the source part' : '② Now click the target part'}
+              </span>
+              <select value={relType} onChange={e => setRelType(e.target.value)}
+                style={{ ...IS(th), padding:'4px 8px', fontSize:11, width:130 }}>
+                {REL.map(r => <option key={r.v} value={r.v}>{r.l}</option>)}
+              </select>
+              <button onClick={() => { setRelMode(null); setRelFrom(null); }}
+                style={{ ...BS(th.faint, th.muted), padding:'4px 10px', fontSize:11 }}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <>
+              <button onClick={() => setRelMode('pick-first')}
+                style={{ ...BS(th.subtle, th.text), padding:'7px 13px', fontSize:12, border:`1px solid ${th.border}` }}>
+                + Relationship
+              </button>
+              <button onClick={handleNewPart}
+                style={{ ...BS(th.subtle, th.text), padding:'7px 13px', fontSize:12, border:`1px solid ${th.border}` }}>
+                + Part
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Canvas */}
+        <div style={{ flex:1, overflowX:'auto', overflowY:'auto', position:'relative' }}>
+          <div style={{ position:'relative', width:mapW, height:MAPH + 60, minWidth:'100%' }}>
+
+            {tiers.map((tier, i) => (
+              <div key={tier.type}>
+                {i > 0 && <div style={{ position:'absolute', left:0, right:0, top:tier.y - 20, height:1, background:th.faint, opacity:0.6 }} />}
+                <div style={{ position:'absolute', left:12, top:tier.y - 18 }}>
+                  <span style={{ fontSize:10, fontWeight:600, color:tc(tier.type, th), letterSpacing:'0.1em', textTransform:'uppercase', opacity:0.8 }}>
+                    {tier.label}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* Arrows SVG */}
+            <svg style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', pointerEvents:'none', overflow:'visible' }}>
+              <defs>
+                {REL.map(r => (
+                  <marker key={r.v} id={`arr-${r.v}`} markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L7,3 z" fill={r.c} opacity="0.85" />
+                  </marker>
+                ))}
+              </defs>
+              {rels.map(rel => {
+                const fp = parts.find(p => p.id === rel.from);
+                const tp = parts.find(p => p.id === rel.to);
+                if (!fp || !tp) return null;
+                const sx = (fp.posX||0) + CW/2, sy = TY[fp.type] + CH/2;
+                const ex = (tp.posX||0) + CW/2, ey = TY[tp.type] + CH/2;
+                const dy = ey - sy, dx = ex - sx;
+                const vert = Math.abs(dy) >= Math.abs(dx);
+                const cp1x = vert ? sx : sx + dx * 0.4, cp1y = vert ? sy + dy * 0.4 : sy;
+                const cp2x = vert ? ex : ex - dx * 0.4, cp2y = vert ? ey - dy * 0.4 : ey;
+                const rm = REL.find(r => r.v === rel.type) || REL[0];
+                const mx = (sx + ex) / 2, my = (sy + ey) / 2;
+                return (
+                  <g key={rel.id}>
+                    <path d={`M${sx},${sy} C${cp1x},${cp1y} ${cp2x},${cp2y} ${ex},${ey}`}
+                      fill="none" stroke={rm.c} strokeWidth="1.5" opacity="0.55"
+                      strokeDasharray={rel.type === 'aware_of' ? '5,4' : undefined}
+                      markerEnd={`url(#arr-${rel.type})`} />
+                    <rect x={mx-30} y={my-9} width={60} height={16} rx={4} fill={th.bg} opacity="0.85" />
+                    <text x={mx} y={my+4} fill={rm.c} fontSize="9.5" textAnchor="middle"
+                      opacity="0.9" fontFamily="'DM Sans',sans-serif" fontWeight="500">{rm.l}</text>
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Part Cards */}
+            {parts.map(part => {
+              const isFrom = relFrom === part.id;
+              const isSel  = selId   === part.id;
+              const color  = tc(part.type, th);
+              const glow   = isSel || isFrom;
+              return (
+                <div key={part.id}
+                  onMouseDown={e => handleMouseDown(e, part)}
+                  onClick={() => handleCardClick(part.id)}
+                  style={{ position:'absolute', left:part.posX||0, top:TY[part.type],
+                    width:CW, height:CH, cursor:'pointer', userSelect:'none',
+                    borderRadius:10, border:`1.5px solid ${glow ? color : th.border}`,
+                    background:glow ? color+'1a' : th.card,
+                    boxShadow:isSel ? `0 0 0 3px ${color}30` : 'none',
+                    transition:'border-color 0.1s,background 0.1s,box-shadow 0.1s',
+                    display:'flex', flexDirection:'column', justifyContent:'center',
+                    padding:'9px 12px', zIndex:isSel ? 3 : 1 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                    <span style={{ fontSize:17, flexShrink:0 }}>{part.em || '●'}</span>
+                    <span style={{ fontSize:12.5, fontWeight:500, color:th.text,
+                      overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1, lineHeight:1.25 }}>
+                      {part.name}
+                    </span>
+                  </div>
+                  {part.tag && (
+                    <div style={{ fontSize:10, color:th.muted, marginTop:3, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      {part.tag}
+                    </div>
+                  )}
+                  <div style={{ fontSize:9.5, color, marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>
+                    {part.type}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div style={{ display:'flex', gap:18, padding:'8px 18px', borderTop:`1px solid ${th.border}`,
+          background:th.panel, flexShrink:0, flexWrap:'wrap', alignItems:'center' }}>
+          <span style={{ fontSize:10, color:th.muted, letterSpacing:'0.06em', textTransform:'uppercase', fontWeight:500 }}>
+            Relationships
+          </span>
+          {REL.map(r => (
+            <div key={r.v} style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, color:th.muted }}>
+              <svg width="22" height="10" style={{ overflow:'visible' }}>
+                <line x1="0" y1="5" x2="18" y2="5" stroke={r.c} strokeWidth="1.5" opacity="0.8"
+                  strokeDasharray={r.v === 'aware_of' ? '4,3' : undefined} />
+                <polygon points="18,2 18,8 22,5" fill={r.c} opacity="0.8" />
+              </svg>
+              {r.l}
+            </div>
+          ))}
+          <span style={{ fontSize:10, color:th.muted, marginLeft:'auto' }}>Drag cards to rearrange</span>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  PART DRAWER
+  // ═══════════════════════════════════════════════════════
+  function PartDrawer({ part, notes, parts, rels, onClose, onUpd, onNote, onDel, onDelRel, onSel, th }) {
+    const [tab,      setTab]      = useState('details');
+    const [editing,  setEditing]  = useState(false);
+    const [form,     setForm]     = useState({});
+    const [noteText, setNoteText] = useState('');
+    const [noteType, setNoteType] = useState('insight');
+    const [confirm,  setConfirm]  = useState(false);
+
+    useEffect(() => {
+      setForm({ name:part.name, em:part.em||'', desc:part.desc||'',
+        formation:part.formation||'', burden:part.burden||'', tag:part.tag||'' });
+      setEditing(false); setConfirm(false);
+    }, [part.id]);
+
+    const color     = tc(part.type, th);
+    const connected = rels.filter(r => r.from === part.id || r.to === part.id);
+
+    const handleNote = () => { if (!noteText.trim()) return; onNote(noteText, noteType); setNoteText(''); };
+
+    return (
+      <div style={{ width:336, background:th.panel, borderLeft:`1px solid ${th.border}`,
+        display:'flex', flexDirection:'column', overflow:'hidden', flexShrink:0 }}>
+        {/* Header */}
+        <div style={{ padding:'18px 18px 14px', borderBottom:`1px solid ${th.border}` }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
+            <div style={{ display:'flex', gap:10, alignItems:'center', flex:1, minWidth:0 }}>
+              {editing
+                ? <input value={form.em} onChange={e => setForm(f => ({ ...f, em:e.target.value }))}
+                    style={{ ...IS(th), width:46, textAlign:'center', fontSize:20 }} />
+                : <span style={{ fontSize:26, flexShrink:0 }}>{part.em || '●'}</span>
+              }
+              <div style={{ flex:1, minWidth:0 }}>
+                {editing
+                  ? <input value={form.name} onChange={e => setForm(f => ({ ...f, name:e.target.value }))}
+                      style={{ ...IS(th), fontFamily:"'Cormorant Garamond',serif", fontSize:17, fontWeight:600, width:'100%' }} />
+                  : <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, fontWeight:600, color:th.text, lineHeight:1.2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      {part.name}
+                    </div>
+                }
+                <div style={{ fontSize:10.5, color, textTransform:'uppercase', letterSpacing:'0.09em', marginTop:3, fontWeight:600 }}>
+                  {part.type}
+                </div>
+              </div>
+            </div>
+            <button onClick={onClose} style={{ ...BS('none', th.muted), border:'none', fontSize:18, padding:'2px 4px', lineHeight:1, flexShrink:0 }}>✕</button>
+          </div>
+          {editing ? (
+            <>
+              <input value={form.tag} onChange={e => setForm(f => ({ ...f, tag:e.target.value }))}
+                placeholder="Short tagline…"
+                style={{ ...IS(th), width:'100%', marginTop:10, fontSize:12, boxSizing:'border-box' }} />
+              <div style={{ display:'flex', gap:7, marginTop:10 }}>
+                <button onClick={() => { onUpd({ ...form }); setEditing(false); }}
+                  style={{ ...BS(color, th.bg), padding:'6px 16px', fontSize:12 }}>Save</button>
+                <button onClick={() => setEditing(false)}
+                  style={{ ...BS(th.faint, th.muted), padding:'6px 12px', fontSize:12 }}>Cancel</button>
+              </div>
+            </>
+          ) : (
+            <>
+              {part.tag && <div style={{ fontSize:11.5, color:th.muted, marginTop:6, fontStyle:'italic' }}>{part.tag}</div>}
+              <div style={{ display:'flex', gap:7, marginTop:12 }}>
+                <button onClick={() => setEditing(true)}
+                  style={{ ...BS(th.subtle, th.text), padding:'5px 12px', fontSize:11, border:`1px solid ${th.border}` }}>Edit</button>
+                {!confirm
+                  ? <button onClick={() => setConfirm(true)}
+                      style={{ ...BS(th.subtle, th.muted), padding:'5px 12px', fontSize:11, border:`1px solid ${th.border}` }}>Delete</button>
+                  : <button onClick={onDel}
+                      style={{ ...BS('#c96c4222','#c96c42'), padding:'5px 12px', fontSize:11, border:'1px solid #c96c42' }}>Confirm delete</button>
+                }
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display:'flex', borderBottom:`1px solid ${th.border}`, flexShrink:0 }}>
+          {['details','notes','connections'].map(t => (
+            <button key={t} onClick={() => setTab(t)}
+              style={{ flex:1, padding:'9px 4px', fontSize:11.5, background:'none', border:'none', cursor:'pointer',
+                color:tab === t ? th.text : th.muted,
+                borderBottom:tab === t ? `2px solid ${color}` : '2px solid transparent',
+                fontFamily:"'DM Sans',sans-serif", textTransform:'capitalize', fontWeight:tab === t ? 500 : 400 }}>
+              {t}
+              {t === 'notes' && notes.length > 0 &&
+                <span style={{ marginLeft:5, fontSize:10, background:color+'33', color, padding:'1px 6px', borderRadius:10 }}>{notes.length}</span>}
+              {t === 'connections' && connected.length > 0 &&
+                <span style={{ marginLeft:5, fontSize:10, background:color+'33', color, padding:'1px 6px', borderRadius:10 }}>{connected.length}</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <div style={{ flex:1, overflowY:'auto', padding:18 }}>
+          {tab === 'details' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
+              {[
+                { key:'desc',       label:'Description',      placeholder:'How does this part show up? What does it do?' },
+                { key:'formation',  label:'Formation Memory',  placeholder:'When did this part first appear? What was happening?' },
+                { key:'burden',     label:'Core Burden',       placeholder:'What belief or painful emotion does this part carry?' },
+              ].map(f => (
+                <div key={f.key}>
+                  <div style={{ fontSize:10.5, fontWeight:600, color:th.muted, textTransform:'uppercase', letterSpacing:'0.09em', marginBottom:8 }}>
+                    {f.label}
+                  </div>
+                  {editing
+                    ? <textarea value={form[f.key]} onChange={e => setForm(fm => ({ ...fm, [f.key]:e.target.value }))}
+                        rows={3} placeholder={f.placeholder}
+                        style={{ ...IS(th), width:'100%', resize:'vertical', boxSizing:'border-box' }} />
+                    : <p style={{ margin:0, color:th.muted, fontSize:13, lineHeight:1.75 }}>
+                        {part[f.key] || <em>Not yet recorded.</em>}
+                      </p>
+                  }
+                </div>
+              ))}
+              <div style={{ fontSize:11, color:th.faint, paddingTop:4 }}>
+                Added {new Date(part.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+          )}
+
+          {tab === 'notes' && (
+            <div>
+              <textarea value={noteText} onChange={e => setNoteText(e.target.value)}
+                rows={3} placeholder="Add a note, insight, or record of unburdening…"
+                style={{ ...IS(th), width:'100%', resize:'vertical', marginBottom:8, boxSizing:'border-box' }} />
+              <div style={{ display:'flex', gap:8, marginBottom:20 }}>
+                <select value={noteType} onChange={e => setNoteType(e.target.value)} style={{ ...IS(th), flex:1 }}>
+                  <option value="insight">Insight</option>
+                  <option value="unburdening">Unburdening</option>
+                  <option value="session">Session note</option>
+                  <option value="update">Update</option>
+                </select>
+                <button onClick={handleNote} style={{ ...BS(color, th.bg), padding:'8px 14px', fontSize:12 }}>Save</button>
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                {notes.length === 0 && <p style={{ color:th.muted, fontSize:13, fontStyle:'italic' }}>No notes yet for this part.</p>}
+                {[...notes].reverse().map(n => (
+                  <div key={n.id} style={{ background:th.subtle, borderRadius:8, padding:12 }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+                      <span style={{ fontSize:9.5, color, textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:600 }}>{n.ntype}</span>
+                      <span style={{ fontSize:10, color:th.muted }}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <p style={{ margin:0, fontSize:13, color:th.text, lineHeight:1.7 }}>{n.content}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tab === 'connections' && (
+            <div>
+              {connected.length === 0 && (
+                <p style={{ color:th.muted, fontSize:13, lineHeight:1.7, fontStyle:'italic' }}>
+                  No relationships yet. Use the Map toolbar to add connections between parts.
+                </p>
+              )}
+              {connected.map(rel => {
+                const isFrom  = rel.from === part.id;
+                const otherId = isFrom ? rel.to : rel.from;
+                const other   = parts.find(p => p.id === otherId);
+                if (!other) return null;
+                const rm = REL.find(r => r.v === rel.type) || REL[0];
+                return (
+                  <div key={rel.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between',
+                    padding:'10px 12px', marginBottom:8, background:th.subtle, borderRadius:8 }}>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:11, color:th.muted, marginBottom:4, lineHeight:1.5 }}>
+                        <span style={{ color:th.text }}>{isFrom ? part.name : other.name}</span>
+                        {' → '}
+                        <span style={{ color:rm.c, fontWeight:500 }}>{rm.l.toLowerCase()}</span>
+                        {' → '}
+                        <span style={{ color:th.text }}>{isFrom ? other.name : part.name}</span>
+                      </div>
+                      <button onClick={() => onSel(otherId)}
+                        style={{ fontSize:12, color:tc(other.type, th), background:'none',
+                          border:'none', cursor:'pointer', padding:0, textDecoration:'underline' }}>
+                        {other.em} {other.name}
+                      </button>
+                    </div>
+                    <button onClick={() => onDelRel(rel.id)}
+                      style={{ ...BS('none', th.muted), border:'none', fontSize:15, padding:'2px 6px', lineHeight:1, flexShrink:0 }}>✕</button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  SESSIONS VIEW
+  // ═══════════════════════════════════════════════════════
+  function SessionsView({ sessions, parts, onAdd, onUpd, th }) {
+    const [showNew, setShowNew] = useState(false);
+    const [openId,  setOpenId]  = useState(null);
+    const [form,    setForm]    = useState({ title:'', date:new Date().toISOString().slice(0,10), content:'', partsWorked:[] });
+
+    const togglePart = id =>
+      setForm(f => ({ ...f, partsWorked:f.partsWorked.includes(id) ? f.partsWorked.filter(x => x !== id) : [...f.partsWorked, id] }));
+
+    const handleAdd = () => {
+      if (!form.title.trim()) return;
+      onAdd(form);
+      setForm({ title:'', date:new Date().toISOString().slice(0,10), content:'', partsWorked:[] });
+      setShowNew(false);
+    };
+
+    return (
+      <div style={{ flex:1, overflowY:'auto', padding:'34px 44px' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:28 }}>
+          <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600, margin:0, color:th.text }}>
+            Session Notes
+          </h1>
+          <button onClick={() => setShowNew(s => !s)}
+            style={{ ...BS(showNew ? th.self : th.subtle, showNew ? th.bg : th.text),
+              padding:'9px 18px', border:`1px solid ${showNew ? th.self : th.border}`, fontWeight:500 }}>
+            {showNew ? 'Cancel' : '+ New Session'}
+          </button>
+        </div>
+
+        {showNew && (
+          <div style={{ background:th.card, border:`1px solid ${th.border}`, borderRadius:12, padding:20, marginBottom:22 }}>
+            <div style={{ display:'flex', gap:10, marginBottom:10, flexWrap:'wrap' }}>
+              <input value={form.title} onChange={e => setForm(f => ({ ...f, title:e.target.value }))}
+                placeholder="Session title" style={{ ...IS(th), flex:1, minWidth:200 }} />
+              <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date:e.target.value }))}
+                style={{ ...IS(th), width:160 }} />
+            </div>
+            <textarea value={form.content} onChange={e => setForm(f => ({ ...f, content:e.target.value }))}
+              rows={5} placeholder="Notes, insights, what came up, what shifted, therapist observations…"
+              style={{ ...IS(th), width:'100%', resize:'vertical', marginBottom:12, boxSizing:'border-box' }} />
+            <div style={{ marginBottom:14 }}>
+              <div style={{ fontSize:11, color:th.muted, marginBottom:8, fontWeight:500, textTransform:'uppercase', letterSpacing:'0.07em' }}>
+                Parts worked with
+              </div>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                {parts.filter(p => p.type !== 'self').map(p => {
+                  const on = form.partsWorked.includes(p.id);
+                  return (
+                    <button key={p.id} onClick={() => togglePart(p.id)}
+                      style={{ padding:'4px 12px', borderRadius:20, fontSize:11, cursor:'pointer',
+                        background:on ? tc(p.type,th)+'22' : th.subtle,
+                        color:on ? tc(p.type,th) : th.muted,
+                        border:`1px solid ${on ? tc(p.type,th)+'88' : th.border}`,
+                        fontFamily:"'DM Sans',sans-serif" }}>
+                      {p.em} {p.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{ display:'flex', gap:8 }}>
+              <button onClick={handleAdd} style={{ ...BS(th.self, th.bg), padding:'8px 20px' }}>Save Session</button>
+              <button onClick={() => setShowNew(false)} style={{ ...BS(th.faint, th.muted), padding:'8px 14px' }}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {sessions.length === 0 && !showNew && (
+          <div style={{ textAlign:'center', padding:'70px 0', color:th.muted }}>
+            <div style={{ fontSize:34, marginBottom:14 }}>📓</div>
+            <p>No sessions recorded yet.</p>
+          </div>
+        )}
+
+        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          {sessions.map(sess => (
+            <div key={sess.id} style={{ background:th.card, border:`1px solid ${th.border}`, borderRadius:12, overflow:'hidden' }}>
+              <div onClick={() => setOpenId(openId === sess.id ? null : sess.id)}
+                style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'15px 18px', cursor:'pointer' }}>
+                <div>
+                  <div style={{ fontWeight:500, color:th.text, fontSize:14 }}>{sess.title}</div>
+                  <div style={{ fontSize:11, color:th.muted, marginTop:3 }}>
+                    {new Date(sess.date || sess.createdAt).toLocaleDateString('en-US',
+                      { weekday:'long', year:'numeric', month:'long', day:'numeric' })}
+                  </div>
+                </div>
+                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                  {sess.partsWorked?.length > 0 && <span style={{ fontSize:11, color:th.muted }}>{sess.partsWorked.length} parts</span>}
+                  <span style={{ color:th.muted, fontSize:14 }}>{openId === sess.id ? '▲' : '▼'}</span>
+                </div>
+              </div>
+              {openId === sess.id && (
+                <div style={{ padding:'0 18px 18px', borderTop:`1px solid ${th.border}` }}>
+                  {sess.partsWorked?.length > 0 && (
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:6, margin:'14px 0 12px' }}>
+                      {sess.partsWorked.map(pid => {
+                        const p = parts.find(x => x.id === pid);
+                        if (!p) return null;
+                        return (
+                          <span key={pid} style={{ padding:'3px 10px', borderRadius:20, fontSize:11,
+                            background:tc(p.type,th)+'22', color:tc(p.type,th), border:`1px solid ${tc(p.type,th)}44` }}>
+                            {p.em} {p.name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <p style={{ margin:0, fontSize:13, color:th.muted, lineHeight:1.8, whiteSpace:'pre-wrap' }}>
+                    {sess.content || 'No notes recorded.'}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  SETTINGS VIEW
+  // ═══════════════════════════════════════════════════════
+  function SettingsView({ parts, rels, pnotes, sessions, onImport, th, user }) {
+    const [token,  setToken]  = useState(() => LS.get('ifs_tok') || null);
+    const [copied, setCopied] = useState(false);
+
+    const genToken = () => { const t = Math.random().toString(36).substr(2,14); setToken(t); LS.set('ifs_tok', t); };
+    const copy = text => { navigator.clipboard?.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
+    const exportData = () => {
+      const blob = new Blob([JSON.stringify({ parts, rels, pnotes, sessions }, null, 2)], { type:'application/json' });
+      const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'ifs-map.json' });
+      a.click(); URL.revokeObjectURL(a.href);
+    };
+
+    const importData = () => {
+      const input = Object.assign(document.createElement('input'), { type:'file', accept:'.json' });
+      input.onchange = e => {
+        const file = e.target.files[0]; if (!file) return;
+        const r = new FileReader();
+        r.onload = ev => { try { onImport(JSON.parse(ev.target.result)); } catch { alert('Invalid JSON file.'); } };
+        r.readAsText(file);
+      };
+      input.click();
+    };
+
+    const SQL = `-- Run once in Supabase → SQL Editor
+create table parts (
+  id text primary key,
+  user_id uuid references auth.users not null,
+  name text not null, type text not null,
+  em text, tag text, description text,
+  formation text, burden text,
+  pos_x float default 0,
+  created_at timestamptz default now()
+);
+create table relationships (
+  id text primary key,
+  user_id uuid references auth.users not null,
+  from_id text references parts(id) on delete cascade,
+  to_id   text references parts(id) on delete cascade,
+  type text not null
+);
+create table part_notes (
+  id text primary key,
+  part_id text references parts(id) on delete cascade,
+  user_id uuid references auth.users not null,
+  content text, ntype text default 'insight',
+  created_at timestamptz default now()
+);
+create table sessions (
+  id text primary key,
+  user_id uuid references auth.users not null,
+  title text, date date, content text,
+  parts_worked text[],
+  created_at timestamptz default now()
+);
+alter table parts         enable row level security;
+alter table relationships enable row level security;
+alter table part_notes    enable row level security;
+alter table sessions      enable row level security;
+create policy "own" on parts         for all using (auth.uid() = user_id);
+create policy "own" on relationships for all using (auth.uid() = user_id);
+create policy "own" on part_notes    for all using (auth.uid() = user_id);
+create policy "own" on sessions      for all using (auth.uid() = user_id);`;
+
+    return (
+      <div style={{ flex:1, overflowY:'auto', padding:'34px 44px' }}>
+        <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600, margin:'0 0 30px', color:th.text }}>
+          Settings
+        </h1>
+
+        <Sec title="Share with Therapist" th={th}>
+          <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
+            Generate a share link to give your therapist read access to your map. They open the URL and can view (and with edit access, update) your system alongside you.
+          </p>
+          {token
+            ? <div style={{ background:th.subtle, borderRadius:8, padding:'10px 14px', marginBottom:12, fontFamily:'monospace', fontSize:11.5, color:th.text, wordBreak:'break-all' }}>{token}</div>
+            : <p style={{ fontSize:12, color:th.muted, marginBottom:12, fontStyle:'italic' }}>No token generated yet.</p>
+          }
+          <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+            <button onClick={genToken} style={{ ...BS(th.subtle, th.text), padding:'8px 16px', fontSize:12, border:`1px solid ${th.border}` }}>
+              {token ? 'Regenerate' : 'Generate'} Token
+            </button>
+            {token && (
+              <button onClick={() => copy(window.location.origin + window.location.pathname + '?token=' + token)}
+                style={{ ...BS(th.self, th.bg), padding:'8px 16px', fontSize:12 }}>
+                {copied ? 'Copied! ✓' : 'Copy Share Link'}
+              </button>
+            )}
+          </div>
+        </Sec>
+
+        <Sec title="Run this SQL in Supabase" th={th}>
+          <p style={{ fontSize:13, color:th.muted, lineHeight:1.7, marginBottom:14 }}>
+            Go to your Supabase project → <strong>SQL Editor</strong> → paste and run this once to create all tables. Your data will then sync across devices and sessions.
+          </p>
+          <div style={{ background:th.subtle, borderRadius:8, padding:'12px 14px', fontFamily:'monospace',
+            fontSize:11, color:th.text, lineHeight:1.8, overflowX:'auto', whiteSpace:'pre', marginBottom:12 }}>
+            {SQL}
+          </div>
+          <p style={{ fontSize:12, color:th.muted, lineHeight:1.7, margin:0 }}>
+            Then go to Supabase → <strong>Authentication → Providers → Google</strong> and enable it. Add your GitHub Pages URL to <strong>Authentication → URL Configuration → Redirect URLs</strong>.
+          </p>
+        </Sec>
+
+        <Sec title="Export & Import" th={th}>
+          <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
+            Export your complete map as JSON for backup or sharing with a new therapist.
+          </p>
+          <div style={{ display:'flex', gap:8 }}>
+            <button onClick={exportData} style={{ ...BS(th.subtle, th.text), padding:'8px 16px', fontSize:12, border:`1px solid ${th.border}` }}>
+              Export JSON
+            </button>
+            <button onClick={importData} style={{ ...BS(th.subtle, th.text), padding:'8px 16px', fontSize:12, border:`1px solid ${th.border}` }}>
+              Import JSON
+            </button>
+          </div>
+        </Sec>
+
+        <Sec title="Stats" th={th}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(110px,1fr))', gap:12 }}>
+            {[{ l:'Parts',v:parts.length },{ l:'Connections',v:rels.length },{ l:'Notes',v:pnotes.length },{ l:'Sessions',v:sessions.length }].map(s => (
+              <div key={s.l} style={{ background:th.subtle, borderRadius:8, padding:'14px 16px', textAlign:'center' }}>
+                <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:30, color:th.self, fontWeight:600, lineHeight:1 }}>{s.v}</div>
+                <div style={{ fontSize:11, color:th.muted, marginTop:4 }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </Sec>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  SHARED HELPERS
+  // ═══════════════════════════════════════════════════════
+  function Sec({ title, children, th }) {
+    return (
+      <div style={{ marginBottom:28 }}>
+        <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, fontWeight:600, color:th.text, margin:'0 0 14px' }}>{title}</h2>
+        <div style={{ background:th.card, border:`1px solid ${th.border}`, borderRadius:12, padding:20 }}>{children}</div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  MOUNT
+  // ═══════════════════════════════════════════════════════
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+  </script>
+</body>
+</html>
