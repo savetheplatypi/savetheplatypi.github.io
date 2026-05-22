@@ -109,12 +109,13 @@
   const dbToPart = r => ({
     id:r.id, name:r.name, type:r.type, em:r.em, tag:r.tag,
     desc:r.description, formation:r.formation, burden:r.burden,
-    posX:r.pos_x||0, createdAt:r.created_at,
+    isLegacy:r.is_legacy||false, ancestry:r.ancestry||'', posX:r.pos_x||0, createdAt:r.created_at,
   });
   const partToDb = (p, uid) => ({
     id:p.id, user_id:uid, name:p.name, type:p.type,
     em:p.em||null, tag:p.tag||null, description:p.desc||null,
-    formation:p.formation||null, burden:p.burden||null, pos_x:p.posX||0,
+    formation:p.formation||null, burden:p.burden||null,
+    is_legacy:p.isLegacy||false, ancestry:p.ancestry||null, pos_x:p.posX||0,
   });
   const dbToRel  = r => ({ id:r.id, from:r.from_id, to:r.to_id, type:r.type });
   const relToDb  = (r, uid) => ({ id:r.id, user_id:uid, from_id:r.from, to_id:r.to, type:r.type });
@@ -171,6 +172,7 @@
     const [pnotes,   setPnotes]   = useState(() => LS.get('ifs_n') || []);
     const [sessions, setSessions] = useState(() => LS.get('ifs_s') || []);
     const [selId,    setSelId]    = useState(null);
+    const [dbStatus, setDbStatus] = useState('unknown');
 
     useEffect(() => { LS.set('ifs_p', parts);    }, [parts]);
     useEffect(() => { LS.set('ifs_r', rels);     }, [rels]);
@@ -178,23 +180,37 @@
     useEffect(() => { LS.set('ifs_s', sessions); }, [sessions]);
 
     const loadUserData = useCallback(async (userId) => {
+      setDbStatus('syncing');
       try {
-        const [{ data:pD }, { data:rD }, { data:nD }, { data:sD }] = await Promise.all([
+        const [{ data:pD, error:pE }, { data:rD }, { data:nD }, { data:sD }] = await Promise.all([
           sb.from('parts').select('*').eq('user_id', userId),
           sb.from('relationships').select('*').eq('user_id', userId),
           sb.from('part_notes').select('*').eq('user_id', userId),
           sb.from('sessions').select('*').eq('user_id', userId).order('created_at', { ascending:false }),
         ]);
+        if (pE) {
+          // Tables not created yet — keep localStorage data intact
+          setDbStatus('no-tables');
+          return;
+        }
         if (pD && pD.length > 0) {
+          // Supabase has data — use it as source of truth
           setParts(pD.map(dbToPart));
         } else {
-          await sb.from('parts').upsert(partToDb(DEFAULT_SELF, userId));
-          setParts([DEFAULT_SELF]);
+          // Supabase empty — upload localStorage to Supabase instead of resetting
+          const localParts = LS.get('ifs_p') || [DEFAULT_SELF];
+          for (const p of localParts) {
+            await sb.from('parts').upsert(partToDb(p, userId)).catch(console.error);
+          }
         }
-        if (rD) setRels(rD.map(dbToRel));
-        if (nD) setPnotes(nD.map(dbToNote));
-        if (sD) setSessions(sD.map(dbToSess));
-      } catch (err) { console.error('Supabase load error:', err); }
+        if (rD && rD.length > 0) setRels(rD.map(dbToRel));
+        if (nD && nD.length > 0) setPnotes(nD.map(dbToNote));
+        if (sD && sD.length > 0) setSessions(sD.map(dbToSess));
+        setDbStatus('ok');
+      } catch (err) {
+        console.error('Supabase load error:', err);
+        setDbStatus('error');
+      }
     }, []);
 
     useEffect(() => {
@@ -288,24 +304,46 @@
     if (loading) return <LoadingScreen th={th} />;
     if (!user)   return <AuthScreen th={th} dark={dark} setDark={setDark} />;
 
+    const statusBanner = {
+      'no-tables': { msg:'⚠ Database tables not set up — data is saving locally only. Run the SQL in Settings to enable cloud sync.', bg:'#b8880a22', border:'#b8880a66', color:'#b8880a' },
+      'error':     { msg:'⚠ Could not reach database — working offline. Changes are saved locally.', bg:'#c96c4222', border:'#c96c4266', color:'#c96c42' },
+      'syncing':   { msg:'↻ Syncing with database…', bg:'transparent', border:'transparent', color:th.muted },
+    }[dbStatus];
+
     return (
-      <div style={{ display:'flex', height:'100vh', overflow:'hidden', background:th.bg, color:th.text, fontFamily:"'DM Sans',sans-serif", fontSize:14 }}>
-        <Sidebar view={view} setView={setView} dark={dark} setDark={setDark} th={th} parts={parts} user={user} />
-        <div style={{ flex:1, overflow:'hidden', display:'flex' }}>
-          {view === 'library'  && <LibraryView parts={parts} onAdd={addPart} onNav={() => setView('map')} th={th} />}
-          {view === 'map'      && <MapView parts={parts} rels={rels} selId={selId} onSel={setSelId}
-            onMove={(id,x) => updPart(id,{posX:x})} onAdd={addPart} onAddRel={addRel} onDelRel={delRel} th={th} />}
-          {view === 'sessions' && <SessionsView sessions={sessions} parts={parts} onAdd={addSess} onUpd={updSess} th={th} />}
-          {view === 'settings' && <SettingsView parts={parts} rels={rels} pnotes={pnotes} sessions={sessions}
-            onImport={d => { setParts(d.parts||[]); setRels(d.rels||[]); setPnotes(d.pnotes||[]); setSessions(d.sessions||[]); }}
-            th={th} user={user} />}
-        </div>
-        {selPart && (
-          <PartDrawer part={selPart} notes={selNotes} parts={parts} rels={rels}
-            onClose={() => setSelId(null)} onUpd={u => updPart(selId, u)}
-            onNote={(c,t) => addNote(selId, c, t)} onDel={() => delPart(selId)}
-            onDelRel={delRel} onSel={setSelId} th={th} />
+      <div style={{ display:'flex', height:'100vh', overflow:'hidden', background:th.bg, color:th.text, fontFamily:"'DM Sans',sans-serif", fontSize:14, flexDirection:'column' }}>
+        {statusBanner && (
+          <div style={{ background:statusBanner.bg, borderBottom:`1px solid ${statusBanner.border}`,
+            padding:'7px 20px', fontSize:12, color:statusBanner.color, display:'flex', alignItems:'center',
+            justifyContent:'space-between', flexShrink:0 }}>
+            <span>{statusBanner.msg}</span>
+            {dbStatus === 'no-tables' && (
+              <button onClick={() => setView('settings')}
+                style={{ ...BS(statusBanner.border, statusBanner.color), fontSize:11, padding:'3px 10px',
+                  border:`1px solid ${statusBanner.border}` }}>
+                Open Settings →
+              </button>
+            )}
+          </div>
         )}
+        <div style={{ flex:1, overflow:'hidden', display:'flex' }}>
+          <Sidebar view={view} setView={setView} dark={dark} setDark={setDark} th={th} parts={parts} user={user} dbStatus={dbStatus} />
+          <div style={{ flex:1, overflow:'hidden', display:'flex' }}>
+            {view === 'library'  && <LibraryView parts={parts} onAdd={addPart} onNav={() => setView('map')} th={th} />}
+            {view === 'map'      && <MapView parts={parts} rels={rels} selId={selId} onSel={setSelId}
+              onMove={(id,x) => updPart(id,{posX:x})} onAdd={addPart} onAddRel={addRel} onDelRel={delRel} th={th} />}
+            {view === 'sessions' && <SessionsView sessions={sessions} parts={parts} onAdd={addSess} onUpd={updSess} th={th} />}
+            {view === 'settings' && <SettingsView parts={parts} rels={rels} pnotes={pnotes} sessions={sessions}
+              onImport={d => { setParts(d.parts||[]); setRels(d.rels||[]); setPnotes(d.pnotes||[]); setSessions(d.sessions||[]); }}
+              th={th} user={user} dbStatus={dbStatus} />}
+          </div>
+          {selPart && (
+            <PartDrawer part={selPart} notes={selNotes} parts={parts} rels={rels}
+              onClose={() => setSelId(null)} onUpd={u => updPart(selId, u)}
+              onNote={(c,t) => addNote(selId, c, t)} onDel={() => delPart(selId)}
+              onDelRel={delRel} onSel={setSelId} th={th} />
+          )}
+        </div>
       </div>
     );
   }
@@ -367,7 +405,7 @@
   // ═══════════════════════════════════════════════════════
   //  SIDEBAR
   // ═══════════════════════════════════════════════════════
-  function Sidebar({ view, setView, dark, setDark, th, parts, user }) {
+  function Sidebar({ view, setView, dark, setDark, th, parts, user, dbStatus }) {
     const nav = [
       { id:'library',  icon:'📚', label:'Library'  },
       { id:'map',      icon:'🗺️', label:'Map'       },
@@ -412,8 +450,14 @@
             <button onClick={() => sb.auth.signOut()} style={{ ...BS('none', th.muted), fontSize:11, padding:0 }}>
               Sign out
             </button>
-            <button onClick={() => setDark(d => !d)} title={dark ? 'Light mode' : 'Dark mode'}
-              style={{ ...BS('none', th.muted), fontSize:17, padding:2, lineHeight:1 }}>💡</button>
+            <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+              {dbStatus === 'ok'       && <span title="Synced to cloud" style={{ fontSize:9, color:'#4caf50' }}>●</span>}
+              {dbStatus === 'syncing'  && <span title="Syncing…"        style={{ fontSize:9, color:th.muted }}>●</span>}
+              {dbStatus === 'no-tables'&& <span title="Run SQL in Settings to enable sync" style={{ fontSize:9, color:'#b8880a' }}>●</span>}
+              {dbStatus === 'error'    && <span title="Offline — data saved locally" style={{ fontSize:9, color:'#c96c42' }}>●</span>}
+              <button onClick={() => setDark(d => !d)} title={dark ? 'Light mode' : 'Dark mode'}
+                style={{ ...BS('none', th.muted), fontSize:17, padding:2, lineHeight:1 }}>💡</button>
+            </div>
           </div>
         </div>
       </div>
@@ -744,8 +788,14 @@
                       {part.tag}
                     </div>
                   )}
-                  <div style={{ fontSize:9.5, color, marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>
-                    {part.type}
+                  <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:4 }}>
+                    <div style={{ fontSize:9.5, color, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>
+                      {part.type}
+                    </div>
+                    {part.isLegacy && (
+                      <span style={{ fontSize:9, background:'#8a6a9a33', color:'#c09adc', padding:'1px 5px',
+                        borderRadius:4, fontWeight:600, letterSpacing:'0.04em' }}>LEGACY</span>
+                    )}
                   </div>
                 </div>
               );
@@ -788,7 +838,7 @@
 
     useEffect(() => {
       setForm({ name:part.name, em:part.em||'', desc:part.desc||'',
-        formation:part.formation||'', burden:part.burden||'', tag:part.tag||'' });
+        formation:part.formation||'', burden:part.burden||'', tag:part.tag||'', isLegacy:part.isLegacy||false });
       setEditing(false); setConfirm(false);
     }, [part.id]);
 
@@ -893,6 +943,48 @@
                   }
                 </div>
               ))}
+
+              {/* Legacy Burden section */}
+              <div style={{ borderTop:`1px solid ${th.border}`, paddingTop:16 }}>
+                <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:10.5, fontWeight:600, color:'#c09adc', textTransform:'uppercase', letterSpacing:'0.09em', marginBottom:4 }}>
+                      Legacy Burden
+                    </div>
+                    <p style={{ margin:0, fontSize:12, color:th.muted, lineHeight:1.65 }}>
+                      A burden inherited from ancestors, family systems, or cultural trauma — not from direct personal experience. Often feels bigger than your own history, or carries a sense of "this isn't quite mine."
+                    </p>
+                  </div>
+                  <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer', flexShrink:0, marginTop:2 }}>
+                    <div onClick={() => { if (editing) setForm(f => ({ ...f, isLegacy:!f.isLegacy })); else onUpd({ isLegacy:!part.isLegacy }); }}
+                      style={{ width:34, height:20, borderRadius:10, position:'relative', cursor:'pointer',
+                        background:(editing ? form.isLegacy : part.isLegacy) ? '#8a6a9a' : th.faint,
+                        transition:'background 0.2s', flexShrink:0 }}>
+                      <div style={{ position:'absolute', top:3, left:(editing ? form.isLegacy : part.isLegacy) ? 17 : 3,
+                        width:14, height:14, borderRadius:'50%', background:'white', transition:'left 0.2s' }} />
+                    </div>
+                    <span style={{ fontSize:11, color:(editing ? form.isLegacy : part.isLegacy) ? '#c09adc' : th.muted }}>
+                      {(editing ? form.isLegacy : part.isLegacy) ? 'Legacy burden' : 'Personal burden'}
+                    </span>
+                  </label>
+                </div>
+                {(editing ? form.isLegacy : part.isLegacy) && (
+                  <div style={{ marginTop:12 }}>
+                    <div style={{ fontSize:10.5, fontWeight:600, color:th.muted, textTransform:'uppercase', letterSpacing:'0.09em', marginBottom:8 }}>
+                      Ancestral / Cultural Origin
+                    </div>
+                    {editing
+                      ? <textarea value={form.ancestry||''} onChange={e => setForm(fm => ({ ...fm, ancestry:e.target.value }))}
+                          rows={2} placeholder="Where might this burden have come from? Which ancestor, generation, or cultural context?"
+                          style={{ ...IS(th), width:'100%', resize:'vertical', boxSizing:'border-box' }} />
+                      : <p style={{ margin:0, color:th.muted, fontSize:13, lineHeight:1.75 }}>
+                          {part.ancestry || <em>Not yet explored.</em>}
+                        </p>
+                    }
+                  </div>
+                )}
+              </div>
+
               <div style={{ fontSize:11, color:th.faint, paddingTop:4 }}>
                 Added {new Date(part.createdAt).toLocaleDateString()}
               </div>
@@ -908,6 +1000,7 @@
                 <select value={noteType} onChange={e => setNoteType(e.target.value)} style={{ ...IS(th), flex:1 }}>
                   <option value="insight">Insight</option>
                   <option value="unburdening">Unburdening</option>
+                  <option value="legacy_unburdening">Legacy Unburdening</option>
                   <option value="session">Session note</option>
                   <option value="update">Update</option>
                 </select>
@@ -918,7 +1011,7 @@
                 {[...notes].reverse().map(n => (
                   <div key={n.id} style={{ background:th.subtle, borderRadius:8, padding:12 }}>
                     <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                      <span style={{ fontSize:9.5, color, textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:600 }}>{n.ntype}</span>
+                      <span style={{ fontSize:9.5, color:n.ntype==='legacy_unburdening'?'#c09adc':color, textTransform:'uppercase', letterSpacing:'0.08em', fontWeight:600 }}>{n.ntype.replace('_',' ')}</span>
                       <span style={{ fontSize:10, color:th.muted }}>{new Date(n.createdAt).toLocaleDateString()}</span>
                     </div>
                     <p style={{ margin:0, fontSize:13, color:th.text, lineHeight:1.7 }}>{n.content}</p>
@@ -1094,7 +1187,7 @@
   // ═══════════════════════════════════════════════════════
   //  SETTINGS VIEW
   // ═══════════════════════════════════════════════════════
-  function SettingsView({ parts, rels, pnotes, sessions, onImport, th, user }) {
+  function SettingsView({ parts, rels, pnotes, sessions, onImport, th, user, dbStatus }) {
     const [token,  setToken]  = useState(() => LS.get('ifs_tok') || null);
     const [copied, setCopied] = useState(false);
 
@@ -1125,6 +1218,8 @@ create table parts (
   name text not null, type text not null,
   em text, tag text, description text,
   formation text, burden text,
+  is_legacy boolean default false,
+  ancestry text,
   pos_x float default 0,
   created_at timestamptz default now()
 );
@@ -1156,7 +1251,11 @@ alter table sessions      enable row level security;
 create policy "own" on parts         for all using (auth.uid() = user_id);
 create policy "own" on relationships for all using (auth.uid() = user_id);
 create policy "own" on part_notes    for all using (auth.uid() = user_id);
-create policy "own" on sessions      for all using (auth.uid() = user_id);`;
+create policy "own" on sessions      for all using (auth.uid() = user_id);
+
+-- If you already ran the original SQL, just add the new columns:
+-- alter table parts add column if not exists is_legacy boolean default false;
+-- alter table parts add column if not exists ancestry text;`;
 
     return (
       <div style={{ flex:1, overflowY:'auto', padding:'34px 44px' }}>
@@ -1213,13 +1312,23 @@ create policy "own" on sessions      for all using (auth.uid() = user_id);`;
         </Sec>
 
         <Sec title="Stats" th={th}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(110px,1fr))', gap:12 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(110px,1fr))', gap:12, marginBottom:16 }}>
             {[{ l:'Parts',v:parts.length },{ l:'Connections',v:rels.length },{ l:'Notes',v:pnotes.length },{ l:'Sessions',v:sessions.length }].map(s => (
               <div key={s.l} style={{ background:th.subtle, borderRadius:8, padding:'14px 16px', textAlign:'center' }}>
                 <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:30, color:th.self, fontWeight:600, lineHeight:1 }}>{s.v}</div>
                 <div style={{ fontSize:11, color:th.muted, marginTop:4 }}>{s.l}</div>
               </div>
             ))}
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:12, color:th.muted, paddingTop:4 }}>
+            <span style={{ fontSize:10, color:dbStatus==='ok'?'#4caf50':dbStatus==='no-tables'?'#b8880a':'#c96c42' }}>●</span>
+            <span>Cloud sync: {{
+              ok:'Active — changes save to Supabase automatically',
+              'no-tables':'Not set up — run the SQL above to enable',
+              error:'Offline — data is saved locally',
+              syncing:'Syncing…',
+              unknown:'Checking…'
+            }[dbStatus]}</span>
           </div>
         </Sec>
       </div>
