@@ -173,6 +173,7 @@
     const [sessions, setSessions] = useState(() => LS.get('ifs_s') || []);
     const [selId,    setSelId]    = useState(null);
     const [dbStatus, setDbStatus] = useState('unknown');
+    const [dbError,  setDbError]  = useState('');
 
     useEffect(() => { LS.set('ifs_p', parts);    }, [parts]);
     useEffect(() => { LS.set('ifs_r', rels);     }, [rels]);
@@ -189,7 +190,8 @@
           sb.from('sessions').select('*').eq('user_id', userId).order('created_at', { ascending:false }),
         ]);
         if (pE) {
-          // Tables not created yet — keep localStorage data intact
+          // Could be missing tables, RLS issue, or key mismatch — keep localStorage intact
+          setDbError(pE.message || pE.code || JSON.stringify(pE));
           setDbStatus('no-tables');
           return;
         }
@@ -200,7 +202,7 @@
           // Supabase empty — upload localStorage to Supabase instead of resetting
           const localParts = LS.get('ifs_p') || [DEFAULT_SELF];
           for (const p of localParts) {
-            await sb.from('parts').upsert(partToDb(p, userId)).catch(console.error);
+            await sb.from('parts').upsert(partToDb(p, userId)).then(({error})=>{ if(error) console.error(error); });
           }
         }
         if (rD && rD.length > 0) setRels(rD.map(dbToRel));
@@ -209,6 +211,7 @@
         setDbStatus('ok');
       } catch (err) {
         console.error('Supabase load error:', err);
+        setDbError(err.message || String(err));
         setDbStatus('error');
       }
     }, []);
@@ -241,7 +244,7 @@
     const addPart = useCallback((data) => {
       const np = { id:Date.now().toString(), posX:nextX(data.type), createdAt:new Date().toISOString(), ...data };
       setParts(p => [...p, np]);
-      if (user) sb.from('parts').upsert(partToDb(np, user.id)).catch(console.error);
+      if (user) sb.from('parts').upsert(partToDb(np, user.id)).then(({error})=>{ if(error) console.error(error); });
       return np;
     }, [nextX, user]);
 
@@ -249,7 +252,7 @@
       setParts(p => {
         const next = p.map(x => x.id === id ? { ...x, ...u } : x);
         const updated = next.find(x => x.id === id);
-        if (user && updated) sb.from('parts').upsert(partToDb(updated, user.id)).catch(console.error);
+        if (user && updated) sb.from('parts').upsert(partToDb(updated, user.id)).then(({error})=>{ if(error) console.error(error); });
         return next;
       });
     }, [user]);
@@ -260,40 +263,40 @@
       setPnotes(n => n.filter(x => x.partId !== id));
       if (selId === id) setSelId(null);
       if (user) {
-        sb.from('parts').delete().eq('id', id).catch(console.error);
-        sb.from('relationships').delete().or(`from_id.eq.${id},to_id.eq.${id}`).catch(console.error);
-        sb.from('part_notes').delete().eq('part_id', id).catch(console.error);
+        sb.from('parts').delete().eq('id', id).then(({error})=>{ if(error) console.error(error); });
+        sb.from('relationships').delete().or(`from_id.eq.${id},to_id.eq.${id}`).then(({error})=>{ if(error) console.error(error); });
+        sb.from('part_notes').delete().eq('part_id', id).then(({error})=>{ if(error) console.error(error); });
       }
     }, [selId, user]);
 
     const addRel = useCallback((rel) => {
       const nr = { id:Date.now().toString(), ...rel };
       setRels(r => [...r, nr]);
-      if (user) sb.from('relationships').insert(relToDb(nr, user.id)).catch(console.error);
+      if (user) sb.from('relationships').insert(relToDb(nr, user.id)).then(({error})=>{ if(error) console.error(error); });
     }, [user]);
 
     const delRel = useCallback((id) => {
       setRels(r => r.filter(x => x.id !== id));
-      if (user) sb.from('relationships').delete().eq('id', id).catch(console.error);
+      if (user) sb.from('relationships').delete().eq('id', id).then(({error})=>{ if(error) console.error(error); });
     }, [user]);
 
     const addNote = useCallback((pid, content, ntype='insight') => {
       const nn = { id:Date.now().toString(), partId:pid, content, ntype, createdAt:new Date().toISOString() };
       setPnotes(n => [...n, nn]);
-      if (user) sb.from('part_notes').insert(noteToDb(nn, user.id)).catch(console.error);
+      if (user) sb.from('part_notes').insert(noteToDb(nn, user.id)).then(({error})=>{ if(error) console.error(error); });
     }, [user]);
 
     const addSess = useCallback((data) => {
       const ns = { id:Date.now().toString(), createdAt:new Date().toISOString(), ...data };
       setSessions(s => [ns, ...s]);
-      if (user) sb.from('sessions').insert(sessToDb(ns, user.id)).catch(console.error);
+      if (user) sb.from('sessions').insert(sessToDb(ns, user.id)).then(({error})=>{ if(error) console.error(error); });
     }, [user]);
 
     const updSess = useCallback((id, u) => {
       setSessions(s => {
         const next = s.map(x => x.id === id ? { ...x, ...u } : x);
         const updated = next.find(x => x.id === id);
-        if (user && updated) sb.from('sessions').upsert(sessToDb(updated, user.id)).catch(console.error);
+        if (user && updated) sb.from('sessions').upsert(sessToDb(updated, user.id)).then(({error})=>{ if(error) console.error(error); });
         return next;
       });
     }, [user]);
@@ -305,7 +308,7 @@
     if (!user)   return <AuthScreen th={th} dark={dark} setDark={setDark} />;
 
     const statusBanner = {
-      'no-tables': { msg:'⚠ Database tables not set up — data is saving locally only. Run the SQL in Settings to enable cloud sync.', bg:'#b8880a22', border:'#b8880a66', color:'#b8880a' },
+      'no-tables': { msg:`⚠ Database not syncing — data is saving locally only. ${dbError ? '  Error: ' + dbError : 'Run the SQL in Settings, then check Auth → Providers → Google is enabled in Supabase.'}`, bg:'#b8880a22', border:'#b8880a66', color:'#b8880a' },
       'error':     { msg:'⚠ Could not reach database — working offline. Changes are saved locally.', bg:'#c96c4222', border:'#c96c4266', color:'#c96c42' },
       'syncing':   { msg:'↻ Syncing with database…', bg:'transparent', border:'transparent', color:th.muted },
     }[dbStatus];
