@@ -162,7 +162,15 @@
       document.head.appendChild(l);
     }, []);
 
-    const [dark,     setDark]     = useState(true);
+    const [dark,       setDark]       = useState(true);
+    const [isMobile,   setIsMobile]   = useState(() => window.innerWidth < 768);
+    const [sidebarOpen,setSidebarOpen] = useState(false);
+
+    useEffect(() => {
+      const onResize = () => setIsMobile(window.innerWidth < 768);
+      window.addEventListener('resize', onResize);
+      return () => window.removeEventListener('resize', onResize);
+    }, []);
     const th                      = dark ? DK : LT;
     const [user,     setUser]     = useState(null);
     const [loading,  setLoading]  = useState(true);
@@ -313,24 +321,54 @@
       'syncing':   { msg:'↻ Syncing with database…', bg:'transparent', border:'transparent', color:th.muted },
     }[dbStatus];
 
+    const closeSidebar = () => setSidebarOpen(false);
+
     return (
       <div style={{ display:'flex', height:'100vh', overflow:'hidden', background:th.bg, color:th.text, fontFamily:"'DM Sans',sans-serif", fontSize:14, flexDirection:'column' }}>
+
+        {/* Status banner */}
         {statusBanner && (
           <div style={{ background:statusBanner.bg, borderBottom:`1px solid ${statusBanner.border}`,
             padding:'7px 20px', fontSize:12, color:statusBanner.color, display:'flex', alignItems:'center',
             justifyContent:'space-between', flexShrink:0 }}>
-            <span>{statusBanner.msg}</span>
+            <span style={{ flex:1, marginRight:8 }}>{statusBanner.msg}</span>
             {dbStatus === 'no-tables' && (
               <button onClick={() => setView('settings')}
                 style={{ ...BS(statusBanner.border, statusBanner.color), fontSize:11, padding:'3px 10px',
-                  border:`1px solid ${statusBanner.border}` }}>
+                  border:`1px solid ${statusBanner.border}`, flexShrink:0 }}>
                 Open Settings →
               </button>
             )}
           </div>
         )}
-        <div style={{ flex:1, overflow:'hidden', display:'flex' }}>
-          <Sidebar view={view} setView={setView} dark={dark} setDark={setDark} th={th} parts={parts} user={user} dbStatus={dbStatus} />
+
+        {/* Mobile top bar */}
+        {isMobile && (
+          <div style={{ display:'flex', alignItems:'center', padding:'10px 16px',
+            background:th.panel, borderBottom:`1px solid ${th.border}`, flexShrink:0, zIndex:10 }}>
+            <button onClick={() => setSidebarOpen(true)}
+              style={{ ...BS('none', th.text), fontSize:22, lineHeight:1, padding:'0 14px 0 0', flexShrink:0 }}>
+              ☰
+            </button>
+            <span style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:19, color:th.self, fontWeight:600, flex:1 }}>
+              Inner Compass
+            </span>
+            <span title={dbStatus} style={{ fontSize:10,
+              color:dbStatus==='ok'?'#4caf50':dbStatus==='no-tables'?'#b8880a':'#c96c42' }}>●</span>
+          </div>
+        )}
+
+        {/* Sidebar backdrop on mobile */}
+        {isMobile && sidebarOpen && (
+          <div onClick={closeSidebar}
+            style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:98 }} />
+        )}
+
+        <div style={{ flex:1, overflow:'hidden', display:'flex', position:'relative' }}>
+          <Sidebar view={view} setView={setView} dark={dark} setDark={setDark} th={th}
+            parts={parts} user={user} dbStatus={dbStatus}
+            isMobile={isMobile} sidebarOpen={sidebarOpen} onClose={closeSidebar} />
+
           <div style={{ flex:1, overflow:'hidden', display:'flex' }}>
             {view === 'library'  && <LibraryView parts={parts} onAdd={addPart} onNav={() => setView('map')} th={th} />}
             {view === 'map'      && <MapView parts={parts} rels={rels} selId={selId} onSel={setSelId}
@@ -340,11 +378,12 @@
               onImport={d => { setParts(d.parts||[]); setRels(d.rels||[]); setPnotes(d.pnotes||[]); setSessions(d.sessions||[]); }}
               th={th} user={user} dbStatus={dbStatus} />}
           </div>
+
           {selPart && (
             <PartDrawer part={selPart} notes={selNotes} parts={parts} rels={rels}
               onClose={() => setSelId(null)} onUpd={u => updPart(selId, u)}
               onNote={(c,t) => addNote(selId, c, t)} onDel={() => delPart(selId)}
-              onDelRel={delRel} onSel={setSelId} th={th} />
+              onDelRel={delRel} onSel={setSelId} th={th} isMobile={isMobile} />
           )}
         </div>
       </div>
@@ -408,25 +447,42 @@
   // ═══════════════════════════════════════════════════════
   //  SIDEBAR
   // ═══════════════════════════════════════════════════════
-  function Sidebar({ view, setView, dark, setDark, th, parts, user, dbStatus }) {
+  function Sidebar({ view, setView, dark, setDark, th, parts, user, dbStatus, isMobile, sidebarOpen, onClose }) {
     const nav = [
       { id:'library',  icon:'📚', label:'Library'  },
       { id:'map',      icon:'🗺️', label:'Map'       },
       { id:'sessions', icon:'📓', label:'Sessions'  },
       { id:'settings', icon:'⚙️', label:'Settings'  },
     ];
+
+    const handleNav = (id) => { setView(id); if (isMobile) onClose(); };
+
+    const mobileStyle = isMobile ? {
+      position:'fixed', top:0, left:0, bottom:0, zIndex:99,
+      transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+      transition:'transform 0.25s ease',
+      boxShadow:'4px 0 24px rgba(0,0,0,0.35)',
+    } : {};
+
     return (
-      <div style={{ width:196, background:th.panel, borderRight:`1px solid ${th.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
-        <div style={{ padding:'22px 18px 18px', borderBottom:`1px solid ${th.border}` }}>
-          <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:21, fontWeight:600, color:th.self, letterSpacing:'0.02em', lineHeight:1 }}>
-            Inner Compass
+      <div style={{ width:196, background:th.panel, borderRight:`1px solid ${th.border}`,
+        display:'flex', flexDirection:'column', flexShrink:0, ...mobileStyle }}>
+        <div style={{ padding:'18px 18px 14px', borderBottom:`1px solid ${th.border}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div>
+            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:21, fontWeight:600, color:th.self, letterSpacing:'0.02em', lineHeight:1 }}>
+              Inner Compass
+            </div>
+            <div style={{ fontSize:11, color:th.muted, marginTop:4 }}>IFS Parts Mapping</div>
           </div>
-          <div style={{ fontSize:11, color:th.muted, marginTop:4 }}>IFS Parts Mapping</div>
+          {isMobile && (
+            <button onClick={onClose}
+              style={{ ...BS('none', th.muted), fontSize:20, lineHeight:1, padding:'0 0 0 8px' }}>✕</button>
+          )}
         </div>
-        <nav style={{ flex:1, padding:'12px 9px' }}>
+        <nav style={{ flex:1, padding:'12px 9px', overflowY:'auto' }}>
           {nav.map(item => (
-            <button key={item.id} onClick={() => setView(item.id)}
-              style={{ width:'100%', display:'flex', alignItems:'center', gap:9, padding:'9px 10px',
+            <button key={item.id} onClick={() => handleNav(item.id)}
+              style={{ width:'100%', display:'flex', alignItems:'center', gap:9, padding:'11px 10px',
                 borderRadius:8, border:'none', cursor:'pointer', marginBottom:3,
                 background:view === item.id ? th.subtle : 'transparent',
                 color:view === item.id ? th.text : th.muted,
@@ -453,14 +509,20 @@
             <button onClick={() => sb.auth.signOut()} style={{ ...BS('none', th.muted), fontSize:11, padding:0 }}>
               Sign out
             </button>
-            <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-              {dbStatus === 'ok'       && <span title="Synced to cloud" style={{ fontSize:9, color:'#4caf50' }}>●</span>}
-              {dbStatus === 'syncing'  && <span title="Syncing…"        style={{ fontSize:9, color:th.muted }}>●</span>}
-              {dbStatus === 'no-tables'&& <span title="Run SQL in Settings to enable sync" style={{ fontSize:9, color:'#b8880a' }}>●</span>}
-              {dbStatus === 'error'    && <span title="Offline — data saved locally" style={{ fontSize:9, color:'#c96c42' }}>●</span>}
+            {!isMobile && (
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                {dbStatus === 'ok'        && <span title="Synced" style={{ fontSize:9, color:'#4caf50' }}>●</span>}
+                {dbStatus === 'syncing'   && <span title="Syncing…" style={{ fontSize:9, color:th.muted }}>●</span>}
+                {dbStatus === 'no-tables' && <span title="Run SQL in Settings" style={{ fontSize:9, color:'#b8880a' }}>●</span>}
+                {dbStatus === 'error'     && <span title="Offline" style={{ fontSize:9, color:'#c96c42' }}>●</span>}
+                <button onClick={() => setDark(d => !d)} title={dark ? 'Light mode' : 'Dark mode'}
+                  style={{ ...BS('none', th.muted), fontSize:17, padding:2, lineHeight:1 }}>💡</button>
+              </div>
+            )}
+            {isMobile && (
               <button onClick={() => setDark(d => !d)} title={dark ? 'Light mode' : 'Dark mode'}
                 style={{ ...BS('none', th.muted), fontSize:17, padding:2, lineHeight:1 }}>💡</button>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -504,7 +566,7 @@
     };
 
     return (
-      <div style={{ flex:1, overflowY:'auto', padding:'36px 44px' }}>
+      <div style={{ flex:1, overflowY:'auto', padding: window.innerWidth < 768 ? '20px 16px' : '36px 44px' }}>
         <div style={{ maxWidth:760, marginBottom:36 }}>
           <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:40, fontWeight:600, color:th.text, margin:'0 0 14px', lineHeight:1.15 }}>
             Understanding Your Parts
@@ -574,7 +636,7 @@
           </div>
         )}
 
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(285px,1fr))', gap:14 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:12 }}>
           {shown.map(p => (
             <LibCard key={p.name} part={p} added={hasPart(p.name)} onAdd={() => handleAdd(p)} th={th} />
           ))}
@@ -829,7 +891,7 @@
   // ═══════════════════════════════════════════════════════
   //  PART DRAWER
   // ═══════════════════════════════════════════════════════
-  function PartDrawer({ part, notes, parts, rels, onClose, onUpd, onNote, onDel, onDelRel, onSel, th }) {
+  function PartDrawer({ part, notes, parts, rels, onClose, onUpd, onNote, onDel, onDelRel, onSel, th, isMobile }) {
     const [tab,      setTab]      = useState('details');
     const [editing,  setEditing]  = useState(false);
     const [form,     setForm]     = useState({});
@@ -849,7 +911,11 @@
     const handleNote = () => { if (!noteText.trim()) return; onNote(noteText, noteType); setNoteText(''); };
 
     return (
-      <div style={{ width:336, background:th.panel, borderLeft:`1px solid ${th.border}`,
+      <div style={{ width: isMobile ? '100%' : 336,
+        position: isMobile ? 'fixed' : 'relative',
+        inset: isMobile ? 0 : 'auto',
+        zIndex: isMobile ? 100 : 'auto',
+        background:th.panel, borderLeft:`1px solid ${th.border}`,
         display:'flex', flexDirection:'column', overflow:'hidden', flexShrink:0 }}>
         {/* Header */}
         <div style={{ padding:'18px 18px 14px', borderBottom:`1px solid ${th.border}` }}>
@@ -926,9 +992,11 @@
           {tab === 'details' && (
             <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
               {[
-                { key:'desc',       label:'Description',      placeholder:'How does this part show up? What does it do?' },
-                { key:'formation',  label:'Formation Memory',  placeholder:'When did this part first appear? What was happening?' },
-                { key:'burden',     label:'Core Burden',       placeholder:'What belief or painful emotion does this part carry?' },
+                { key:'desc',      label:'Description',     placeholder:'How does this part show up? What does it do?' },
+                ...(part.type !== 'self' ? [
+                  { key:'formation', label:'Formation Memory', placeholder:'When did this part first appear? What was happening?' },
+                  { key:'burden',    label:'Core Burden',      placeholder:'What belief or painful emotion does this part carry?' },
+                ] : []),
               ].map(f => (
                 <div key={f.key}>
                   <div style={{ fontSize:10.5, fontWeight:600, color:th.muted, textTransform:'uppercase', letterSpacing:'0.09em', marginBottom:8 }}>
@@ -945,8 +1013,8 @@
                 </div>
               ))}
 
-              {/* Legacy Burden section */}
-              <div style={{ borderTop:`1px solid ${th.border}`, paddingTop:16 }}>
+              {/* Legacy Burden section — not shown for Self */}
+              {part.type !== 'self' && <div style={{ borderTop:`1px solid ${th.border}`, paddingTop:16 }}>
                 <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:10.5, fontWeight:600, color:'#c09adc', textTransform:'uppercase', letterSpacing:'0.09em', marginBottom:4 }}>
@@ -984,7 +1052,7 @@
                     }
                   </div>
                 )}
-              </div>
+              </div>}
 
               <div style={{ fontSize:11, color:th.faint, paddingTop:4 }}>
                 Added {new Date(part.createdAt).toLocaleDateString()}
@@ -1083,7 +1151,7 @@
     };
 
     return (
-      <div style={{ flex:1, overflowY:'auto', padding:'34px 44px' }}>
+      <div style={{ flex:1, overflowY:'auto', padding: window.innerWidth < 768 ? '20px 16px' : '34px 44px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:28 }}>
           <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600, margin:0, color:th.text }}>
             Session Notes
@@ -1259,7 +1327,7 @@ create policy "own" on sessions      for all using (auth.uid() = user_id);
 -- alter table parts add column if not exists ancestry text;`;
 
     return (
-      <div style={{ flex:1, overflowY:'auto', padding:'34px 44px' }}>
+      <div style={{ flex:1, overflowY:'auto', padding: window.innerWidth < 768 ? '20px 16px' : '34px 44px' }}>
         <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600, margin:'0 0 30px', color:th.text }}>
           Settings
         </h1>
