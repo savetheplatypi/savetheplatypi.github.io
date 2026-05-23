@@ -494,7 +494,6 @@
     const handleAdd = lib => {
       if (hasPart(lib.name)) return;
       onAdd({ name:lib.name, type:lib.type, em:lib.em, desc:lib.desc, tag:lib.tag });
-      onNav();
     };
 
     const handleCustom = () => {
@@ -502,7 +501,6 @@
       onAdd({ ...custom, em:custom.em || '●' });
       setCustom({ name:'', type:'manager', em:'', desc:'', tag:'' });
       setShowCustom(false);
-      onNav();
     };
 
     return (
