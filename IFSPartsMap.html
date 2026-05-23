@@ -96,6 +96,46 @@
     { v:"aware_of",     l:"Aware of",     c:"#8a9a7a" },
   ];
 
+  // Known IFS relationship patterns used for suggestions
+  const IFS_PATTERNS = [
+    { from:"Inner Critic",    to:"Shame-Bearer",   type:"protects",     note:"The Inner Critic keeps shame suppressed through self-judgment — preventing it from flooding the system." },
+    { from:"Inner Critic",    to:"Humiliated One",  type:"protects",     note:"Pre-emptive self-criticism feels safer than being humiliated by someone else." },
+    { from:"Perfectionist",   to:"Shame-Bearer",    type:"protects",     note:"Perfect performance keeps the shame exile from being exposed." },
+    { from:"Perfectionist",   to:"Humiliated One",  type:"protects",     note:"Flawlessness prevents the humiliation this exile carries from ever being triggered." },
+    { from:"People Pleaser",  to:"Abandoned One",   type:"protects",     note:"If everyone is kept happy, no one will leave — protecting the Abandoned One." },
+    { from:"People Pleaser",  to:"Lonely One",      type:"protects",     note:"Keeping others close through pleasing avoids the Lonely One's pain surfacing." },
+    { from:"Achiever",        to:"Shame-Bearer",    type:"protects",     note:"External achievements prove worth, keeping shame at bay." },
+    { from:"Achiever",        to:"Helpless One",    type:"protects",     note:"Drive and accomplishment counteract the Helpless One's powerlessness." },
+    { from:"Controller",      to:"Helpless One",    type:"protects",     note:"Controlling every variable prevents the feeling of being trapped or powerless." },
+    { from:"Caretaker",       to:"Abandoned One",   type:"protects",     note:"Giving constant care to others ensures they won't leave." },
+    { from:"Caretaker",       to:"Lonely One",      type:"protects",     note:"Staying busy caring for others numbs the exile's loneliness." },
+    { from:"Avoider",         to:"Wounded Child",   type:"protects",     note:"Avoiding triggers keeps the Wounded Child's pain from breaking through." },
+    { from:"Intellectualizer",to:"Wounded Child",   type:"protects",     note:"Analyzing feelings keeps them at a safe, abstract distance." },
+    { from:"Numbing Agent",   to:"Shame-Bearer",    type:"triggered_by", note:"When shame floods past the managers, numbing activates to extinguish it fast." },
+    { from:"Numbing Agent",   to:"Wounded Child",   type:"triggered_by", note:"The Wounded Child's pain breaking through triggers numbing behaviors." },
+    { from:"Numbing Agent",   to:"Lonely One",      type:"triggered_by", note:"Loneliness flooding the system activates the urge to numb." },
+    { from:"Rage",            to:"Shame-Bearer",    type:"triggered_by", note:"Shame flooding triggers explosive anger — rage scatters the feeling." },
+    { from:"Rage",            to:"Humiliated One",  type:"triggered_by", note:"Humiliation activates rage as an emergency protective response." },
+    { from:"Dissociator",     to:"Wounded Child",   type:"triggered_by", note:"When the Wounded Child floods, dissociation removes presence from the pain." },
+    { from:"Risk-Taker",      to:"Helpless One",    type:"triggered_by", note:"Feeling trapped or powerless triggers impulsive risk-taking as escape." },
+    { from:"Shame-Bearer",    to:"Inner Critic",    type:"triggered_by", note:"When shame surfaces, it intensifies the Inner Critic's activity — creating a feedback loop." },
+    { from:"Abandoned One",   to:"People Pleaser",  type:"triggered_by", note:"Fear of abandonment triggers people-pleasing to keep others close." },
+    { from:"Lonely One",      to:"Caretaker",       type:"triggered_by", note:"Loneliness activates the Caretaker — focusing on others numbs the exile's pain." },
+  ];
+
+  function getSuggestions(parts, rels) {
+    const byName = {};
+    parts.forEach(p => { byName[p.name] = p; });
+    const suggestions = [];
+    for (const pat of IFS_PATTERNS) {
+      const fp = byName[pat.from], tp = byName[pat.to];
+      if (!fp || !tp) continue;
+      const exists = rels.some(r => r.from === fp.id && r.to === tp.id && r.type === pat.type);
+      if (!exists) suggestions.push({ ...pat, fromId:fp.id, toId:tp.id });
+    }
+    return suggestions;
+  }
+
   // ═══════════════════════════════════════════════════════
   //  MAP LAYOUT
   // ═══════════════════════════════════════════════════════
@@ -680,10 +720,12 @@
   //  MAP VIEW
   // ═══════════════════════════════════════════════════════
   function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel, th }) {
-    const [relMode, setRelMode] = useState(null);
-    const [relFrom, setRelFrom] = useState(null);
-    const [relType, setRelType] = useState('protects');
-    const [mapW,    setMapW]    = useState(1000);
+    const [relMode,       setRelMode]       = useState(null);
+    const [relFrom,       setRelFrom]       = useState(null);
+    const [relType,       setRelType]       = useState('protects');
+    const [mapW,          setMapW]          = useState(1000);
+    const [showWalkthru,  setShowWalkthru]  = useState(false);
+    const suggestions = getSuggestions(parts, rels);
 
     useEffect(() => {
       const max = parts.reduce((m, p) => Math.max(m, (p.posX||0) + CW + 60), 800);
@@ -767,6 +809,11 @@
                 style={{ ...BS(th.subtle, th.text), padding:'7px 13px', fontSize:12, border:`1px solid ${th.border}` }}>
                 + Part
               </button>
+              <button onClick={() => setShowWalkthru(true)}
+                title="Learn how IFS parts relate"
+                style={{ ...BS(th.subtle, th.self), padding:'7px 11px', fontSize:13, border:`1px solid ${th.border}` }}>
+                ?
+              </button>
             </>
           )}
         </div>
@@ -786,7 +833,7 @@
               </div>
             ))}
 
-            {/* Arrows SVG */}
+            {/* Arrows SVG — supports multiple rels between same pair with lateral offsets */}
             <svg style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', pointerEvents:'none', overflow:'visible' }}>
               <defs>
                 {REL.map(r => (
@@ -795,30 +842,51 @@
                   </marker>
                 ))}
               </defs>
-              {rels.map(rel => {
-                const fp = parts.find(p => p.id === rel.from);
-                const tp = parts.find(p => p.id === rel.to);
-                if (!fp || !tp) return null;
-                const sx = (fp.posX||0) + CW/2, sy = TY[fp.type] + CH/2;
-                const ex = (tp.posX||0) + CW/2, ey = TY[tp.type] + CH/2;
-                const dy = ey - sy, dx = ex - sx;
-                const vert = Math.abs(dy) >= Math.abs(dx);
-                const cp1x = vert ? sx : sx + dx * 0.4, cp1y = vert ? sy + dy * 0.4 : sy;
-                const cp2x = vert ? ex : ex - dx * 0.4, cp2y = vert ? ey - dy * 0.4 : ey;
-                const rm = REL.find(r => r.v === rel.type) || REL[0];
-                const mx = (sx + ex) / 2, my = (sy + ey) / 2;
-                return (
-                  <g key={rel.id}>
-                    <path d={`M${sx},${sy} C${cp1x},${cp1y} ${cp2x},${cp2y} ${ex},${ey}`}
-                      fill="none" stroke={rm.c} strokeWidth="1.5" opacity="0.55"
-                      strokeDasharray={rel.type === 'aware_of' ? '5,4' : undefined}
-                      markerEnd={`url(#arr-${rel.type})`} />
-                    <rect x={mx-30} y={my-9} width={60} height={16} rx={4} fill={th.bg} opacity="0.85" />
-                    <text x={mx} y={my+4} fill={rm.c} fontSize="9.5" textAnchor="middle"
-                      opacity="0.9" fontFamily="'DM Sans',sans-serif" fontWeight="500">{rm.l}</text>
-                  </g>
-                );
-              })}
+              {(() => {
+                // Group rels by unordered pair so we can offset parallel arrows
+                const pairGroups = {};
+                rels.forEach(rel => {
+                  const key = [rel.from, rel.to].sort().join('|');
+                  if (!pairGroups[key]) pairGroups[key] = [];
+                  pairGroups[key].push(rel.id);
+                });
+                return rels.map(rel => {
+                  const fp = parts.find(p => p.id === rel.from);
+                  const tp = parts.find(p => p.id === rel.to);
+                  if (!fp || !tp) return null;
+                  const sx = (fp.posX||0) + CW/2, sy = TY[fp.type] + CH/2;
+                  const ex = (tp.posX||0) + CW/2, ey = TY[tp.type] + CH/2;
+                  const dy = ey - sy, dx = ex - sx;
+                  const vert = Math.abs(dy) >= Math.abs(dx);
+
+                  // Compute lateral offset for parallel arrows
+                  const pairKey = [rel.from, rel.to].sort().join('|');
+                  const group = pairGroups[pairKey] || [rel.id];
+                  const gIdx = group.indexOf(rel.id);
+                  const gCount = group.length;
+                  const lateralPx = gCount > 1 ? (gIdx - (gCount-1)/2) * 52 : 0;
+                  const len = Math.sqrt(dx*dx + dy*dy) || 1;
+                  const ox = (-dy/len) * lateralPx, oy = (dx/len) * lateralPx;
+
+                  const cp1x = (vert ? sx : sx + dx*0.4) + ox;
+                  const cp1y = (vert ? sy + dy*0.4 : sy) + oy;
+                  const cp2x = (vert ? ex : ex - dx*0.4) + ox;
+                  const cp2y = (vert ? ey - dy*0.4 : ey) + oy;
+                  const lx = (sx+ex)/2 + ox, ly = (sy+ey)/2 + oy;
+                  const rm = REL.find(r => r.v === rel.type) || REL[0];
+                  return (
+                    <g key={rel.id}>
+                      <path d={`M${sx},${sy} C${cp1x},${cp1y} ${cp2x},${cp2y} ${ex},${ey}`}
+                        fill="none" stroke={rm.c} strokeWidth="1.5" opacity="0.55"
+                        strokeDasharray={rel.type === 'aware_of' ? '5,4' : undefined}
+                        markerEnd={`url(#arr-${rel.type})`} />
+                      <rect x={lx-30} y={ly-9} width={60} height={16} rx={4} fill={th.bg} opacity="0.88" />
+                      <text x={lx} y={ly+4} fill={rm.c} fontSize="9.5" textAnchor="middle"
+                        opacity="0.9" fontFamily="'DM Sans',sans-serif" fontWeight="500">{rm.l}</text>
+                    </g>
+                  );
+                });
+              })()}
             </svg>
 
             {/* Part Cards */}
@@ -865,6 +933,14 @@
             })}
           </div>
         </div>
+
+        {/* Suggestions panel */}
+        {suggestions.length > 0 && (
+          <SuggestionsPanel suggestions={suggestions} parts={parts} onAddRel={onAddRel} th={th} />
+        )}
+
+        {/* IFS Walkthrough modal */}
+        {showWalkthru && <WalkthroughModal onClose={() => setShowWalkthru(false)} th={th} />}
 
         {/* Legend */}
         <div style={{ display:'flex', gap:18, padding:'8px 18px', borderTop:`1px solid ${th.border}`,
@@ -1407,7 +1483,272 @@ create policy "own" on sessions      for all using (auth.uid() = user_id);
   // ═══════════════════════════════════════════════════════
   //  SHARED HELPERS
   // ═══════════════════════════════════════════════════════
-  function Sec({ title, children, th }) {
+  // ═══════════════════════════════════════════════════════
+  //  SUGGESTIONS PANEL
+  // ═══════════════════════════════════════════════════════
+  function SuggestionsPanel({ suggestions, parts, onAddRel, th }) {
+    const [dismissed, setDismissed] = useState(new Set());
+    const [expanded,  setExpanded]  = useState(false);
+
+    const visible = suggestions.filter(s => !dismissed.has(`${s.fromId}|${s.toId}|${s.type}`));
+    if (visible.length === 0) return null;
+
+    const shown = expanded ? visible : visible.slice(0, 3);
+
+    const connect = (s) => {
+      onAddRel({ from:s.fromId, to:s.toId, type:s.type });
+      setDismissed(d => new Set([...d, `${s.fromId}|${s.toId}|${s.type}`]));
+    };
+    const dismiss = (s) => setDismissed(d => new Set([...d, `${s.fromId}|${s.toId}|${s.type}`]));
+
+    return (
+      <div style={{ background:th.subtle, borderTop:`1px solid ${th.border}`,
+        padding:'10px 18px', flexShrink:0 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+          <span style={{ fontSize:13, color:th.self }}>💡</span>
+          <span style={{ fontSize:11, color:th.muted, fontWeight:500, flex:1 }}>
+            {visible.length} suggested connection{visible.length !== 1 ? 's' : ''} based on your parts
+          </span>
+          {visible.length > 3 && (
+            <button onClick={() => setExpanded(e => !e)}
+              style={{ ...BS('none', th.muted), fontSize:11, padding:0 }}>
+              {expanded ? 'Show less' : `Show all ${visible.length}`}
+            </button>
+          )}
+        </div>
+        <div style={{ display:'flex', gap:7, flexWrap:'wrap' }}>
+          {shown.map(s => {
+            const key = `${s.fromId}|${s.toId}|${s.type}`;
+            const rm = REL.find(r => r.v === s.type) || REL[0];
+            return (
+              <div key={key} style={{ background:th.card, border:`1px solid ${th.border}`,
+                borderRadius:8, padding:'6px 10px', display:'flex', alignItems:'center', gap:8,
+                maxWidth: '100%' }}>
+                <div style={{ minWidth:0 }}>
+                  <div style={{ fontSize:11, color:th.text, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                    <span style={{ color:th.muted }}>{s.from}</span>
+                    <span style={{ color:rm.c, margin:'0 4px' }}>→ {rm.l.toLowerCase()} →</span>
+                    <span style={{ color:th.muted }}>{s.to}</span>
+                  </div>
+                  <div style={{ fontSize:10, color:th.muted, marginTop:2, fontStyle:'italic',
+                    whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', maxWidth:280 }}>
+                    {s.note}
+                  </div>
+                </div>
+                <button onClick={() => connect(s)}
+                  style={{ ...BS(rm.c+'22', rm.c), padding:'4px 10px', fontSize:11,
+                    border:`1px solid ${rm.c}55`, flexShrink:0 }}>
+                  Connect
+                </button>
+                <button onClick={() => dismiss(s)}
+                  style={{ ...BS('none', th.faint), fontSize:14, padding:'0 2px', border:'none', flexShrink:0 }}>✕</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  //  WALKTHROUGH MODAL
+  // ═══════════════════════════════════════════════════════
+  function MiniCircle({ x, y, em, label, color, r=28 }) {
+    return (
+      <g>
+        <circle cx={x} cy={y} r={r} fill={color+'20'} stroke={color} strokeWidth="1.5" />
+        <text x={x} y={y+1} textAnchor="middle" dominantBaseline="middle" fontSize={r > 22 ? 16 : 14}>{em}</text>
+        <text x={x} y={y+r+10} textAnchor="middle" fontSize="9" fill={color}
+          fontFamily="'DM Sans',sans-serif" fontWeight="600">{label}</text>
+      </g>
+    );
+  }
+
+  function MkArrow({ id, color }) {
+    return (
+      <marker id={id} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L6,3 z" fill={color} opacity="0.8" />
+      </marker>
+    );
+  }
+
+  function DiagramBasic({ th }) {
+    return (
+      <svg width="300" height="150" viewBox="0 0 300 150">
+        <defs><MkArrow id="da1" color={th.muted}/></defs>
+        <MiniCircle x={150} y={34}  em="✦"  label="Self"         color={th.self}  r={24} />
+        <MiniCircle x={60}  y={100} em="⚖️" label="Manager"      color={th.mgr}   r={28} />
+        <MiniCircle x={240} y={100} em="🔥" label="Firefighter"  color={th.ff}    r={28} />
+        <MiniCircle x={150} y={108} em="💙" label="Exile"        color={th.exile} r={24} />
+        <text x={150} y={140} textAnchor="middle" fontSize="9.5" fill={th.muted} fontFamily="'DM Sans',sans-serif">
+          Each part has a role — none are enemies
+        </text>
+      </svg>
+    );
+  }
+
+  function DiagramExile({ th }) {
+    return (
+      <svg width="300" height="150" viewBox="0 0 300 150">
+        <defs><MkArrow id="de1" color={th.exile}/></defs>
+        {[0,1,2].map(i => (
+          <circle key={i} cx={150} cy={90} r={38+i*14} fill="none"
+            stroke={th.exile} strokeWidth="0.6" opacity={0.25-i*0.06} />
+        ))}
+        <MiniCircle x={150} y={90} em="💙" label="Exile" color={th.exile} r={32} />
+        <text x={150} y={24} textAnchor="middle" fontSize="10.5" fill={th.exile}
+          fontFamily="'Cormorant Garamond',serif" fontStyle="italic">
+          Carries pain frozen in time
+        </text>
+        <text x={150} y={140} textAnchor="middle" fontSize="9.5" fill={th.muted} fontFamily="'DM Sans',sans-serif">
+          Shame, abandonment, helplessness, grief
+        </text>
+      </svg>
+    );
+  }
+
+  function DiagramManager({ th }) {
+    return (
+      <svg width="300" height="155" viewBox="0 0 300 155">
+        <defs><MkArrow id="dm1" color={th.mgr}/></defs>
+        <MiniCircle x={150} y={42}  em="⚖️" label="Inner Critic"  color={th.mgr}   r={30} />
+        <MiniCircle x={150} y={122} em="🫧"  label="Shame-Bearer" color={th.exile} r={24} />
+        <line x1="150" y1="74" x2="150" y2="96" stroke={th.mgr} strokeWidth="2" opacity="0.65" markerEnd="url(#dm1)" />
+        <rect x="116" y="80" width="68" height="15" rx="4" fill="none" />
+        <text x="150" y="90" textAnchor="middle" fontSize="9.5" fill={th.mgr}
+          fontFamily="'DM Sans',sans-serif" fontWeight="600">protects</text>
+        <text x={150} y={148} textAnchor="middle" fontSize="9" fill={th.muted} fontFamily="'DM Sans',sans-serif">
+          Managers work hard so Exiles never surface
+        </text>
+      </svg>
+    );
+  }
+
+  function DiagramFirefighter({ th }) {
+    return (
+      <svg width="300" height="155" viewBox="0 0 300 155">
+        <defs>
+          <MkArrow id="dff1" color={th.ff}/>
+          <MkArrow id="dff2" color={th.exile}/>
+        </defs>
+        <MiniCircle x={80}  y={88} em="🫧"  label="Exile floods"  color={th.exile} r={28} />
+        <MiniCircle x={220} y={88} em="🌊"  label="Numbing Agent" color={th.ff}    r={28} />
+        <path d="M110,76 Q150,36 190,76" fill="none" stroke={th.ff}
+          strokeWidth="2" opacity="0.7" markerEnd="url(#dff1)" />
+        <path d="M190,102 Q150,140 110,102" fill="none" stroke={th.exile}
+          strokeWidth="1.5" opacity="0.5" strokeDasharray="4,3" markerEnd="url(#dff2)" />
+        <text x="150" y="30" textAnchor="middle" fontSize="9.5" fill={th.ff}
+          fontFamily="'DM Sans',sans-serif" fontWeight="600">triggers →</text>
+        <text x="150" y="148" textAnchor="middle" fontSize="9" fill={th.exile}
+          fontFamily="'DM Sans',sans-serif" opacity="0.7">↻ behaviour creates more shame</text>
+      </svg>
+    );
+  }
+
+  function DiagramFull({ th }) {
+    return (
+      <svg width="300" height="160" viewBox="0 0 300 160">
+        <defs>
+          <MkArrow id="df-s" color={th.self}/>
+          <MkArrow id="df-m" color={th.mgr}/>
+          <MkArrow id="df-e" color={th.exile}/>
+          <MkArrow id="df-f" color={th.ff}/>
+        </defs>
+        <MiniCircle x={150} y={30}  em="✦"  label="Self"         color={th.self}  r={22} />
+        <MiniCircle x={65}  y={95}  em="⚖️" label="Manager"      color={th.mgr}   r={24} />
+        <MiniCircle x={235} y={95}  em="🌊"  label="Firefighter"  color={th.ff}    r={24} />
+        <MiniCircle x={150} y={130} em="💙"  label="Exile"        color={th.exile} r={22} />
+        <line x1="128" y1="42"  x2="86"  y2="72"  stroke={th.self} strokeWidth="1.2" opacity="0.5" markerEnd="url(#df-s)" />
+        <line x1="172" y1="42"  x2="214" y2="72"  stroke={th.self} strokeWidth="1.2" opacity="0.5" markerEnd="url(#df-s)" />
+        <line x1="150" y1="52"  x2="150" y2="106" stroke={th.self} strokeWidth="1.2" opacity="0.5" markerEnd="url(#df-s)" />
+        <line x1="82"  y1="118" x2="126" y2="128" stroke={th.mgr}   strokeWidth="1.5" opacity="0.65" markerEnd="url(#df-m)" />
+        <line x1="174" y1="128" x2="218" y2="118" stroke={th.exile} strokeWidth="1.5" opacity="0.55" markerEnd="url(#df-e)" />
+        <text x="150" y="155" textAnchor="middle" fontSize="9.5" fill={th.self}
+          fontFamily="'DM Sans',sans-serif">Self holds space for all of them</text>
+      </svg>
+    );
+  }
+
+  function WalkthroughModal({ onClose, th }) {
+    const [step, setStep] = useState(0);
+    const steps = [
+      { title:"You contain multitudes",
+        body:"Internal Family Systems sees the mind as containing many sub-personalities — called parts — each one trying to protect you in its own way. Rather than being problems to fix, every part has good intentions, even when its behavior causes harm.",
+        diagram:<DiagramBasic th={th}/> },
+      { title:"Exiles: where old pain lives",
+        body:"Some parts carry the weight of past experiences — moments of hurt, shame, abandonment, or helplessness. These are Exiles. They hold the original wounds, often frozen in time from when they first formed, and they long to be seen and healed.",
+        diagram:<DiagramExile th={th}/> },
+      { title:"Managers: keeping the lid on",
+        body:"To protect you from Exile pain resurfacing, Manager parts work proactively — through perfectionism, self-criticism, control, people-pleasing, or overthinking. Their intention is good: keep things stable so the old pain stays buried.",
+        diagram:<DiagramManager th={th}/> },
+      { title:"Firefighters: emergency responders",
+        body:"When Exiles push through despite the Managers, Firefighter parts react fast and without negotiation — numbing, raging, dissociating, or chasing intensity — anything to extinguish the emotional fire, even if it causes collateral damage.",
+        diagram:<DiagramFirefighter th={th}/> },
+      { title:"Self: your core presence",
+        body:"Beneath all the parts is Self — not another part, but your fundamental nature: calm, curious, compassionate, and connected. The goal of IFS isn't to eliminate parts, but to help Self build a relationship with each one so they can finally rest.",
+        diagram:<DiagramFull th={th}/> },
+    ];
+    const s = steps[step];
+    return (
+      <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.72)', zIndex:200,
+        display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+        onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+        <div style={{ background:th.card, borderRadius:16, maxWidth:520, width:'100%',
+          border:`1px solid ${th.border}`, overflow:'hidden', display:'flex', flexDirection:'column' }}>
+
+          {/* Progress bar */}
+          <div style={{ height:3, background:th.faint, flexShrink:0 }}>
+            <div style={{ height:'100%', background:th.self, transition:'width 0.3s',
+              width:`${((step+1)/steps.length)*100}%` }} />
+          </div>
+
+          {/* Diagram */}
+          <div style={{ background:th.subtle, display:'flex', justifyContent:'center',
+            alignItems:'center', padding:'20px 0', flexShrink:0 }}>
+            {s.diagram}
+          </div>
+
+          {/* Text */}
+          <div style={{ padding:'22px 26px', flex:1 }}>
+            <div style={{ fontSize:10.5, color:th.muted, textTransform:'uppercase',
+              letterSpacing:'0.1em', marginBottom:8 }}>
+              {step+1} of {steps.length}
+            </div>
+            <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:26, fontWeight:600,
+              color:th.text, margin:'0 0 10px', lineHeight:1.2 }}>
+              {s.title}
+            </h2>
+            <p style={{ color:th.muted, fontSize:13.5, lineHeight:1.78, margin:0 }}>{s.body}</p>
+          </div>
+
+          {/* Nav */}
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center',
+            padding:'14px 26px', borderTop:`1px solid ${th.border}`, flexShrink:0 }}>
+            <button onClick={() => step > 0 ? setStep(s => s-1) : onClose()}
+              style={{ ...BS(th.subtle, th.muted), padding:'8px 16px', border:`1px solid ${th.border}` }}>
+              {step === 0 ? 'Close' : '← Back'}
+            </button>
+            <div style={{ display:'flex', gap:7 }}>
+              {steps.map((_, i) => (
+                <div key={i} onClick={() => setStep(i)}
+                  style={{ width:7, height:7, borderRadius:'50%', cursor:'pointer',
+                    background: i === step ? th.self : th.faint,
+                    transition:'background 0.2s' }} />
+              ))}
+            </div>
+            {step < steps.length-1
+              ? <button onClick={() => setStep(s => s+1)}
+                  style={{ ...BS(th.self, th.bg), padding:'8px 18px' }}>Next →</button>
+              : <button onClick={onClose}
+                  style={{ ...BS(th.self, th.bg), padding:'8px 18px' }}>Start mapping</button>
+            }
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+    function Sec({ title, children, th }) {
     return (
       <div style={{ marginBottom:28 }}>
         <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, fontWeight:600, color:th.text, margin:'0 0 14px' }}>{title}</h2>
