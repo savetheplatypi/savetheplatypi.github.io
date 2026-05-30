@@ -1292,30 +1292,6 @@ function SettingsView({ parts, rels, pnotes, sessions, onImport, th, user, dbSta
     <div style={{ flex:1, overflowY:'auto', padding:isMob?'20px 16px':'34px 44px' }}>
       <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600, margin:'0 0 30px', color:th.text }}>Settings</h1>
 
-      <Sec title="Firebase Setup" th={th}>
-        <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
-          To enable data sync, paste your Firebase project config at the top of <code style={{ color:th.self }}>index.html</code>, then complete these steps once:
-        </p>
-        <ol style={{ fontSize:13, color:th.muted, lineHeight:2.1, paddingLeft:20, margin:'0 0 14px' }}>
-          <li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noreferrer" style={{ color:th.self }}>console.firebase.google.com</a> → create a project</li>
-          <li><strong style={{ color:th.text }}>Build → Firestore Database</strong> → Create database → Start in production mode</li>
-          <li><strong style={{ color:th.text }}>Authentication → Sign-in method</strong> → Enable Google</li>
-          <li><strong style={{ color:th.text }}>Authentication → Settings → Authorized domains</strong> → add your GitHub Pages URL</li>
-          <li><strong style={{ color:th.text }}>Project Settings → Your apps</strong> → add a web app → copy the config object</li>
-          <li>Paste the config into the <code style={{ color:th.self }}>FIREBASE_CONFIG</code> at the top of index.html</li>
-          <li><strong style={{ color:th.text }}>Firestore → Rules</strong> → paste and publish the rules below</li>
-        </ol>
-        <div style={{ background:th.subtle, borderRadius:8, padding:'12px 14px', fontFamily:'monospace', fontSize:11, color:th.text, lineHeight:1.8, overflowX:'auto', whiteSpace:'pre' }}>{`rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == userId;
-    }
-  }
-}`}</div>
-      </Sec>
-
       <Sec title="Share with Therapist" th={th}>
         <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
           Generate a token to share your map. Your therapist opens your GitHub Pages URL with <code style={{ color:th.self }}>?token=…</code> appended.
