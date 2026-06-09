@@ -667,15 +667,27 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
   const [relFrom,      setRelFrom]      = useState(null);
   const [relType,      setRelType]      = useState('protects');
   const [mapW,         setMapW]         = useState(1000);
+  const [containerW,   setContainerW]   = useState(800);
   const [showWalkthru, setShowWalkthru] = useState(false);
   const [hoveredRel,   setHoveredRel]   = useState(null);
   const [tooltipPos,   setTooltipPos]   = useState({ x:0, y:0 });
+  const mapContainerRef = useRef();
   const suggestions = getSuggestions(parts, rels);
 
   useEffect(() => {
     const max = parts.reduce((m,p) => Math.max(m,(p.posX||0)+CW+60), 800);
     setMapW(max);
   }, [parts]);
+
+  // Track visible container width so Self card is centred in viewport, not in scrollable canvas
+  useEffect(() => {
+    const el = mapContainerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setContainerW(el.offsetWidth));
+    ro.observe(el);
+    setContainerW(el.offsetWidth);
+    return () => ro.disconnect();
+  }, []);
 
   const handleCardClick = id => {
     if (relMode==='pick-first') { setRelFrom(id); setRelMode('pick-second'); }
@@ -796,7 +808,7 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
       </div>
 
       {/* Canvas */}
-      <div style={{ flex:1, overflowX:'auto', overflowY:'auto', position:'relative' }}>
+      <div ref={mapContainerRef} style={{ flex:1, overflowX:'auto', overflowY:'auto', position:'relative' }}>
         <div style={{ position:'relative', width:mapW, height:MAPH+60, minWidth:'100%' }}>
 
           {/* Tier labels + dividers */}
@@ -917,8 +929,8 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
                   onClick={() => { if (!drag.current.moved) handleCardClick(part.id); }}
                   onTouchEnd={e => handleTouchEnd(e, part)}
                   style={{ position:'absolute',
-                    left:'50%', transform:'translateX(-50%)',
-                    top:TY.self, width:210, cursor:'pointer', userSelect:'none',
+                    left: Math.max(10, Math.min(containerW, mapW) / 2 - 105),
+                    top:TY.self, width:210, minHeight:84, cursor:'pointer', userSelect:'none',
                     borderRadius:14,
                     border:`1.5px solid ${th.self}`,
                     background: isSel ? th.self+'28' : th.card,
@@ -1343,30 +1355,6 @@ function SettingsView({ parts, rels, pnotes, sessions, onImport, th, user, dbSta
   return (
     <div style={{ flex:1, overflowY:'auto', padding:isMob?'20px 16px':'34px 44px' }}>
       <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600, margin:'0 0 30px', color:th.text }}>Settings</h1>
-
-      <Sec title="Firebase Setup" th={th}>
-        <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
-          To enable data sync, paste your Firebase project config at the top of <code style={{ color:th.self }}>index.html</code>, then complete these steps once:
-        </p>
-        <ol style={{ fontSize:13, color:th.muted, lineHeight:2.1, paddingLeft:20, margin:'0 0 14px' }}>
-          <li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noreferrer" style={{ color:th.self }}>console.firebase.google.com</a> → create a project</li>
-          <li><strong style={{ color:th.text }}>Build → Firestore Database</strong> → Create database → Start in production mode</li>
-          <li><strong style={{ color:th.text }}>Authentication → Sign-in method</strong> → Enable Google</li>
-          <li><strong style={{ color:th.text }}>Authentication → Settings → Authorized domains</strong> → add your GitHub Pages URL</li>
-          <li><strong style={{ color:th.text }}>Project Settings → Your apps</strong> → add a web app → copy the config object</li>
-          <li>Paste the config into the <code style={{ color:th.self }}>FIREBASE_CONFIG</code> at the top of index.html</li>
-          <li><strong style={{ color:th.text }}>Firestore → Rules</strong> → paste and publish the rules below</li>
-        </ol>
-        <div style={{ background:th.subtle, borderRadius:8, padding:'12px 14px', fontFamily:'monospace', fontSize:11, color:th.text, lineHeight:1.8, overflowX:'auto', whiteSpace:'pre' }}>{`rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == userId;
-    }
-  }
-}`}</div>
-      </Sec>
 
       <Sec title="Share with Therapist" th={th}>
         <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
