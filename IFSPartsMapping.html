@@ -17,6 +17,14 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #3a3230; border-radius: 3px; }
+    @keyframes selfGlow {
+      0%, 100% { box-shadow: 0 0 10px 2px rgba(240,180,41,0.25), 0 0 0 1.5px rgba(240,180,41,0.5); }
+      50%       { box-shadow: 0 0 22px 6px rgba(240,180,41,0.4),  0 0 0 1.5px rgba(240,180,41,0.8); }
+    }
+    @keyframes selfGlowLight {
+      0%, 100% { box-shadow: 0 0 10px 2px rgba(184,136,10,0.2), 0 0 0 1.5px rgba(184,136,10,0.5); }
+      50%       { box-shadow: 0 0 22px 6px rgba(184,136,10,0.35), 0 0 0 1.5px rgba(184,136,10,0.8); }
+    }
   </style>
 </head>
 <body>
@@ -37,7 +45,7 @@ const firebaseConfig = {
   appId: "1:528702141047:web:384e6f33ab71a329dd0c72",
   measurementId: "G-JXM215EEM4"
 };
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
 const fdb  = firebase.firestore();
 
@@ -173,7 +181,8 @@ const LS = {
 
 const DEFAULT_SELF = {
   id:'self-0', name:'Self', type:'self', em:'✦',
-  desc:'The compassionate, curious, calm core presence. Not a part — your true nature.',
+  tag:'Compassionate witness to all parts',
+  desc:'Self is your core presence — not a part, but the stable ground beneath all parts. Characterised by the 8 Cs: Calm, Curiosity, Clarity, Compassion, Confidence, Creativity, Courage, and Connectedness. Parts can become aware of Self, and Self can hold space for every part without being overwhelmed.',
   posX:280, createdAt:new Date().toISOString(),
 };
 
@@ -793,6 +802,12 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
           {/* Tier labels + dividers */}
           {tiers.map((tier, i) => (
             <div key={tier.type}>
+              {/* Self tier gets a subtle golden background band */}
+              {tier.type === 'self' && (
+                <div style={{ position:'absolute', left:0, right:0, top:tier.y-22, height:120,
+                  background:`linear-gradient(180deg, ${th.self}08 0%, ${th.self}04 60%, transparent 100%)`,
+                  pointerEvents:'none' }} />
+              )}
               {i>0 && <div style={{ position:'absolute', left:0, right:0, top:tier.y-20, height:1, background:th.faint, opacity:0.6 }} />}
               <div style={{ position:'absolute', left:12, top:tier.y-18 }}>
                 <span style={{ fontSize:10, fontWeight:600, color:tc(tier.type,th), letterSpacing:'0.1em', textTransform:'uppercase', opacity:0.8 }}>{tier.label}</span>
@@ -887,12 +902,49 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
             </div>
           )}
 
-          {/* Part cards */}
+          {/* Part cards — Self gets special centred treatment */}
           {parts.map(part => {
-            const isFrom = relFrom === part.id;
-            const isSel  = selId   === part.id;
-            const color  = tc(part.type, th);
-            const glow   = isSel || isFrom;
+            const isFrom   = relFrom === part.id;
+            const isSel    = selId   === part.id;
+            const color    = tc(part.type, th);
+            const glow     = isSel || isFrom;
+            const isSelfPart = part.type === 'self';
+
+            if (isSelfPart) {
+              // Self: always centred in the canvas, wider card, glowing aura
+              return (
+                <div key={part.id}
+                  onClick={() => { if (!drag.current.moved) handleCardClick(part.id); }}
+                  onTouchEnd={e => handleTouchEnd(e, part)}
+                  style={{ position:'absolute',
+                    left:'50%', transform:'translateX(-50%)',
+                    top:TY.self, width:210, cursor:'pointer', userSelect:'none',
+                    borderRadius:14,
+                    border:`1.5px solid ${th.self}`,
+                    background: isSel ? th.self+'28' : th.card,
+                    animation:'selfGlow 3s ease-in-out infinite',
+                    transition:'background 0.2s',
+                    display:'flex', flexDirection:'column', alignItems:'center',
+                    justifyContent:'center', padding:'10px 16px', zIndex:isSel?3:2,
+                    textAlign:'center' }}>
+                  {/* Radial glow behind symbol */}
+                  <div style={{ position:'relative', marginBottom:4 }}>
+                    <div style={{ position:'absolute', inset:-8, borderRadius:'50%',
+                      background:`radial-gradient(circle, ${th.self}30 0%, transparent 70%)`,
+                      pointerEvents:'none' }} />
+                    <span style={{ fontSize:22, lineHeight:1, position:'relative' }}>✦</span>
+                  </div>
+                  <span style={{ fontSize:13.5, fontWeight:600, color:th.self, letterSpacing:'0.02em', lineHeight:1.2 }}>
+                    Self
+                  </span>
+                  <span style={{ fontSize:9.5, color:th.muted, marginTop:3, lineHeight:1.3 }}>
+                    {part.tag || 'Compassionate witness'}
+                  </span>
+                </div>
+              );
+            }
+
+            // Regular parts
             return (
               <div key={part.id}
                 onMouseDown={e => handleMouseDown(e, part)}
@@ -1291,6 +1343,30 @@ function SettingsView({ parts, rels, pnotes, sessions, onImport, th, user, dbSta
   return (
     <div style={{ flex:1, overflowY:'auto', padding:isMob?'20px 16px':'34px 44px' }}>
       <h1 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:36, fontWeight:600, margin:'0 0 30px', color:th.text }}>Settings</h1>
+
+      <Sec title="Firebase Setup" th={th}>
+        <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
+          To enable data sync, paste your Firebase project config at the top of <code style={{ color:th.self }}>index.html</code>, then complete these steps once:
+        </p>
+        <ol style={{ fontSize:13, color:th.muted, lineHeight:2.1, paddingLeft:20, margin:'0 0 14px' }}>
+          <li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noreferrer" style={{ color:th.self }}>console.firebase.google.com</a> → create a project</li>
+          <li><strong style={{ color:th.text }}>Build → Firestore Database</strong> → Create database → Start in production mode</li>
+          <li><strong style={{ color:th.text }}>Authentication → Sign-in method</strong> → Enable Google</li>
+          <li><strong style={{ color:th.text }}>Authentication → Settings → Authorized domains</strong> → add your GitHub Pages URL</li>
+          <li><strong style={{ color:th.text }}>Project Settings → Your apps</strong> → add a web app → copy the config object</li>
+          <li>Paste the config into the <code style={{ color:th.self }}>FIREBASE_CONFIG</code> at the top of index.html</li>
+          <li><strong style={{ color:th.text }}>Firestore → Rules</strong> → paste and publish the rules below</li>
+        </ol>
+        <div style={{ background:th.subtle, borderRadius:8, padding:'12px 14px', fontFamily:'monospace', fontSize:11, color:th.text, lineHeight:1.8, overflowX:'auto', whiteSpace:'pre' }}>{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+  }
+}`}</div>
+      </Sec>
 
       <Sec title="Share with Therapist" th={th}>
         <p style={{ fontSize:13, color:th.muted, lineHeight:1.75, marginBottom:16 }}>
