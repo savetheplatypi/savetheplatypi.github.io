@@ -158,6 +158,10 @@ function getSuggestions(parts, rels) {
 const CW = 154, CH = 78, CG = 18;
 const TY = { self:44, manager:206, firefighter:328, exile:468 };
 const MAPH = 610;
+// Canvas offset: Self tier is now a separate row above the canvas.
+// Subtract YOFF from TY values so managers start at y=30 in the canvas.
+const YOFF = TY.manager - 30;  // = 176
+const CANVAS_H = (TY.exile - YOFF) + CH + 80;  // ≈ 450
 
 // Clip a line to the card edge so arrowheads land on the border, not buried inside
 function cardEdge(cx, cy, tx, ty) {
@@ -268,7 +272,14 @@ function App() {
     try {
       const data = await fbLoadAll(uid);
       if (data.parts.length > 0) {
-        setParts(data.parts);
+        // Ensure a Self part always exists — add it if Firebase doesn't have one
+        const loaded = data.parts;
+        if (!loaded.find(p => p.type === 'self')) {
+          const selfFallback = LS.get('ifs_p')?.find(p => p.type === 'self') || DEFAULT_SELF;
+          loaded.push(selfFallback);
+          fbSavePart(uid, selfFallback).catch(console.error);
+        }
+        setParts(loaded);
       } else {
         const localParts = LS.get('ifs_p') || [DEFAULT_SELF];
         for (const p of localParts) await fbSavePart(uid, p);
@@ -670,14 +681,12 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
   const [showWalkthru, setShowWalkthru] = useState(false);
   const [hoveredRel,   setHoveredRel]   = useState(null);
   const [tooltipPos,   setTooltipPos]   = useState({ x:0, y:0 });
-  const mapContainerRef = useRef();
   const suggestions = getSuggestions(parts, rels);
 
   useEffect(() => {
     const max = parts.reduce((m,p) => Math.max(m,(p.posX||0)+CW+60), 800);
     setMapW(max);
   }, [parts]);
-
 
   const handleCardClick = id => {
     if (relMode==='pick-first') { setRelFrom(id); setRelMode('pick-second'); }
@@ -799,9 +808,9 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
 
       {/* ── Self Row ── always centred, never scrolls ──────────────────── */}
       {(() => {
-        const sp    = parts.find(p => p.type==='self');
-        const isSel = selId === sp?.id;
-        const isFrom= relFrom === sp?.id;
+        const sp     = parts.find(p => p.type === 'self');
+        const isSel  = selId  === sp?.id;
+        const isFrom = relFrom === sp?.id;
         if (!sp) return null;
         return (
           <div style={{ flexShrink:0, height:116, position:'relative',
@@ -815,18 +824,20 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
             <div
               onClick={() => handleCardClick(sp.id)}
               onTouchEnd={e => handleTouchEnd(e, sp)}
-              style={{ width:224, cursor:'pointer',
-                borderRadius:14, border:`2px solid ${isSel||isFrom ? th.self : th.self+'99'}`,
+              style={{ width:224, cursor:'pointer', userSelect:'none',
+                borderRadius:14,
+                border:`2px solid ${isSel||isFrom ? th.self : th.self+'aa'}`,
                 background: isSel ? th.self+'28' : th.subtle,
-                boxShadow:`0 0 24px 6px ${th.self}28, inset 0 0 0 1px ${th.self}22`,
+                boxShadow:`0 0 24px 6px ${th.self}28, inset 0 0 0 1px ${th.self}18`,
                 display:'flex', flexDirection:'column', alignItems:'center',
-                padding:'10px 16px', textAlign:'center', transition:'all 0.2s',
-                position:'relative' }}>
+                padding:'10px 16px', textAlign:'center', transition:'all 0.2s' }}>
               <div style={{ position:'relative', marginBottom:5 }}>
                 <div style={{ position:'absolute', top:-14, left:-14, right:-14, bottom:-14,
-                  borderRadius:'50%', background:`radial-gradient(circle,${th.self}40 0%,transparent 65%)`,
+                  borderRadius:'50%',
+                  background:`radial-gradient(circle,${th.self}40 0%,transparent 65%)`,
                   pointerEvents:'none' }} />
-                <span style={{ fontSize:28, lineHeight:1, position:'relative', filter:`drop-shadow(0 0 6px ${th.self}99)` }}>✦</span>
+                <span style={{ fontSize:28, lineHeight:1, position:'relative',
+                  filter:`drop-shadow(0 0 6px ${th.self}99)` }}>✦</span>
               </div>
               <span style={{ fontSize:14, fontWeight:600, color:th.self, letterSpacing:'0.03em' }}>Self</span>
               <span style={{ fontSize:10, color:th.muted, marginTop:3, lineHeight:1.4 }}>
@@ -839,19 +850,23 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
 
       {/* ── Scrollable Canvas — managers, firefighters, exiles ─────────── */}
       <div ref={mapContainerRef} style={{ flex:1, overflowX:'auto', overflowY:'auto', position:'relative' }}>
-        <div style={{ position:'relative', width:mapW, height:MAPH+60, minWidth:'100%' }}>
+        <div style={{ position:'relative', width:mapW, height:CANVAS_H, minWidth:'100%' }}>
 
-          {/* Tier labels + dividers — skip Self */}
-          {tiers.filter(t=>t.type!=='self').map((tier, i) => (
+          {/* Tier labels — skip Self, adjust y with YOFF */}
+          {tiers.filter(t => t.type !== 'self').map((tier) => (
             <div key={tier.type}>
-              <div style={{ position:'absolute', left:0, right:0, top:tier.y-20, height:1, background:th.faint, opacity:0.6 }} />
-              <div style={{ position:'absolute', left:12, top:tier.y-18 }}>
-                <span style={{ fontSize:10, fontWeight:600, color:tc(tier.type,th), letterSpacing:'0.1em', textTransform:'uppercase', opacity:0.8 }}>{tier.label}</span>
+              <div style={{ position:'absolute', left:0, right:0,
+                top:(tier.y - YOFF) - 20, height:1, background:th.faint, opacity:0.6 }} />
+              <div style={{ position:'absolute', left:12, top:(tier.y - YOFF) - 18 }}>
+                <span style={{ fontSize:10, fontWeight:600, color:tc(tier.type,th),
+                  letterSpacing:'0.1em', textTransform:'uppercase', opacity:0.8 }}>
+                  {tier.label}
+                </span>
               </div>
             </div>
           ))}
 
-          {/* SVG arrows — edge-clipped, offset for parallel pairs */}
+          {/* SVG arrows — Self connections skipped (shown in drawer connections tab) */}
           <svg
             style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', pointerEvents:'none', overflow:'visible' }}
             onMouseMove={e => {
@@ -866,18 +881,13 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
                 </marker>
               ))}
             </defs>
-
             {rels.map(rel => {
               const fp = parts.find(p => p.id === rel.from);
               const tp = parts.find(p => p.id === rel.to);
               if (!fp || !tp) return null;
-              // Self is rendered outside the canvas — skip its arrows here
               if (fp.type === 'self' || tp.type === 'self') return null;
-
-              const scx = (fp.posX||0) + CW/2, scy = TY[fp.type] + CH/2;
-              const ecx = (tp.posX||0) + CW/2, ecy = TY[tp.type] + CH/2;
-
-              // Lateral offset for parallel arrows between same pair
+              const scx = (fp.posX||0) + CW/2, scy = (TY[fp.type]-YOFF) + CH/2;
+              const ecx = (tp.posX||0) + CW/2, ecy = (TY[tp.type]-YOFF) + CH/2;
               const pairKey = [rel.from, rel.to].sort().join('|');
               const group   = pairGroups[pairKey] || [rel.id];
               const gIdx    = group.indexOf(rel.id);
@@ -886,39 +896,29 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
               const len     = Math.sqrt((ecx-scx)**2+(ecy-scy)**2) || 1;
               const ox      = (-(ecy-scy)/len) * latPx;
               const oy      = ((ecx-scx)/len)  * latPx;
-
-              // Offset centers
-              const sx = scx + ox, sy = scy + oy;
-              const ex = ecx + ox, ey = ecy + oy;
-
-              // Clip to card edges so arrowhead lands on border
+              const sx = scx+ox, sy = scy+oy, ex = ecx+ox, ey = ecy+oy;
               const [ax, ay] = cardEdge(scx+ox, scy+oy, ecx+ox, ecy+oy);
               const [bx, by] = cardEdge(ecx+ox, ecy+oy, scx+ox, scy+oy);
-
               const dx = ex-sx, dy = ey-sy;
               const vert = Math.abs(dy) >= Math.abs(dx);
-              const cp1x = (vert ? sx : sx+dx*0.4) + ox*0;
-              const cp1y = (vert ? sy+dy*0.4 : sy) + oy*0;
-              const cp2x = (vert ? ex : ex-dx*0.4) + ox*0;
-              const cp2y = (vert ? ey-dy*0.4 : ey) + oy*0;
+              const cp1x = vert ? sx : sx+dx*0.4;
+              const cp1y = vert ? sy+dy*0.4 : sy;
+              const cp2x = vert ? ex : ex-dx*0.4;
+              const cp2y = vert ? ey-dy*0.4 : ey;
               const lx = (ax+bx)/2, ly = (ay+by)/2;
-              const rm = REL.find(r => r.v === rel.type) || REL[0];
+              const rm    = REL.find(r => r.v === rel.type) || REL[0];
               const isHov = hoveredRel === rel.id;
-
               return (
                 <g key={rel.id} style={{ pointerEvents:'all' }}>
-                  {/* Wide invisible hit area */}
                   <path d={`M${ax},${ay} C${cp1x},${cp1y} ${cp2x},${cp2y} ${bx},${by}`}
                     fill="none" stroke="transparent" strokeWidth="14"
                     onMouseEnter={() => setHoveredRel(rel.id)}
                     onMouseLeave={() => setHoveredRel(null)} />
-                  {/* Visible line */}
                   <path d={`M${ax},${ay} C${cp1x},${cp1y} ${cp2x},${cp2y} ${bx},${by}`}
                     fill="none" stroke={rm.c} strokeWidth={isHov ? 2.5 : 1.5}
                     opacity={isHov ? 0.9 : 0.55}
                     strokeDasharray={rel.type==='aware_of'?'5,4':undefined}
                     markerEnd={`url(#arr-${rel.type})`} />
-                  {/* Label pill */}
                   <rect x={lx-30} y={ly-9} width={60} height={16} rx={4} fill={th.bg} opacity="0.88" />
                   <text x={lx} y={ly+4} fill={rm.c} fontSize="9.5" textAnchor="middle"
                     opacity="0.9" fontFamily="'DM Sans',sans-serif" fontWeight="500">{rm.l}</text>
@@ -940,21 +940,20 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
             </div>
           )}
 
-          {/* Part cards — non-Self only (Self rendered above canvas) */}
+          {/* Part cards — non-Self only, adjusted y with YOFF */}
           {parts.filter(p => p.type !== 'self').map(part => {
-            const isFrom   = relFrom === part.id;
-            const isSel    = selId   === part.id;
-            const color    = tc(part.type, th);
-            const glow     = isSel || isFrom;
-
-            // Regular parts
+            const isFrom = relFrom === part.id;
+            const isSel  = selId   === part.id;
+            const color  = tc(part.type, th);
+            const glow   = isSel || isFrom;
             return (
               <div key={part.id}
                 onMouseDown={e => handleMouseDown(e, part)}
                 onClick={() => { if (!drag.current.moved) handleCardClick(part.id); }}
                 onTouchStart={e => handleTouchStart(e, part)}
                 onTouchEnd={e => handleTouchEnd(e, part)}
-                style={{ position:'absolute', left:part.posX||0, top:TY[part.type],
+                style={{ position:'absolute', left:part.posX||0,
+                  top:(TY[part.type] - YOFF),
                   width:CW, height:CH, cursor:'pointer', userSelect:'none', touchAction:'none',
                   borderRadius:10, border:`1.5px solid ${glow?color:th.border}`,
                   background:glow ? color+'1a' : th.card,
@@ -969,10 +968,13 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
                     {part.name}
                   </span>
                 </div>
-                {part.tag && <div style={{ fontSize:10, color:th.muted, marginTop:3, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{part.tag}</div>}
+                {part.tag && <div style={{ fontSize:10, color:th.muted, marginTop:3,
+                  overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{part.tag}</div>}
                 <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:4 }}>
-                  <div style={{ fontSize:9.5, color, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>{part.type}</div>
-                  {part.isLegacy && <span style={{ fontSize:9, background:'#8a6a9a33', color:'#c09adc', padding:'1px 5px', borderRadius:4, fontWeight:600 }}>LEGACY</span>}
+                  <div style={{ fontSize:9.5, color, fontWeight:600,
+                    textTransform:'uppercase', letterSpacing:'0.08em' }}>{part.type}</div>
+                  {part.isLegacy && <span style={{ fontSize:9, background:'#8a6a9a33',
+                    color:'#c09adc', padding:'1px 5px', borderRadius:4, fontWeight:600 }}>LEGACY</span>}
                 </div>
               </div>
             );
