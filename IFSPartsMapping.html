@@ -667,7 +667,6 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
   const [relFrom,      setRelFrom]      = useState(null);
   const [relType,      setRelType]      = useState('protects');
   const [mapW,         setMapW]         = useState(1000);
-  const [containerW,   setContainerW]   = useState(800);
   const [showWalkthru, setShowWalkthru] = useState(false);
   const [hoveredRel,   setHoveredRel]   = useState(null);
   const [tooltipPos,   setTooltipPos]   = useState({ x:0, y:0 });
@@ -679,15 +678,6 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
     setMapW(max);
   }, [parts]);
 
-  // Track visible container width so Self card is centred in viewport, not in scrollable canvas
-  useEffect(() => {
-    const el = mapContainerRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setContainerW(el.offsetWidth));
-    ro.observe(el);
-    setContainerW(el.offsetWidth);
-    return () => ro.disconnect();
-  }, []);
 
   const handleCardClick = id => {
     if (relMode==='pick-first') { setRelFrom(id); setRelMode('pick-second'); }
@@ -807,20 +797,54 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
         )}
       </div>
 
-      {/* Canvas */}
+      {/* ── Self Row ── always centred, never scrolls ──────────────────── */}
+      {(() => {
+        const sp    = parts.find(p => p.type==='self');
+        const isSel = selId === sp?.id;
+        const isFrom= relFrom === sp?.id;
+        if (!sp) return null;
+        return (
+          <div style={{ flexShrink:0, height:116, position:'relative',
+            background:`linear-gradient(180deg,${th.self}0d 0%,transparent 100%)`,
+            borderBottom:`1px solid ${th.faint}`,
+            display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <span style={{ position:'absolute', top:8, left:12, fontSize:10, fontWeight:600,
+              color:th.self, letterSpacing:'0.1em', textTransform:'uppercase', opacity:0.7 }}>
+              ✦  Self
+            </span>
+            <div
+              onClick={() => handleCardClick(sp.id)}
+              onTouchEnd={e => handleTouchEnd(e, sp)}
+              style={{ width:224, cursor:'pointer',
+                borderRadius:14, border:`2px solid ${isSel||isFrom ? th.self : th.self+'99'}`,
+                background: isSel ? th.self+'28' : th.subtle,
+                boxShadow:`0 0 24px 6px ${th.self}28, inset 0 0 0 1px ${th.self}22`,
+                display:'flex', flexDirection:'column', alignItems:'center',
+                padding:'10px 16px', textAlign:'center', transition:'all 0.2s',
+                position:'relative' }}>
+              <div style={{ position:'relative', marginBottom:5 }}>
+                <div style={{ position:'absolute', top:-14, left:-14, right:-14, bottom:-14,
+                  borderRadius:'50%', background:`radial-gradient(circle,${th.self}40 0%,transparent 65%)`,
+                  pointerEvents:'none' }} />
+                <span style={{ fontSize:28, lineHeight:1, position:'relative', filter:`drop-shadow(0 0 6px ${th.self}99)` }}>✦</span>
+              </div>
+              <span style={{ fontSize:14, fontWeight:600, color:th.self, letterSpacing:'0.03em' }}>Self</span>
+              <span style={{ fontSize:10, color:th.muted, marginTop:3, lineHeight:1.4 }}>
+                {sp.tag || 'Compassionate witness to all parts'}
+              </span>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Scrollable Canvas — managers, firefighters, exiles ─────────── */}
       <div ref={mapContainerRef} style={{ flex:1, overflowX:'auto', overflowY:'auto', position:'relative' }}>
         <div style={{ position:'relative', width:mapW, height:MAPH+60, minWidth:'100%' }}>
 
-          {/* Tier labels + dividers */}
-          {tiers.map((tier, i) => (
+          {/* Tier labels + dividers — skip Self */}
+          {tiers.filter(t=>t.type!=='self').map((tier, i) => (
             <div key={tier.type}>
-              {/* Self tier gets a subtle golden background band */}
-              {tier.type === 'self' && (
-                <div style={{ position:'absolute', left:0, right:0, top:tier.y-22, height:120,
-                  background:`linear-gradient(180deg, ${th.self}08 0%, ${th.self}04 60%, transparent 100%)`,
-                  pointerEvents:'none' }} />
-              )}
-              {i>0 && <div style={{ position:'absolute', left:0, right:0, top:tier.y-20, height:1, background:th.faint, opacity:0.6 }} />}
+              <div style={{ position:'absolute', left:0, right:0, top:tier.y-20, height:1, background:th.faint, opacity:0.6 }} />
               <div style={{ position:'absolute', left:12, top:tier.y-18 }}>
                 <span style={{ fontSize:10, fontWeight:600, color:tc(tier.type,th), letterSpacing:'0.1em', textTransform:'uppercase', opacity:0.8 }}>{tier.label}</span>
               </div>
@@ -847,6 +871,8 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
               const fp = parts.find(p => p.id === rel.from);
               const tp = parts.find(p => p.id === rel.to);
               if (!fp || !tp) return null;
+              // Self is rendered outside the canvas — skip its arrows here
+              if (fp.type === 'self' || tp.type === 'self') return null;
 
               const scx = (fp.posX||0) + CW/2, scy = TY[fp.type] + CH/2;
               const ecx = (tp.posX||0) + CW/2, ecy = TY[tp.type] + CH/2;
@@ -914,47 +940,12 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
             </div>
           )}
 
-          {/* Part cards — Self gets special centred treatment */}
-          {parts.map(part => {
+          {/* Part cards — non-Self only (Self rendered above canvas) */}
+          {parts.filter(p => p.type !== 'self').map(part => {
             const isFrom   = relFrom === part.id;
             const isSel    = selId   === part.id;
             const color    = tc(part.type, th);
             const glow     = isSel || isFrom;
-            const isSelfPart = part.type === 'self';
-
-            if (isSelfPart) {
-              // Self: always centred in the canvas, wider card, glowing aura
-              return (
-                <div key={part.id}
-                  onClick={() => { if (!drag.current.moved) handleCardClick(part.id); }}
-                  onTouchEnd={e => handleTouchEnd(e, part)}
-                  style={{ position:'absolute',
-                    left: Math.max(10, Math.min(containerW, mapW) / 2 - 105),
-                    top:TY.self, width:210, minHeight:84, cursor:'pointer', userSelect:'none',
-                    borderRadius:14,
-                    border:`1.5px solid ${th.self}`,
-                    background: isSel ? th.self+'28' : th.card,
-                    animation:'selfGlow 3s ease-in-out infinite',
-                    transition:'background 0.2s',
-                    display:'flex', flexDirection:'column', alignItems:'center',
-                    justifyContent:'center', padding:'10px 16px', zIndex:isSel?3:2,
-                    textAlign:'center' }}>
-                  {/* Radial glow behind symbol */}
-                  <div style={{ position:'relative', marginBottom:4 }}>
-                    <div style={{ position:'absolute', inset:-8, borderRadius:'50%',
-                      background:`radial-gradient(circle, ${th.self}30 0%, transparent 70%)`,
-                      pointerEvents:'none' }} />
-                    <span style={{ fontSize:22, lineHeight:1, position:'relative' }}>✦</span>
-                  </div>
-                  <span style={{ fontSize:13.5, fontWeight:600, color:th.self, letterSpacing:'0.02em', lineHeight:1.2 }}>
-                    Self
-                  </span>
-                  <span style={{ fontSize:9.5, color:th.muted, marginTop:3, lineHeight:1.3 }}>
-                    {part.tag || 'Compassionate witness'}
-                  </span>
-                </div>
-              );
-            }
 
             // Regular parts
             return (
