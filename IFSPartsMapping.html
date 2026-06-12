@@ -681,6 +681,7 @@ function MapView({ parts, rels, selId, onSel, onMove, onAdd, onAddRel, onDelRel,
   const [showWalkthru, setShowWalkthru] = useState(false);
   const [hoveredRel,   setHoveredRel]   = useState(null);
   const [tooltipPos,   setTooltipPos]   = useState({ x:0, y:0 });
+  const mapContainerRef = useRef();
   const suggestions = getSuggestions(parts, rels);
 
   useEffect(() => {
